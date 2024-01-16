@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 
-class competition extends StatefulWidget {
+class CompetitionScreen extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<competition> {
+class _MyAppState extends State<CompetitionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(

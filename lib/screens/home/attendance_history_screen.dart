@@ -3,12 +3,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pie_chart/pie_chart.dart';
 
 
-class attendance_history extends StatefulWidget {
+class AttendanceHistoryScreen extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<attendance_history> {
+class _MyAppState extends State<AttendanceHistoryScreen> {
   Map<String, double> dataMap = {
     "출석": 3,
     "지각": 1,

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class record extends StatefulWidget {
-  const record({Key? key}) : super(key: key);
+class MyRecordScreen extends StatefulWidget {
+  const MyRecordScreen({Key? key}) : super(key: key);
 
   @override
-  State<record> createState() => _recordState();
+  State<MyRecordScreen> createState() => _recordState();
 }
 
-class _recordState extends State<record>
+class _recordState extends State<MyRecordScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
