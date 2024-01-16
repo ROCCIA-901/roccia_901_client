@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 
-class attendance extends StatefulWidget {
+class AttendScreen extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<attendance> {
+class _MyAppState extends State<AttendScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
