@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 
-class mypage extends StatefulWidget {
+class MyPageScreen extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<mypage> {
+class _MyAppState extends State<MyPageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(

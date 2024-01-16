@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'pages/home.dart';
-import 'pages/history/record.dart';
-import 'pages/competition.dart';
-import 'pages/mypage.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/history/my_record_screen.dart';
+import 'screens/competition/competition_screen.dart';
+import 'screens/mypage/my_page_screen.dart';
 
 void main() {
   initializeDateFormatting().then((_)=>
@@ -17,23 +17,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'bottomNavigationBar',
-      home: roccia(),
+      home: Roccia(),
     );
   }
 }
 
-class roccia extends StatefulWidget {
+class Roccia extends StatefulWidget {
   @override
-  _rocciaState createState() => _rocciaState();
+  _RocciaState createState() => _RocciaState();
 }
 
-class _rocciaState extends State<roccia> {
+class _RocciaState extends State<Roccia> {
   int currentIndex =0;
   final screens = [
-    home(),
-    record(),
-    competition(),
-    mypage(),
+    HomeScreen(),
+    MyRecordScreen(),
+    CompetitionScreen(),
+    MyPageScreen(),
   ];
   Widget build(BuildContext context) {
     return Scaffold(
