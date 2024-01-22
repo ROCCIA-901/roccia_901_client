@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:untitled/widgets/app_navigation_bar.dart';
 
-import 'screens/home/home_screen.dart';
-import 'screens/history/my_record_screen.dart';
-import 'screens/competition/competition_screen.dart';
-import 'screens/mypage/my_page_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/my_record_screen.dart';
+import 'screens/competition_screen.dart';
+import 'screens/my_page_screen.dart';
 
 void main() {
   initializeDateFormatting().then((_) => runApp(MyApp()));
@@ -27,7 +27,7 @@ class Roccia extends StatefulWidget {
 }
 
 class _RocciaState extends State<Roccia> {
-  int currentIndex =0;
+  int currentIndex = 0;
 
   final screens = [
     HomeScreen(),
