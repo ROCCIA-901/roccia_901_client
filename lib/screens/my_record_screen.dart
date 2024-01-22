@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class MyRecordScreen extends StatefulWidget {
   const MyRecordScreen({Key? key}) : super(key: key);
@@ -12,7 +11,6 @@ class MyRecordScreen extends StatefulWidget {
 class _recordState extends State<MyRecordScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
 
   final List<Widget> _tabs = [
     const Tab(text: "내 기록"),
@@ -67,9 +65,7 @@ class _recordState extends State<MyRecordScreen>
                   Column(
                     children: [
                       Container(
-                        child: Text(
-                          "내 기록"
-                        ),
+                        child: Text("내 기록"),
                         height: 550,
                         alignment: Alignment.center,
                       ),
@@ -83,10 +79,9 @@ class _recordState extends State<MyRecordScreen>
                       )
                     ],
                   ),
-                  Container(alignment: Alignment.center,
-                    child: Text(
-                        "랭킹"
-                    ),
+                  Container(
+                    alignment: Alignment.center,
+                    child: Text("랭킹"),
                   ),
                 ],
               ),
