@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:untitled/widgets/app_navigation_bar.dart';
 
-import 'screens/home_screen.dart';
+import 'screens/member_home_screen.dart';
 import 'screens/my_record_screen.dart';
 import 'screens/competition_screen.dart';
 import 'screens/my_page_screen.dart';
