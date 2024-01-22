@@ -30,7 +30,7 @@ class _RocciaState extends State<Roccia> {
   int currentIndex = 0;
 
   final screens = [
-    HomeScreen(),
+    MemberHomeScreen(),
     MyRecordScreen(),
     CompetitionScreen(),
     MyPageScreen(),
