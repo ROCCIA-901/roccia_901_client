@@ -14,7 +14,7 @@ class TmpAllScreenListScreen extends StatelessWidget {
       child: Container(
         height: 45,
         margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.only(left: 8),
+        padding: EdgeInsets.only(left: 12),
         alignment: Alignment.centerLeft,
         decoration: ShapeDecoration(
           color: Color(0xFFCAE4C1),
