@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/utils/bordered_text.dart';
+import 'package:untitled/widgets/bordered_text.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
