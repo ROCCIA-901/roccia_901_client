@@ -5,7 +5,7 @@ import 'package:untitled/widgets/app_navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'screens/member_home_screen.dart';
-import 'screens/record_screen/my_record_screen.dart';
+import 'screens/record_screen/my_record_tab.dart';
 import 'screens/competition_screen.dart';
 import 'screens/my_page_screen.dart';
 
@@ -39,7 +39,7 @@ class _RocciaState extends State<Roccia> {
 
   final screens = [
     MemberHomeScreen(),
-    MyRecordScreen(),
+    MyRecordTab(),
     CompetitionScreen(),
     MyPageScreen(),
   ];
