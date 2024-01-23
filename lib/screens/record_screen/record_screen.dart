@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:untitled/screens/record_screen/my_record_tab.dart';
+import 'package:untitled/screens/record_screen/ranking_tab.dart';
 
-class MyRecordScreen extends StatefulWidget {
-  const MyRecordScreen({Key? key}) : super(key: key);
+class RecordScreen extends StatefulWidget {
+  const RecordScreen({Key? key}) : super(key: key);
 
   @override
-  State<MyRecordScreen> createState() => _recordState();
+  State<RecordScreen> createState() => _RecordScreenState();
 }
 
-class _recordState extends State<MyRecordScreen>
+class _RecordScreenState extends State<RecordScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -62,27 +63,8 @@ class _recordState extends State<MyRecordScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  Column(
-                    children: [
-                      Container(
-                        child: Text("내 기록"),
-                        height: 550,
-                        alignment: Alignment.center,
-                      ),
-                      Container(
-                        child: InkWell(
-                          child: SvgPicture.asset(
-                            'assets/icons/record_myrecord.svg',
-                            height: 50,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Text("랭킹"),
-                  ),
+                  MyRecordTab(),
+                  RankingTab(),
                 ],
               ),
             ),
