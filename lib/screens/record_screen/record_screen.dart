@@ -14,8 +14,12 @@ class _RecordScreenState extends State<RecordScreen>
   late TabController _tabController;
 
   final List<Widget> _tabs = [
-    const Tab(text: "내 기록"),
-    const Tab(text: "랭킹"),
+    const Tab(
+      child: Text("내 기록", style: TextStyle(fontSize: 15)),
+    ),
+    const Tab(
+      child: Text("랭킹", style: TextStyle(fontSize: 15)),
+    ),
   ];
 
   @override
