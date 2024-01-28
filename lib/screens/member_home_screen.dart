@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:untitled/screens/attend_screen.dart';
+import 'package:untitled/screens/attendance_request_screen.dart';
 import 'package:untitled/screens/attendance_history_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class MemberHomeScreen extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<HomeScreen> {
+class _MyAppState extends State<MemberHomeScreen> {
   DateTime today = DateTime.now();
   void _onDaySelected(DateTime day, DateTime focusDay) {
     setState(() {
@@ -65,7 +65,7 @@ class _MyAppState extends State<HomeScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AttendScreen()));
+                              builder: (context) => AttendanceRequestScreen()));
                     },
                   ),
                 ),
