@@ -175,14 +175,14 @@ class RankingTurnGroup extends StatelessWidget {
 
     return SizedBox(
       width: double.maxFinite,
-      height: 35,
+      height: 30,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            padding: EdgeInsets.zero,
             visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
             onPressed: () {},
             icon: Icon(
               Icons.arrow_back_ios_new,
@@ -258,8 +258,18 @@ class RankingCriteriaButton extends StatelessWidget {
   }
 }
 
+/// 랭킹 목록
 class RankingListView extends StatelessWidget {
-  const RankingListView({super.key});
+  final RankingType rankingType;
+  final int rankingWeek;
+  final int rankingGeneration;
+
+  const RankingListView({
+    super.key,
+    required this.rankingType,
+    required this.rankingWeek,
+    required this.rankingGeneration,
+  });
 
   @override
   Widget build(BuildContext context) {
