@@ -44,4 +44,4 @@ app.*.map.json
 /android/app/release
 
 # Our custom ignore
-lib/config/contants.dart
+lib/config/app_config_constants.dart
