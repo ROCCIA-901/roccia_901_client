@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/screens/tmp_all_screen_list_screen.dart';
 import 'package:untitled/utils/app_routes.dart';
 import 'package:untitled/utils/app_theme.dart';
+import 'package:untitled/utils/size_config.dart';
 import 'package:untitled/widgets/app_navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'bottomNavigationBar',
