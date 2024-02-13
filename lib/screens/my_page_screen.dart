@@ -83,7 +83,7 @@ class _MyAppState extends State<MyPageScreen> {
             height: MediaQuery.of(context).size.width * (2 / 7),
             color: Color(0xfff8faed),
             child: SvgPicture.asset(
-              'assets/profile_5.svg',
+              'assets/profiles/profile_5.svg',
             ),
           ),
           Container(
