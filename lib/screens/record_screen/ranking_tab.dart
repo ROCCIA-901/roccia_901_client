@@ -310,7 +310,12 @@ class RankingCriteriaButton extends StatelessWidget {
           padding: EdgeInsets.zero,
           alignment: Alignment.bottomCenter,
         ),
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (_) => RankingCriteriaPopup(),
+          );
+        },
         icon: SvgPicture.asset(
           'assets/question_mark_circle.svg',
           color: Color(0xFFE0E0E0),
@@ -327,6 +332,25 @@ class RankingCriteriaButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 랭킹 기준 안내 팝업창
+class RankingCriteriaPopup extends StatelessWidget {
+  const RankingCriteriaPopup({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("랭킹 기준"),
+      content: Text(
+        "본인의 난이도 문제: 1점\n본인의 난이도보다 낮은 문제: 0.5점\n본인의 난이도보다 높은 문제: 2점",
+        style: TextStyle(color: Color(0xFF7B7B7B)),
+      ),
+      backgroundColor: Color(0xFFFFFFFF),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 }
