@@ -564,7 +564,7 @@ class MemberRankingCard extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
-                                  color: Color(0xFF000000),
+                                  color: Color(0xFF878787),
                                 ),
                               ),
                             ),
