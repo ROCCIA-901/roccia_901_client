@@ -32,9 +32,12 @@ class AttendanceApprovalScreen extends StatelessWidget {
           children: [
             /// "출석 요청 목록" Text
             Container(
+              width: double.maxFinite,
+              alignment: Alignment.centerLeft,
               margin: EdgeInsets.only(
                 top: SizeConfig.safeBlockVertical * 4,
-                bottom: SizeConfig.blockSizeVertical * 0.5,
+              ),
+              padding: EdgeInsets.only(
                 left: SizeConfig.safeBlockHorizontal * 6.667,
               ),
               child: Text(
