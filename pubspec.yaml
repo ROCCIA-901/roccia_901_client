@@ -33,4 +33,5 @@ flutter:
     - assets/
     - assets/banners/
     - assets/icons/
+    - assets/icons/buttons/
     - assets/profiles/
