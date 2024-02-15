@@ -224,7 +224,7 @@ class RankingTurnGroup extends StatelessWidget {
 
     return SizedBox(
       width: double.maxFinite,
-      height: 30,
+      height: SizeConfig.safeBlockVertical * 4,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -255,7 +255,7 @@ class RankingTurnGroup extends StatelessWidget {
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
             alignment: Alignment.center,
-            width: 240,
+            width: SizeConfig.safeBlockHorizontal * 55,
             child: Text(
               nowRanking,
               style: TextStyle(
@@ -300,11 +300,11 @@ class RankingCriteriaButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.zero,
+      margin: EdgeInsets.only(top: SizeConfig.safeBlockVertical * 0.3),
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
       alignment: Alignment.centerRight,
       width: double.maxFinite,
-      height: 30,
+      height: SizeConfig.safeBlockVertical * 3.0,
       child: TextButton.icon(
         style: TextButton.styleFrom(
           padding: EdgeInsets.zero,
@@ -409,7 +409,6 @@ class WeeklyRankingPageView extends StatelessWidget {
       child: PageView.builder(
         controller: pageController,
         onPageChanged: (int page) {
-          print('+_+ Weekly $page');
           changeWeek(page);
         },
         itemBuilder: pageItem,
@@ -441,7 +440,6 @@ class AllRankingPageView extends StatelessWidget {
       child: PageView.builder(
         controller: pageController,
         onPageChanged: (int page) {
-          print('+_+ All $page');
           changeGeneration(page);
         },
         itemBuilder: pageItem,
