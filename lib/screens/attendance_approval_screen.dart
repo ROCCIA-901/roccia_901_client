@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/utils/tmp_mock_data.dart';
 
-import '../utils/size_config.dart';
+import '../config/size_config.dart';
 
 class AttendanceApprovalScreen extends StatelessWidget {
   const AttendanceApprovalScreen({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/utils/size_config.dart';
+import 'package:untitled/config/size_config.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 
 class LoginScreen extends StatelessWidget {
