@@ -24,6 +24,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return MaterialApp(
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(1.0),
+          ),
+          child: child!,
+        );
+      },
       debugShowCheckedModeBanner: false,
       title: 'bottomNavigationBar',
       theme: AppTheme.lightTheme,
