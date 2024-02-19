@@ -93,3 +93,7 @@ enum Level {
 }
 
 /// Constants
+class AppConstants {
+  // 최신 기수 값
+  static const int maxGeneration = 11;
+}
