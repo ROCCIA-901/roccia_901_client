@@ -400,6 +400,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               /// 프로필 label
               InputLabel(label: '프로필'),
+              Container(
+                width: double.maxFinite,
+                padding: EdgeInsets.only(
+                  left: SizeConfig.safeBlockHorizontal * 0.5,
+                ),
+                margin:
+                    EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 1.5),
+                child: Text(
+                  "프로필로 사용할 이미지를 선택해 주세요.",
+                  style: GoogleFonts.roboto(
+                    fontSize: SizeConfig.safeBlockHorizontal * 4,
+                    color: Color(0xFFD1D3D9),
+                  ),
+                ),
+              ),
               ProfileSelection(
                 selectedProfileIndex: _profileIndex,
                 onTap: changeProfileIndex,
