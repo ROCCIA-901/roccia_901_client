@@ -90,10 +90,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: TextField(
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.done,
+                          style: GoogleFonts.roboto(
+                            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                            color: Colors.black,
+                          ),
                           decoration: InputDecoration(
                             labelText: '이메일을 입력해주세요.',
                             labelStyle: GoogleFonts.roboto(
-                              fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                              fontSize: SizeConfig.safeBlockHorizontal * 3.3,
                               color: Color(0xFFD1D3D9),
                             ),
                             contentPadding: EdgeInsets.symmetric(
@@ -155,6 +159,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: TextField(
                           keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.done,
+                          style: GoogleFonts.roboto(
+                            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                            color: Colors.black,
+                          ),
                           decoration: InputDecoration(
                             labelText: '1:00',
                             labelStyle: GoogleFonts.roboto(
@@ -224,6 +232,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     obscureText: true, // 비밀번호 숨김 처리
                     enableSuggestions: false, // 제안 비활성화
                     autocorrect: false, // 자동 검사 비활성화
+                    style: GoogleFonts.roboto(
+                      fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                      color: Colors.black,
+                    ),
                     decoration: InputDecoration(
                       labelText: '영문, 숫자, 특수문자를 포함하여 7자 이상 입력해 주세요.',
                       labelStyle: GoogleFonts.roboto(
@@ -269,6 +281,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     obscureText: true, // 비밀번호 숨김 처리
                     enableSuggestions: false, // 제안 비활성화
                     autocorrect: false, // 자동 검사 비활성화
+                    style: GoogleFonts.roboto(
+                      fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                      color: Colors.black,
+                    ),
                     decoration: InputDecoration(
                       labelText: '비밀번호를 다시 한번 입력해주세요.',
                       labelStyle: GoogleFonts.roboto(
@@ -308,6 +324,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: TextField(
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.done,
+                    style: GoogleFonts.roboto(
+                      fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                      color: Colors.black,
+                    ),
                     decoration: InputDecoration(
                       labelText: '본인 이름을 입력해 주세요.',
                       labelStyle: GoogleFonts.roboto(
@@ -397,6 +417,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   textInputAction: TextInputAction.newline,
                   maxLength: 300,
                   maxLines: 7,
+                  style: GoogleFonts.roboto(
+                    fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                    color: Colors.black,
+                  ),
                   decoration: InputDecoration(
                     hintText: '본인 소개 글을 작성해 주세요.(300자 이하)',
                     hintStyle: GoogleFonts.roboto(
@@ -526,7 +550,7 @@ class GenerationDropdown extends StatelessWidget {
               child: Text(
                 "${index + 1}기",
                 style: GoogleFonts.roboto(
-                  fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+                  fontSize: SizeConfig.safeBlockHorizontal * 3.5,
                   color: Color(0xFF4E5055),
                 ),
               ),
@@ -534,6 +558,10 @@ class GenerationDropdown extends StatelessWidget {
           ),
           value: selectedValue,
           onChanged: onChanged,
+          style: GoogleFonts.roboto(
+            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            color: Colors.black,
+          ),
           buttonStyleData: ButtonStyleData(
             width: double.maxFinite,
             height: SizeConfig.safeBlockHorizontal * 11.01,
@@ -607,7 +635,9 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
           hint: Text(
             hintText,
             style: GoogleFonts.roboto(
-              fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+              fontSize: (hintText.length > 25
+                  ? SizeConfig.safeBlockHorizontal * 3.0
+                  : SizeConfig.safeBlockHorizontal * 3.5),
               color: Color(0xFFD1D3D9),
             ),
             overflow: TextOverflow.ellipsis,
@@ -619,7 +649,7 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
               child: Text(
                 toName[value] ?? "error42",
                 style: GoogleFonts.roboto(
-                  fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+                  fontSize: SizeConfig.safeBlockHorizontal * 3.5,
                   color: Color(0xFF4E5055),
                 ),
               ),
