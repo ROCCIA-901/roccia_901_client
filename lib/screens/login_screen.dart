@@ -19,12 +19,12 @@ class LoginScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: SizeConfig.safeBlockVertical * 20),
+              SizedBox(height: SizeConfig.safeBlockVertical * 18),
 
               /// Placeholder for logo
               SvgPicture.asset(
                 'assets/roccia_full_logo.svg',
-                width: SizeConfig.safeBlockHorizontal * 45,
+                width: SizeConfig.safeBlockHorizontal * 50,
               ),
               SizedBox(height: SizeConfig.safeBlockVertical * 8),
 
