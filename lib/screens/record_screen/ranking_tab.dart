@@ -317,7 +317,7 @@ class RankingCriteriaButton extends StatelessWidget {
           );
         },
         icon: SvgPicture.asset(
-          'assets/question_mark_circle.svg',
+          'assets/icons/question_mark_circle.svg',
           color: Color(0xFFE0E0E0),
           width: SizeConfig.safeBlockHorizontal * 2.75,
         ),
