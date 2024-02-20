@@ -6,7 +6,7 @@ import 'dart:async';
 
 /// Countdown을 진행하며 초당 원하는 행동을 합니다.
 class CountdownTimer {
-  late Timer _timer;
+  Timer? _timer;
   late int _count;
 
   /// Countdown할 기간(sec)
@@ -43,7 +43,7 @@ class CountdownTimer {
   /// restart Countdown.
   /// Should call start() before this.
   void restart() {
-    _timer.cancel();
+    _timer?.cancel();
     start();
   }
 
@@ -51,6 +51,6 @@ class CountdownTimer {
   /// If you want start Countdown again,
   /// call start().
   void cancel() {
-    _timer.cancel();
+    _timer?.cancel();
   }
 }
