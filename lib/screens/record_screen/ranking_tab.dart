@@ -662,7 +662,7 @@ class MemberRankingCard extends StatelessWidget {
                 Positioned(
                   left: cardBlockSizeHorizontal * 87.0,
                   child: Container(
-                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 3),
+                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 1),
                     alignment: Alignment.centerLeft,
                     child: switch (Random().nextInt(3) + 1) {
                       1 => SvgPicture.asset(
