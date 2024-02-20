@@ -493,7 +493,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   controller: _introductionController,
                 ),
               ),
-              SizedBox(height: SizeConfig.safeBlockVertical * 4.7),
+              SizedBox(height: SizeConfig.safeBlockVertical * 3.7),
+
+              /// 가입하기 버튼
+              AspectRatio(
+                aspectRatio: 31 / 4,
+                child: AppCommonTextButton(
+                  text: Text(
+                    '가입하기',
+                    style: GoogleFonts.inter(
+                      fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFFFFFF),
+                    ),
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  cornerRadius: 10,
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  onPressed: () {},
+                ),
+              ),
+              SizedBox(height: SizeConfig.safeBlockVertical * 1.0),
             ],
           ),
         ),
