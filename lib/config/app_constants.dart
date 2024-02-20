@@ -94,6 +94,9 @@ enum Level {
 
 /// Constants
 class AppConstants {
-  // 최신 기수 값
+  /// 최신 기수 값
   static const int maxGeneration = 11;
+
+  /// 인증 번호 타임 아웃 시간(sec)
+  static const int authenticationTimeOut = 60;
 }
