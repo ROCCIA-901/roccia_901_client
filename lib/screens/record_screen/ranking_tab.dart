@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/utils/size_config.dart';
+import 'package:untitled/config/size_config.dart';
 
 import '../../utils/tmp_mock_data.dart';
 
@@ -317,7 +317,7 @@ class RankingCriteriaButton extends StatelessWidget {
           );
         },
         icon: SvgPicture.asset(
-          'assets/question_mark_circle.svg',
+          'assets/icons/question_mark_circle.svg',
           color: Color(0xFFE0E0E0),
           width: SizeConfig.safeBlockHorizontal * 2.75,
         ),
@@ -662,7 +662,7 @@ class MemberRankingCard extends StatelessWidget {
                 Positioned(
                   left: cardBlockSizeHorizontal * 87.0,
                   child: Container(
-                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 3),
+                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 1),
                     alignment: Alignment.centerLeft,
                     child: switch (Random().nextInt(3) + 1) {
                       1 => SvgPicture.asset(
