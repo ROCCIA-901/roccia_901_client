@@ -68,27 +68,27 @@ enum Level {
   black;
 
   static final Map<String, Level> fromName = {
-    "노랑": Level.yellow,
-    "주황": Level.orange,
-    "초록": Level.green,
-    "파랑": Level.blue,
-    "빨강": Level.red,
-    "보라": Level.purple,
+    "노랑색": Level.yellow,
+    "주황색": Level.orange,
+    "초록색": Level.green,
+    "파랑색": Level.blue,
+    "빨강색": Level.red,
+    "보라색": Level.purple,
     "회색": Level.gray,
     "갈색": Level.brown,
-    "검정": Level.black,
+    "검정색": Level.black,
   };
 
   static final Map<Level, String> toName = {
-    Level.yellow: "노랑",
-    Level.orange: "주황",
-    Level.green: "초록",
-    Level.blue: "파랑",
-    Level.red: "빨강",
-    Level.purple: "보라",
+    Level.yellow: "노랑색",
+    Level.orange: "주황색",
+    Level.green: "초록색",
+    Level.blue: "파랑색",
+    Level.red: "빨강색",
+    Level.purple: "보라색",
     Level.gray: "회색",
     Level.brown: "갈색",
-    Level.black: "검정"
+    Level.black: "검정색"
   };
 }
 
