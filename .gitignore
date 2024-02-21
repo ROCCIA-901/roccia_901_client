@@ -45,3 +45,4 @@ app.*.map.json
 
 # Our custom ignore
 lib/config/app_api_config.dart
+
