@@ -59,7 +59,7 @@ class _MyAppState extends State<AttendanceRequestScreen> {
                       alignment: Alignment.center,
                       child: InkWell(
                         child: SvgPicture.asset(
-                          'assets/icons/atd_button.svg',
+                          'assets/icons/buttons/atd_button.svg',
                           height: 60,
                         ),
                       ),
