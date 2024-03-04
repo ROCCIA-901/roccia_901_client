@@ -21,6 +21,7 @@ dependencies:
   http: ^1.2.0
   dropdown_button2: ^2.3.9
   json_annotation: ^4.8.1
+  email_validator: ^2.1.17
 
 dev_dependencies:
   flutter_test:
