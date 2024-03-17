@@ -1,14 +1,53 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/utils/tmp_mock_data.dart';
+import 'package:untitled/services/home/attendance_request_accept_service.dart';
+import 'package:untitled/services/home/attendance_request_reject_service.dart';
+import 'package:untitled/services/home/attendance_requests_service.dart';
+import 'package:untitled/utils/dialog_helper.dart';
 
+import '../config/app_constants.dart';
 import '../config/size_config.dart';
+import '../dto/home/attendance_requests_dto.dart';
 
-class AttendanceApprovalScreen extends StatelessWidget {
+/// 확인 창에서 반환되는 값
+enum _ConfirmPopupResult {
+  accept, // 출석 허가
+  reject, // 출석 거절
+  cancel, // 선택 취소
+}
+
+/*
+1. future builder를 통해 출석 리스트를 가져오기가 완료되면,
+1-1. 출석 리스트와 size가 같은 List<bool>을 생성 후 기본값을 false로 초기화.
+2. bool list가 false인 index만 표시.
+
+1. 승인 or 거절 버튼을 누른다.
+2. 해당하는 index의 bool list를 true로 변경.
+3. setState.
+ */
+
+class AttendanceApprovalScreen extends StatefulWidget {
   const AttendanceApprovalScreen({super.key});
+
+  @override
+  State<AttendanceApprovalScreen> createState() =>
+      _AttendanceApprovalScreenState();
+}
+
+class _AttendanceApprovalScreenState extends State<AttendanceApprovalScreen> {
+  // 서버에서 받아올 출석 목록 데이터의 Future
+  // 비동기 작업이 끝났는지 확인하는 작업만 담당한다.
+  late final Future<AttendanceRequestsDTO> futureAttendanceRequests;
+  // 실제 사용할 출석 목록 데이터.
+  // 처리된 출석 요청은 삭제된다.
+  late final List<AttendanceRequestDTO> attendanceRequests;
+
+  @override
+  void initState() {
+    super.initState();
+    futureAttendanceRequests = _asyncInit();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +92,93 @@ class AttendanceApprovalScreen extends StatelessWidget {
             AttendanceRequestCategory(),
 
             /// 출석 요청 목록
-            AttendanceRequestList(dataList: TmpMockData.allRankings),
+            FutureBuilder(
+              future: futureAttendanceRequests,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return AttendanceRequestList(
+                    dataList: attendanceRequests,
+                    acceptAttendanceRequest: _acceptAttendanceRequest,
+                    rejectAttendanceRequest: _rejectAttendanceRequest,
+                  );
+                } else if (snapshot.hasError) {
+                  debugPrint(snapshot.error.toString());
+                  return Expanded(
+                    child: Center(
+                      child: Text('에러 발생. 운영진에게 제보 바랍니다.'),
+                    ),
+                  );
+                }
+
+                // By default, show a loading spinner.
+                return Expanded(
+                  child: Center(
+                    child: const CircularProgressIndicator(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<AttendanceRequestsDTO> _asyncInit() async {
+    final AttendanceRequestsDTO attendanceRequests =
+        await AttendanceRequestsService().fetch();
+    debugPrint(attendanceRequests.detail);
+    this.attendanceRequests = attendanceRequests.data;
+    return attendanceRequests;
+  }
+
+  void _showApiErrorSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('에러 발생. 운영진에게 문의바랍니다.')));
+  }
+
+  Future<void> _acceptAttendanceRequest(
+      int requestId, int index, BuildContext context) async {
+    // 로딩 스피너
+    DialogHelper.showLoaderDialog(context);
+    if (!context.mounted) return;
+    // patch
+    try {
+      final body = await AttendanceRequestAcceptService().update(requestId);
+      debugPrint(body.detail);
+      setState(() {
+        // isRequestProcessed[index] = true;
+        this.attendanceRequests.removeAt(index);
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      if (context.mounted) _showApiErrorSnackBar(context);
+    } finally {
+      if (context.mounted) Navigator.pop(context);
+    }
+  }
+
+  void _rejectAttendanceRequest(
+      int requestId, int index, BuildContext context) async {
+    // 로딩 스피너
+    DialogHelper.showLoaderDialog(context);
+
+    // patch
+    try {
+      final body = await AttendanceRequestRejectService().update(requestId);
+      debugPrint(body.detail);
+      setState(() {
+        // isRequestProcessed[index] = true;
+        this.attendanceRequests.removeAt(index);
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+      if (context.mounted) _showApiErrorSnackBar(context);
+    } finally {
+      // 로딩 스피너 닫기
+      if (context.mounted) Navigator.pop(context);
+    }
   }
 }
 
@@ -99,11 +220,15 @@ class AttendanceRequestCategory extends StatelessWidget {
 
 /// 출석 요청 목록
 class AttendanceRequestList extends StatelessWidget {
-  final dataList;
+  final List<AttendanceRequestDTO> dataList;
+  final Function acceptAttendanceRequest;
+  final Function rejectAttendanceRequest;
 
   const AttendanceRequestList({
     super.key,
     required this.dataList,
+    required this.acceptAttendanceRequest,
+    required this.rejectAttendanceRequest,
   });
 
   @override
@@ -114,21 +239,47 @@ class AttendanceRequestList extends StatelessWidget {
           horizontal: SizeConfig.safeBlockHorizontal * 2.778,
         ),
         itemCount: dataList.length,
-        itemBuilder: (BuildContext context, int index) =>
-            MemberAttendanceRequestCard(data: dataList[index]),
+        itemBuilder: (BuildContext context, int index) => _listItem(index),
       ),
+    );
+  }
+
+  Widget? _listItem(int index) {
+    return MemberAttendanceRequestCard(
+      data: dataList[index],
+      index: index,
+      acceptAttendanceRequest: acceptAttendanceRequest,
+      rejectAttendanceRequest: rejectAttendanceRequest,
     );
   }
 }
 
 /// 멤버 출석 요청 card
 class MemberAttendanceRequestCard extends StatelessWidget {
-  final data;
+  final AttendanceRequestDTO data;
+  final int index;
+  final Function acceptAttendanceRequest;
+  final Function rejectAttendanceRequest;
 
-  const MemberAttendanceRequestCard({
+  final String _profileImageUrl;
+  final String _name;
+  final Location _location;
+  final String _generation;
+  final Level _level;
+  final DateTime _time;
+
+  MemberAttendanceRequestCard({
     super.key,
     required this.data,
-  });
+    required this.index,
+    required this.acceptAttendanceRequest,
+    required this.rejectAttendanceRequest,
+  })  : _profileImageUrl = 'assets/profiles/profile_${data.profileImg}.svg',
+        _name = data.username,
+        _location = data.location,
+        _generation = data.generation,
+        _level = data.level,
+        _time = DateTime.parse(data.requestTime);
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +315,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.fill,
                       child: SvgPicture.asset(
-                        'assets/profiles/profile_${Random().nextInt(8) + 1}.svg',
+                        _profileImageUrl,
                       ),
                     ),
                   ),
@@ -173,7 +324,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                 /// 프로필
                 Positioned(
                   left: cardBlockSizeHorizontal * 21.47,
-                  child: Container(
+                  child: SizedBox(
                     height: cardBlockSizeVertical * 100.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +342,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                               margin: EdgeInsets.only(
                                   right: cardBlockSizeHorizontal * 2.647),
                               child: Text(
-                                data['name'],
+                                _name,
                                 style: TextStyle(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 3.0,
@@ -199,14 +350,11 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Container(
-                              child: Text(
-                                data['place'],
-                                style: TextStyle(
-                                  fontSize:
-                                      SizeConfig.safeBlockHorizontal * 2.0,
-                                  color: Color(0xFF878787),
-                                ),
+                            Text(
+                              Location.toName[_location] ?? "",
+                              style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 2.0,
+                                color: Color(0xFF878787),
                               ),
                             ),
                           ],
@@ -231,7 +379,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '${data['generation']}기',
+                                _generation,
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
@@ -254,7 +402,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                data['level'],
+                                Level.toName[_level] ?? "",
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
@@ -276,7 +424,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                     alignment: Alignment.center,
                     width: cardBlockSizeHorizontal * 12,
                     child: Text(
-                      '00:00',
+                      '${_time.hour}:${_time.minute.toString().padLeft(2, '0')}',
                       style: GoogleFonts.roboto(
                         fontSize: cardBlockSizeHorizontal * 3.0,
                         color: Color(0xFF7B7B7B),
@@ -285,7 +433,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                   ),
                 ),
 
-                /// 승인 아이콘
+                /// 승인 아이콘 버튼
                 Positioned(
                   left: cardBlockSizeHorizontal * 74.7,
                   child: Container(
@@ -301,16 +449,13 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                         color: Color(0xFFCAE4C1),
                       ),
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => ConfirmPopup(isApprove: true),
-                        );
+                        confirmChoice(context, true);
                       },
                     ),
                   ),
                 ),
 
-                /// 거절 아이콘
+                /// 거절 아이콘 버튼
                 Positioned(
                   left: cardBlockSizeHorizontal * 86,
                   child: Container(
@@ -326,10 +471,7 @@ class MemberAttendanceRequestCard extends StatelessWidget {
                         color: Color(0xFFEA7373),
                       ),
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => ConfirmPopup(isApprove: false),
-                        );
+                        confirmChoice(context, false);
                       },
                     ),
                   ),
@@ -341,22 +483,43 @@ class MemberAttendanceRequestCard extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> confirmChoice(BuildContext context, bool isAccept) async {
+    final result = await showDialog(
+      context: context,
+      builder: (_) => ConfirmPopup(isAccept: isAccept),
+    );
+    switch (result) {
+      case (_ConfirmPopupResult.accept):
+        if (context.mounted) {
+          acceptAttendanceRequest(data.requestId, index, context);
+        }
+        break;
+      case (_ConfirmPopupResult.reject):
+        if (context.mounted) {
+          rejectAttendanceRequest(data.requestId, index, context);
+        }
+        break;
+      case (_ConfirmPopupResult.cancel):
+        break;
+    }
+  }
 }
 
 class ConfirmPopup extends StatelessWidget {
   // true: 승인, false: 거절
-  final bool isApprove;
+  final bool isAccept;
 
   const ConfirmPopup({
     super.key,
-    required this.isApprove,
+    required this.isAccept,
   });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       content: Text(
-        "출석을 ${isApprove ? '승인' : '거절'} 하시겠습니까?",
+        "출석을 ${isAccept ? '승인' : '거절'} 하시겠습니까?",
         textAlign: TextAlign.center,
       ),
       contentTextStyle: GoogleFonts.inter(
@@ -368,10 +531,15 @@ class ConfirmPopup extends StatelessWidget {
         bottom: SizeConfig.safeBlockVertical * 2.5,
       ),
       actions: <Widget>[
-        ConfirmPopupButton(isOk: false, backgroundColor: Color(0xFFF2F2F2)),
+        ConfirmPopupButton(
+          isOk: false,
+          backgroundColor: Color(0xFFF2F2F2),
+          onPressed: popDialog,
+        ),
         ConfirmPopupButton(
           isOk: true,
-          backgroundColor: isApprove ? Color(0xFFCAE4C1) : Color(0xFFEA7373),
+          backgroundColor: isAccept ? Color(0xFFCAE4C1) : Color(0xFFEA7373),
+          onPressed: popDialog,
         ),
       ],
       actionsAlignment: MainAxisAlignment.center,
@@ -384,17 +552,33 @@ class ConfirmPopup extends StatelessWidget {
       ),
     );
   }
+
+  void popDialog(BuildContext context, bool isOk) {
+    late final _ConfirmPopupResult result;
+    if (isOk) {
+      if (isAccept) {
+        result = _ConfirmPopupResult.accept;
+      } else {
+        result = _ConfirmPopupResult.reject;
+      }
+    } else {
+      result = _ConfirmPopupResult.cancel;
+    }
+    Navigator.pop(context, result);
+  }
 }
 
 class ConfirmPopupButton extends StatelessWidget {
   // true: 예, false:아니오
   final bool isOk;
   final Color backgroundColor;
+  final void Function(BuildContext context, bool isOk) onPressed;
 
   const ConfirmPopupButton({
     super.key,
     required this.isOk,
     required this.backgroundColor,
+    required this.onPressed,
   });
 
   @override
@@ -414,8 +598,7 @@ class ConfirmPopupButton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          final String popResult = isOk ? 'Ok' : 'Cancel';
-          Navigator.pop(context, popResult);
+          onPressed(context, isOk);
         },
         child: Text(
           isOk ? '예' : '아니오',

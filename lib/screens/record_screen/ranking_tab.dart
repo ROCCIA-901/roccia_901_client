@@ -1,11 +1,14 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:untitled/config/app_constants.dart';
 import 'package:untitled/config/size_config.dart';
+import 'package:untitled/dto/ranking/member_ranking_info_dto.dart';
+import 'package:untitled/dto/ranking/overall_rankings_dto.dart';
+import 'package:untitled/services/ranking/overall_ranking_service.dart';
+import 'package:untitled/services/ranking/weekly_ranking_service.dart';
 
-import '../../utils/tmp_mock_data.dart';
+import '../../dto/ranking/weekly_rankings_dto.dart';
 
 enum RankingType {
   weekly,
@@ -23,23 +26,36 @@ class _RankingTabState extends State<RankingTab> {
   /// 주간, 전체 중 어느 타입의 랭킹을 보여줄지
   RankingType rankingType = RankingType.weekly;
 
-  /// 주간 랭킹에서 어느 주간을 보여줄지
-  late int rankingWeek;
+  // 주간, 기수 시작 값
+  // ex) week = page + weekPageOffset
+  final int weekPageOffset = 1;
+  final int generationPageOffset = 1;
 
-  /// 전체 랭킹에서 어느 기수를 보여줄지
-  late int rankingGeneration;
+  // 주간 랭킹에서 어느 주간 페이지를 처음 보여줄지
+  late int selectedWeek;
+  // 전체 랭킹에서 어느 주간 페이지를 처음 보여줄지
+  late int selectedGeneration;
 
-  /// 주간, 전체 랭킹 page controller
+  // 주간, 전체 랭킹 page controller
   late PageController weeklyRankingPageController;
   late PageController allRankingPageController;
+
+  // 서버로부터 주간, 전체 랭킹 데이터를 받아와 저장하는 변수
+  late final Future<WeeklyRankingsListDTO> futureWeeklyRankingsList;
+  late final Future<OverallRankingsListDTO> futureOverallRankingsList;
 
   @override
   void initState() {
     super.initState();
-    rankingWeek = 1;
-    rankingGeneration = 10;
-    weeklyRankingPageController = PageController(initialPage: rankingWeek);
-    allRankingPageController = PageController(initialPage: rankingGeneration);
+    selectedWeek = 1;
+    selectedGeneration = 11;
+    weeklyRankingPageController = PageController(
+      initialPage: selectedWeek - weekPageOffset,
+    );
+    allRankingPageController = PageController(
+      initialPage: selectedGeneration - generationPageOffset,
+    );
+    _asyncInit();
   }
 
   @override
@@ -58,8 +74,8 @@ class _RankingTabState extends State<RankingTab> {
         /// 주차 및 기수 변경 위젯
         RankingTurnGroup(
           rankingType: rankingType,
-          rankingWeek: rankingWeek,
-          rankingGeneration: rankingGeneration,
+          rankingWeek: selectedWeek,
+          rankingGeneration: selectedGeneration,
           weeklyRankingPagecontroller: weeklyRankingPageController,
           allRankingPagecontroller: allRankingPageController,
         ),
@@ -76,18 +92,36 @@ class _RankingTabState extends State<RankingTab> {
         /// 랭킹 목록 페이지 뷰
         switch (rankingType) {
           RankingType.weekly => WeeklyRankingPageView(
-              week: rankingWeek,
+              weekOffset: weekPageOffset,
+              selectedWeek: selectedWeek,
               changeWeek: changeRankingWeek,
               pageController: weeklyRankingPageController,
+              futureWeeklyRankingsList: futureWeeklyRankingsList,
             ),
           RankingType.all => AllRankingPageView(
-              generation: 10,
+              generationOffset: generationPageOffset,
+              selectedGeneration: selectedGeneration,
               changeGeneration: changeRankingGeneration,
               pageController: allRankingPageController,
-            )
+              futureOverallRankingsList: futureOverallRankingsList,
+            ),
+          // RankingType.all => AllRankingPageView(
+          //     generation: 10,
+          //     changeGeneration: changeRankingGeneration,
+          //     pageController: allRankingPageController,
+          //   )
         }
       ],
     );
+  }
+
+  Future<void> _asyncInit() async {
+    futureWeeklyRankingsList = WeeklyRankingService().fetch(year: 2023);
+    futureOverallRankingsList = OverallRankingService().fetch();
+    final weeklyRankingsList = await futureWeeklyRankingsList;
+    debugPrint(weeklyRankingsList.detail);
+    final overallRankingsList = await futureOverallRankingsList;
+    debugPrint(overallRankingsList.detail);
   }
 
   /// 랭킹 타입 변환 callback
@@ -105,16 +139,16 @@ class _RankingTabState extends State<RankingTab> {
   }
 
   /// 주차 변환 callback
-  void changeRankingWeek(int week) {
+  void changeRankingWeek(int page) {
     setState(() {
-      rankingWeek = week;
+      selectedWeek = page + weekPageOffset;
     });
   }
 
   /// 기수 변환 callback
-  void changeRankingGeneration(int generation) {
+  void changeRankingGeneration(int page) {
     setState(() {
-      rankingGeneration = generation;
+      selectedGeneration = page + generationPageOffset;
     });
   }
 }
@@ -392,73 +426,134 @@ class RankingCategoryIndicator extends StatelessWidget {
 
 /// 주간 랭킹 페이지 뷰
 class WeeklyRankingPageView extends StatelessWidget {
-  final int week;
+  final int weekOffset;
+  final int selectedWeek;
   final void Function(int) changeWeek;
   final PageController pageController;
+  final Future<WeeklyRankingsListDTO> futureWeeklyRankingsList;
 
-  WeeklyRankingPageView({
+  const WeeklyRankingPageView({
     super.key,
-    required this.week,
+    required this.weekOffset,
+    required this.selectedWeek,
     required this.changeWeek,
     required this.pageController,
+    required this.futureWeeklyRankingsList,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: PageView.builder(
-        controller: pageController,
-        onPageChanged: (int page) {
-          changeWeek(page);
-        },
-        itemBuilder: pageItem,
-      ),
+    return FutureBuilder<WeeklyRankingsListDTO>(
+      future: futureWeeklyRankingsList,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final WeeklyRankingsListDTO body = snapshot.data!;
+          return Expanded(
+            child: PageView.builder(
+              controller: pageController,
+              onPageChanged: (int page) {
+                changeWeek(page);
+              },
+              itemCount: body.data.length,
+              itemBuilder: (context, index) =>
+                  _pageItem(body.getWeeklyRanking(index + weekOffset)),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Expanded(
+            child: Center(
+              child: Text('에러 발생. 운영진에게 제보 바랍니다.'),
+            ),
+          );
+        }
+
+        // By default, show a loading spinner.
+        return Expanded(
+          child: Center(
+            child: const CircularProgressIndicator(),
+          ),
+        );
+      },
     );
   }
 
-  Widget pageItem(BuildContext context, int index) {
-    return RankingList(rankingData: TmpMockData.weeklyRankings);
+  Widget _pageItem(WeeklyRankingsDTO? rankingData) {
+    if (rankingData == null) {
+      return Text("No data");
+    }
+    return RankingList(rankings: rankingData.rankings);
   }
 }
 
 /// 전체 랭킹 페이지 뷰
 class AllRankingPageView extends StatelessWidget {
-  final int generation;
+  final int generationOffset;
+  final int selectedGeneration;
   final void Function(int) changeGeneration;
   final PageController pageController;
+  final Future<OverallRankingsListDTO> futureOverallRankingsList;
 
-  AllRankingPageView({
+  const AllRankingPageView({
     super.key,
-    required this.generation,
+    required this.generationOffset,
+    required this.selectedGeneration,
     required this.changeGeneration,
     required this.pageController,
+    required this.futureOverallRankingsList,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: PageView.builder(
-        controller: pageController,
-        onPageChanged: (int page) {
-          changeGeneration(page);
-        },
-        itemBuilder: pageItem,
-      ),
+    return FutureBuilder<OverallRankingsListDTO>(
+      future: futureOverallRankingsList,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final OverallRankingsListDTO body = snapshot.data!;
+          return Expanded(
+            child: PageView.builder(
+              controller: pageController,
+              onPageChanged: (int page) {
+                changeGeneration(page);
+              },
+              itemCount: body.data.length,
+              itemBuilder: (context, index) => _pageItem(
+                  body.getGenerationRanking(index + generationOffset)),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          debugPrint(snapshot.error.toString());
+          return Expanded(
+            child: Center(
+              child: Text('에러 발생. 운영진에게 제보 바랍니다.'),
+            ),
+          );
+        }
+
+        // By default, show a loading spinner.
+        return Expanded(
+          child: Center(
+            child: const CircularProgressIndicator(),
+          ),
+        );
+      },
     );
   }
 
-  Widget pageItem(BuildContext context, int index) {
-    return RankingList(rankingData: TmpMockData.allRankings);
+  Widget _pageItem(OverallRankingsDTO? rankingData) {
+    if (rankingData == null) {
+      return Text("No data");
+    }
+    return RankingList(rankings: rankingData.rankings);
   }
 }
 
 /// 랭킹 목록
-class RankingList extends StatelessWidget {
-  final rankingData;
+class RankingList<T> extends StatelessWidget {
+  final List<T> rankings;
 
   RankingList({
     super.key,
-    required this.rankingData,
+    required this.rankings,
   });
 
   @override
@@ -467,25 +562,41 @@ class RankingList extends StatelessWidget {
       padding: EdgeInsets.symmetric(
         horizontal: SizeConfig.safeBlockHorizontal * 2.778,
       ),
-      itemCount: rankingData.length,
+      itemCount: rankings.length,
       itemBuilder: (BuildContext context, int index) =>
           listItem(context, index),
     );
   }
 
   Widget listItem(BuildContext context, int index) {
-    return MemberRankingCard(memberRankingData: rankingData[index]);
+    return MemberRankingCard(
+        memberRankingData: rankings[index] as MemberRankingInfoDTO);
   }
 }
 
 /// 랭킹 목록 요소
 class MemberRankingCard extends StatelessWidget {
-  final memberRankingData;
+  final MemberRankingInfoDTO memberRankingData;
 
-  const MemberRankingCard({
+  final String _profileImageUrl;
+  final String _name;
+  final Location _location;
+  final String _generation;
+  final Level _level;
+  final double _score;
+  final int _rank;
+
+  MemberRankingCard({
     super.key,
     required this.memberRankingData,
-  });
+  })  : _profileImageUrl =
+            'assets/profiles/profile_${memberRankingData.profileImg}.svg',
+        _name = memberRankingData.username,
+        _location = memberRankingData.location,
+        _generation = memberRankingData.generation,
+        _level = memberRankingData.level,
+        _score = memberRankingData.score,
+        _rank = memberRankingData.rank;
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +632,7 @@ class MemberRankingCard extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.fill,
                       child: SvgPicture.asset(
-                        'assets/profiles/profile_${Random().nextInt(8) + 1}.svg',
+                        _profileImageUrl,
                       ),
                     ),
                   ),
@@ -530,7 +641,7 @@ class MemberRankingCard extends StatelessWidget {
                 /// 프로필
                 Positioned(
                   left: cardBlockSizeHorizontal * 21.47,
-                  child: Container(
+                  child: SizedBox(
                     height: cardBlockSizeVertical * 100.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +659,7 @@ class MemberRankingCard extends StatelessWidget {
                               margin: EdgeInsets.only(
                                   right: cardBlockSizeHorizontal * 2.647),
                               child: Text(
-                                memberRankingData['name'],
+                                _name,
                                 style: TextStyle(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 3.0,
@@ -556,14 +667,11 @@ class MemberRankingCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Container(
-                              child: Text(
-                                memberRankingData['place'],
-                                style: TextStyle(
-                                  fontSize:
-                                      SizeConfig.safeBlockHorizontal * 2.0,
-                                  color: Color(0xFF878787),
-                                ),
+                            Text(
+                              Location.toName[_location] ?? "No data",
+                              style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 2.0,
+                                color: Color(0xFF878787),
                               ),
                             ),
                           ],
@@ -588,7 +696,7 @@ class MemberRankingCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '${memberRankingData['generation']}기',
+                                _generation,
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
@@ -611,7 +719,7 @@ class MemberRankingCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                memberRankingData['level'],
+                                Level.toName[_level] ?? 'No data',
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
@@ -633,7 +741,7 @@ class MemberRankingCard extends StatelessWidget {
                     alignment: Alignment.center,
                     width: cardBlockSizeHorizontal * 12,
                     child: Text(
-                      '${memberRankingData['score']}점',
+                      '$_score점',
                       style: GoogleFonts.roboto(
                         fontSize: cardBlockSizeHorizontal * 3.0,
                         color: Color(0xFF7B7B7B),
@@ -649,7 +757,7 @@ class MemberRankingCard extends StatelessWidget {
                     width: cardBlockSizeHorizontal * 9.0,
                     alignment: Alignment.center,
                     child: Text(
-                      (Random().nextInt(99) + 1).toString(),
+                      '$_rank',
                       style: GoogleFonts.roboto(
                         fontSize: cardBlockSizeHorizontal * 3,
                         color: Color(0xFF000000),
@@ -664,7 +772,7 @@ class MemberRankingCard extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 1),
                     alignment: Alignment.centerLeft,
-                    child: switch (Random().nextInt(3) + 1) {
+                    child: switch (_rank) {
                       1 => SvgPicture.asset(
                           'assets/icons/crown_gold.svg',
                           width: cardBlockSizeHorizontal * 2.4,
