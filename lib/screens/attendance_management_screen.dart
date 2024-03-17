@@ -1,14 +1,38 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/utils/tmp_mock_data.dart';
+import 'package:untitled/dto/home/user_attendance_rate_list_dto.dart';
+import 'package:untitled/services/home/user_attendance_rate_list_service.dart';
 
+import '../config/app_constants.dart';
 import '../config/size_config.dart';
 
-class AttendanceManagementScreen extends StatelessWidget {
+/* Todo
+1. 유저 출석율 목록 지점별로 정렬.
+2.
+ */
+
+class AttendanceManagementScreen extends StatefulWidget {
   const AttendanceManagementScreen({super.key});
+
+  @override
+  State<AttendanceManagementScreen> createState() =>
+      _AttendanceManagementScreenState();
+}
+
+class _AttendanceManagementScreenState
+    extends State<AttendanceManagementScreen> {
+  // async 함수의 실행 완료 유무를 파악하기 위한 변수
+  late final Future<void> _asyncInitResult;
+  // 유저들의 출석 목록
+  // null 요소는 지점이 새롭게 시작되는 부분을 의미한다.
+  late final List<UserAttendanceRateDTO?> userAttendanceRates;
+
+  @override
+  void initState() {
+    super.initState();
+    _asyncInitResult = _asyncInit();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +76,67 @@ class AttendanceManagementScreen extends StatelessWidget {
             ),
 
             /// 출석 정보 목록
-            AttedanceManagementList(dataList: TmpMockData.allRankings),
+            FutureBuilder(
+              future: _asyncInitResult,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return AttendanceManagementList(
+                      dataList: userAttendanceRates);
+                } else if (snapshot.hasError) {
+                  debugPrint(snapshot.error.toString());
+                  return Expanded(
+                    child: Center(
+                      child: Text('에러 발생. 운영진에게 제보 바랍니다.'),
+                    ),
+                  );
+                }
+
+                // By default, show a loading spinner.
+                return Expanded(
+                  child: Center(
+                    child: const CircularProgressIndicator(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
+
+  Future<void> _asyncInit() async {
+    final userAttendanceRateListDTO =
+        await UserAttendanceRateListService().fetch();
+    debugPrint(userAttendanceRateListDTO.detail);
+    this.userAttendanceRates = List.from(userAttendanceRateListDTO.data);
+    this
+        .userAttendanceRates
+        .sort((a, b) => b!.location.index - a!.location.index);
+    _insertLocalClassifier();
+  }
+
+  void _insertLocalClassifier() {
+    Location? curLocation;
+    int i = 0;
+    // length를 밖으로 빼지 마세요.
+    // 요소 insert가 loop에서 발생할 수 있어 항상 새로 length를 받아야 합니다.
+    while (i < this.userAttendanceRates.length) {
+      if (curLocation != this.userAttendanceRates[i]!.location) {
+        curLocation = this.userAttendanceRates[i]!.location;
+        this.userAttendanceRates.insert(i, null);
+        i++;
+      }
+      i++;
+    }
+  }
 }
 
 /// 출석 정보 목록
-class AttedanceManagementList extends StatelessWidget {
-  final dataList;
+class AttendanceManagementList extends StatelessWidget {
+  final List<UserAttendanceRateDTO?> dataList;
 
-  const AttedanceManagementList({
+  const AttendanceManagementList({
     super.key,
     required this.dataList,
   });
@@ -73,22 +145,31 @@ class AttedanceManagementList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.builder(
-          padding: EdgeInsets.symmetric(
-            horizontal: SizeConfig.safeBlockHorizontal * 2.778,
-          ),
-          itemCount: dataList.length,
-          itemBuilder: (BuildContext context, int index) => listItem(index)),
+        padding: EdgeInsets.symmetric(
+          horizontal: SizeConfig.safeBlockHorizontal * 2.778,
+        ),
+        itemCount: dataList.length,
+        itemBuilder: (BuildContext context, int index) {
+          if (dataList[index] == null) {
+            return Column(
+              children: [
+                PlaceIndex(
+                    place:
+                        Location.toName[dataList[index + 1]!.location] ?? ""),
+                AttendanceManagementCategory(),
+              ],
+            );
+          }
+          return listItem(index);
+        },
+      ),
     );
   }
 
-  Widget listItem(index) {
-    return switch (index % 6) {
-      0 => PlaceIndex(place: '양재'),
-      1 => AttendanceManagementCategory(),
-      _ => MemberAttendanceCard(
-          data: dataList[index],
-        ),
-    };
+  Widget listItem(int index) {
+    return MemberAttendanceCard(
+      data: dataList[index]!,
+    );
   }
 }
 
@@ -159,12 +240,24 @@ class AttendanceManagementCategory extends StatelessWidget {
 
 /// 부원 출석 정보 카드
 class MemberAttendanceCard extends StatelessWidget {
-  final data;
+  final UserAttendanceRateDTO data;
 
-  const MemberAttendanceCard({
+  final String _profileImageUrl;
+  final String _name;
+  final String _location;
+  final String _generation;
+  final String _level;
+  final String _attendanceRate;
+
+  MemberAttendanceCard({
     super.key,
     required this.data,
-  });
+  })  : _profileImageUrl = 'assets/profiles/profile_${data.profileImg}.svg',
+        _name = data.username,
+        _location = Location.toName[data.location] ?? "",
+        _generation = data.generation,
+        _level = Level.toName[data.level] ?? "",
+        _attendanceRate = '${data.attendanceRate}%';
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +293,7 @@ class MemberAttendanceCard extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.fill,
                       child: SvgPicture.asset(
-                        'assets/profiles/profile_${Random().nextInt(8) + 1}.svg',
+                        _profileImageUrl,
                       ),
                     ),
                   ),
@@ -209,7 +302,7 @@ class MemberAttendanceCard extends StatelessWidget {
                 /// 프로필
                 Positioned(
                   left: cardBlockSizeHorizontal * 21.47,
-                  child: Container(
+                  child: SizedBox(
                     height: cardBlockSizeVertical * 100.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +320,7 @@ class MemberAttendanceCard extends StatelessWidget {
                               margin: EdgeInsets.only(
                                   right: cardBlockSizeHorizontal * 2.647),
                               child: Text(
-                                data['name'],
+                                _name,
                                 style: TextStyle(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 3.0,
@@ -235,14 +328,11 @@ class MemberAttendanceCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Container(
-                              child: Text(
-                                data['place'],
-                                style: TextStyle(
-                                  fontSize:
-                                      SizeConfig.safeBlockHorizontal * 2.0,
-                                  color: Color(0xFF878787),
-                                ),
+                            Text(
+                              _location,
+                              style: TextStyle(
+                                fontSize: SizeConfig.safeBlockHorizontal * 2.0,
+                                color: Color(0xFF878787),
                               ),
                             ),
                           ],
@@ -267,7 +357,7 @@ class MemberAttendanceCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '${data['generation']}기',
+                                _generation,
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
@@ -290,7 +380,7 @@ class MemberAttendanceCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                data['level'],
+                                _level,
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       SizeConfig.safeBlockHorizontal * 2.0,
@@ -312,7 +402,7 @@ class MemberAttendanceCard extends StatelessWidget {
                     alignment: Alignment.center,
                     width: cardBlockSizeHorizontal * 12,
                     child: Text(
-                      '${Random().nextInt(4) * 5 + 85}%',
+                      _attendanceRate,
                       style: GoogleFonts.roboto(
                         fontSize: cardBlockSizeHorizontal * 3.3,
                         color: Color(0xFF7B7B7B),

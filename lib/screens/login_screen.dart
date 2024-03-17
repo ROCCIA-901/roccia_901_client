@@ -1,11 +1,32 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/config/size_config.dart';
+import 'package:untitled/services/api_client.dart';
+import 'package:untitled/services/user_authentication/login_service.dart';
+import 'package:untitled/utils/snack_bar_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 
-class LoginScreen extends StatelessWidget {
+import '../utils/dialog_helper.dart';
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +50,11 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: SizeConfig.safeBlockVertical * 8),
 
               /// Email Field
-              EmailField(),
+              EmailField(controller: _emailController),
               SizedBox(height: SizeConfig.safeBlockHorizontal * 2),
 
               /// Password Field
-              PasswordField(),
+              PasswordField(controller: _passwordController),
               SizedBox(height: SizeConfig.safeBlockHorizontal * 3),
 
               /// Login Button
@@ -52,7 +73,9 @@ class LoginScreen extends StatelessWidget {
                     cornerRadius: 10,
                     width: double.maxFinite,
                     height: double.maxFinite,
-                    onPressed: () {},
+                    onPressed: () {
+                      _onPressedLoginButton(context);
+                    },
                   )),
             ],
           ),
@@ -60,11 +83,56 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _onPressedLoginButton(BuildContext context) async {
+    if (!EmailValidator.validate(_emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이메일 형식이 아닙니다.'),
+        ),
+      );
+      return;
+    } else if (_passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('비밀번호를 입력해 주세요.'),
+        ),
+      );
+      return;
+    }
+
+    // 로딩 스피너
+    DialogHelper.showLoaderDialog(context);
+    if (!context.mounted) return;
+    // patch
+    try {
+      final body = await LoginService()
+          .authenticateUser(_emailController.text, _passwordController.text);
+      debugPrint(body.detail);
+    } on ApiException catch (e) {
+      debugPrint(e.toString());
+      if (e.statusCode == null) {
+        if (context.mounted) SnackBarHelper.showApiErrorSnackBar(context);
+      } else {
+        if (context.mounted) SnackBarHelper.showTextSnackBar(context, e.detail);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      if (context.mounted) SnackBarHelper.showApiErrorSnackBar(context);
+    } finally {
+      if (context.mounted) Navigator.pop(context);
+    }
+  }
 }
 
 /// Email Field
 class EmailField extends StatelessWidget {
-  const EmailField({super.key});
+  final TextEditingController controller;
+
+  const EmailField({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +140,7 @@ class EmailField extends StatelessWidget {
       aspectRatio: 31 / 4,
       child: TextFormField(
         keyboardType: TextInputType.emailAddress,
+        controller: controller,
         decoration: InputDecoration(
           hintText: '이메일',
           hintStyle: GoogleFonts.archivoBlack(
@@ -99,7 +168,12 @@ class EmailField extends StatelessWidget {
 
 // Password Field
 class PasswordField extends StatelessWidget {
-  const PasswordField({super.key});
+  final TextEditingController controller;
+
+  const PasswordField({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +181,7 @@ class PasswordField extends StatelessWidget {
       aspectRatio: 31 / 4,
       child: TextFormField(
         obscureText: true,
+        controller: controller,
         decoration: InputDecoration(
           hintText: '비밀번호',
           hintStyle: GoogleFonts.archivoBlack(
