@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/screens/tmp_all_screen_list_screen.dart';
 import 'package:untitled/utils/app_routes.dart';
 import 'package:untitled/utils/app_theme.dart';
@@ -14,7 +15,11 @@ import 'screens/my_page_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting(); // Initialize for default locale
-  runApp(MyApp());
+  runApp(
+    ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
