@@ -18,24 +18,31 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  /// 텍스트 필드 controllers
+  /// 사용자 입력 값을 저장하는 변수들.
+  // null은 빈 값 또는 잘못된 값일 때 설정된다.
   // 이메일
   final TextEditingController _emailController = TextEditingController();
+  String? _email;
   // 인증번호
   final TextEditingController _authenticationController =
       TextEditingController();
+  String? _authenticationCode;
   // 비밀번호
   final TextEditingController _passwordController = TextEditingController();
+  String? _password;
   // 비밀번호 확인
   final TextEditingController _passwordConfirmController =
       TextEditingController();
+  String? _passwordConfirm;
   // 이름
   final TextEditingController _nameController = TextEditingController();
+  String? _name;
   // 소개
   final TextEditingController _introductionController = TextEditingController();
+  String? _introduction;
 
   /// Dropdown Button2에서 선택된 값들(package 이름이 button2 입니다.)
-  /// 선택되지 않은 초기값은 null
+  // 선택되지 않은 초기값은 null
   // 기수
   int? _generation;
   // 역할

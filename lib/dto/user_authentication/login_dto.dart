@@ -21,6 +21,7 @@ class LoginRequestDTO {
 @JsonSerializable(explicitToJson: true)
 class LoginResponseDTO {
   final String detail;
+
   @JsonKey(name: 'data', fromJson: _tokenFromJson, toJson: _tokenToJson)
   final LoginTokenDTO token;
 

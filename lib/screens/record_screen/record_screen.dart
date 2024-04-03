@@ -44,6 +44,8 @@ class _RecordScreenState extends State<RecordScreen>
           children: [
             Container(
               padding: EdgeInsets.only(left: 20, top: 10),
+              width: 100,
+              height: 50,
               child: Text(
                 '기록',
                 style: TextStyle(
@@ -51,8 +53,6 @@ class _RecordScreenState extends State<RecordScreen>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              width: 100,
-              height: 50,
             ),
             TabBar(
               tabs: _tabs,

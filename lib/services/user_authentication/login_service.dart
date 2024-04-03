@@ -1,5 +1,6 @@
 import '../../config/api_config.dart';
 import '../../dto/user_authentication/login_dto.dart';
+import '../../utils/app_logger.dart';
 import '../api_client.dart';
 
 class LoginService {
@@ -7,11 +8,13 @@ class LoginService {
 
   Future<LoginResponseDTO> authenticateUser(
       String email, String password) async {
-    final Map<String, dynamic> body = await apiClient.post(
+    final Map<String, dynamic> responseBody = await apiClient.post(
       ApiConfig.getLoginUrl(),
       headers: {"content-type": "application/json"},
       body: LoginRequestDTO(email, password).toJson(),
     );
-    return LoginResponseDTO.fromJson(body);
+    var data = LoginResponseDTO.fromJson(responseBody);
+    logger.i(data.detail);
+    return data;
   }
 }

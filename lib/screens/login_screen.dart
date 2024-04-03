@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/config/size_config.dart';
 import 'package:untitled/services/api_client.dart';
 import 'package:untitled/services/user_authentication/login_service.dart';
+import 'package:untitled/utils/app_storage.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 
@@ -85,30 +86,23 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _onPressedLoginButton(BuildContext context) async {
+    // 유효성 검사
     if (!EmailValidator.validate(_emailController.text)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('이메일 형식이 아닙니다.'),
-        ),
-      );
+      SnackBarHelper.showTextSnackBar(context, '이메일 형식이 아닙니다.');
       return;
     } else if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('비밀번호를 입력해 주세요.'),
-        ),
-      );
+      SnackBarHelper.showTextSnackBar(context, '비밀번호를 입력해 주세요.');
       return;
     }
 
     // 로딩 스피너
     DialogHelper.showLoaderDialog(context);
     if (!context.mounted) return;
-    // patch
+
+    // 로그인 요청
     try {
-      final body = await LoginService()
+      final data = await LoginService()
           .authenticateUser(_emailController.text, _passwordController.text);
-      debugPrint(body.detail);
     } on ApiException catch (e) {
       debugPrint(e.toString());
       if (e.statusCode == null) {
@@ -120,6 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
       debugPrint(e.toString());
       if (context.mounted) SnackBarHelper.showApiErrorSnackBar(context);
     } finally {
+      // 로딩 스피너 닫기
       if (context.mounted) Navigator.pop(context);
     }
   }

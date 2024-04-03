@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part "register_dto.g.dart";
 
-//
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RegisterRequestDTO {
   final String email;
