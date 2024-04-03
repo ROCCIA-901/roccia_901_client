@@ -22,14 +22,21 @@ dependencies:
   dropdown_button2: ^2.3.9
   json_annotation: ^4.8.1
   email_validator: ^2.1.17
+  logger: ^2.2.0
+  flutter_secure_storage: ^4.2.1
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^2.0.0
-  build_runner: ^2.4.8
+  build_runner: ^2.4.9
   json_serializable: ^6.7.1
+  riverpod_generator: ^2.4.0
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
 
 flutter:
 
