@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:untitled/config/api_config.dart';
 
@@ -17,6 +18,15 @@ class ApiException implements Exception {
 
   @override
   String toString() => 'Error ${statusCode ?? ''}: $errorCode: $detail';
+}
+
+class ApiRequestTimeoutException extends ApiException {
+  ApiRequestTimeoutException()
+      : super(
+          statusCode: HttpStatus.requestTimeout,
+          errorCode: 'Request timed out',
+          detail: '연결 시간이 초과되었습니다.',
+        );
 }
 
 class ApiClient {
@@ -39,21 +49,11 @@ class ApiClient {
     Uri url = Uri.parse('$baseUrl$path').replace(queryParameters: params);
     try {
       final response = await http
-          .get(
-            url,
-            headers: headers ?? defaultHeaders,
-          )
+          .get(url, headers: headers ?? defaultHeaders)
           .timeout(timeoutDuration);
       return _processResponse(response);
-    } on TimeoutException catch (e) {
-      throw ApiException(
-        errorCode: 'Request timed out: $e',
-        detail: '연결 시간이 초과되었습니다.',
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(errorCode: 'Failed to GET data: $e');
+    } on TimeoutException {
+      throw ApiRequestTimeoutException();
     }
   }
 
@@ -72,15 +72,8 @@ class ApiClient {
           )
           .timeout(timeoutDuration);
       return _processResponse(response);
-    } on TimeoutException catch (e) {
-      throw ApiException(
-        errorCode: 'Request timed out: $e',
-        detail: '연결 시간이 초과되었습니다.',
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(errorCode: 'Failed to POST data: $e');
+    } on TimeoutException {
+      throw ApiRequestTimeoutException();
     }
   }
 
@@ -99,15 +92,8 @@ class ApiClient {
           )
           .timeout(timeoutDuration);
       return _processResponse(response);
-    } on TimeoutException catch (e) {
-      throw ApiException(
-        errorCode: 'Request timed out: $e',
-        detail: '연결 시간이 초과되었습니다.',
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(errorCode: 'Failed to PUT data: $e');
+    } on TimeoutException {
+      throw ApiRequestTimeoutException();
     }
   }
 
@@ -126,15 +112,8 @@ class ApiClient {
           )
           .timeout(timeoutDuration);
       return _processResponse(response);
-    } on TimeoutException catch (e) {
-      throw ApiException(
-        errorCode: 'Request timed out: $e',
-        detail: '연결 시간이 초과되었습니다.',
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(errorCode: 'Failed to PATCH data: $e');
+    } on TimeoutException {
+      throw ApiRequestTimeoutException();
     }
   }
 
@@ -151,29 +130,26 @@ class ApiClient {
           )
           .timeout(timeoutDuration);
       return _processResponse(response);
-    } on TimeoutException catch (e) {
-      throw ApiException(
-        errorCode: 'Request timed out: $e',
-        detail: '연결 시간이 초과되었습니다.',
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(errorCode: 'Failed to DELETE data: $e');
+    } on TimeoutException {
+      throw ApiRequestTimeoutException();
     }
   }
 
+  /// If the response is successful, body is returned.
+  /// Otherwise, it throws an ApiException.
   Map<String, dynamic> _processResponse(http.Response response) {
     final int statusCode = response.statusCode;
     final Map<String, dynamic> body =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+
     if (statusCode < 200 || statusCode >= 300) {
       throw ApiException(
+        statusCode: statusCode,
         detail: body["detail"],
         errorCode: body["code"],
-        statusCode: statusCode,
       );
     }
+
     return body;
   }
 }
