@@ -44,5 +44,5 @@ app.*.map.json
 /android/app/release
 
 # Our custom ignore
-lib/config/api_config.dart
+lib/constants/roccia_api.dart
 
