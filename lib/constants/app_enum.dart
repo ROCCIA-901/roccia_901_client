@@ -1,8 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 
-////////////////////////////////////////////////////////////////////////////////
-//                                  Enums                                     //
-////////////////////////////////////////////////////////////////////////////////
 enum UserRole {
   @JsonValue('운영진')
   staff,
@@ -122,15 +119,4 @@ enum Level {
 enum ApiCallResult {
   success,
   failure,
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//                                Constants                                   //
-////////////////////////////////////////////////////////////////////////////////
-class AppConstants {
-  /// 최신 기수 값
-  static const int maxGeneration = 11;
-
-  /// 인증 번호 타임 아웃 시간(sec)
-  static const int authenticationTimeOut = 60;
 }
