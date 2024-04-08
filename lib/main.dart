@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/screens/tmp_all_screen_list_screen.dart';
 import 'package:untitled/utils/app_routes.dart';
 import 'package:untitled/utils/app_theme.dart';
-import 'package:untitled/config/size_config.dart';
+import 'package:untitled/constants/size_config.dart';
 import 'package:untitled/widgets/app_navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
