@@ -17,6 +17,8 @@ enum UserRole {
   };
 }
 
+/// 순서 바꿀 시에 정기 지점이 먼저 와야 함.
+/// 정기 지점 갯수 Constant 수정 필수.
 enum Location {
   @JsonValue("더클라임 일산")
   theclimbIlsan,
