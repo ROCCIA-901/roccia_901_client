@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/screens/attendance_approval_screen.dart';
-import 'package:untitled/screens/attendance_history_screen.dart';
-import 'package:untitled/screens/attendance_management_screen.dart';
-import 'package:untitled/screens/attendance_request_screen.dart';
-import 'package:untitled/screens/competition_screen.dart';
-import 'package:untitled/screens/email_verification_screen.dart';
-import 'package:untitled/screens/login_screen.dart';
-import 'package:untitled/screens/member_home_screen.dart';
-import 'package:untitled/screens/my_page_screen.dart';
-import 'package:untitled/screens/password_reset_screen.dart';
-import 'package:untitled/screens/sign_up_screen.dart';
-import 'package:untitled/screens/splash_screen.dart';
-import 'package:untitled/screens/staff_home_screen.dart';
 
-import '../screens/record_screen/record_screen.dart';
+import '../presentation/screens/attendance_history_screen.dart';
+import '../presentation/screens/attendance_request_screen.dart';
+import '../presentation/screens/competition_screen.dart';
+import '../presentation/screens/email_verification_screen.dart';
+import '../presentation/screens/login_screen.dart';
+import '../presentation/screens/my_page_screen.dart';
+import '../presentation/screens/password_reset_screen.dart';
+import '../presentation/screens/record_screen/record_screen.dart';
+import '../presentation/screens/sign_up_screen.dart';
+import '../presentation/screens/staff_home_screen.dart';
 
 class AppRoutes {
   static const String attendanceApprovalScreen = '/attendance_approval_screen';
@@ -33,19 +29,20 @@ class AppRoutes {
   static const String staffHomeScreen = '/staff_home_screen';
 
   static Map<String, WidgetBuilder> routes = {
-    attendanceApprovalScreen: (context) => AttendanceApprovalScreen(),
+    // attendanceApprovalScreen: (context) => AttendanceApprovalScreen(),
     attendanceHistoryScreen: (context) => AttendanceHistoryScreen(),
-    attendanceManagementScreen: (context) => AttendanceManagementScreen(),
+    // attendanceManagementScreen: (context) => AttendanceManagementScreen(),
     attendanceRequestScreen: (context) => AttendanceRequestScreen(),
     competitionScreen: (context) => CompetitionScreen(),
     emailVerificationScreen: (context) => EmailVerificationScreen(),
     loginScreen: (context) => LoginScreen(),
-    memberHomeScreen: (context) => MemberHomeScreen(),
+    // memberHomeScreen: (context) => MemberHomeScreen(),
     myPageScreen: (context) => MyPageScreen(),
-    recordScreen: (context) => RecordScreen(),
-    passwordResetScreen: (context) => PasswordResetScreen(),
+    // recordScreen: (context) => RecordScreen(),
+    // ToDo: Remove this line after implementing the password reset screen
+    passwordResetScreen: (context) => PasswordResetScreen(email: "aaa@aaa.aaa"),
     signUpScreen: (context) => SignUpScreen(),
-    splashScreen: (context) => SplashScreen(),
+    // splashScreen: (context) => SplashScreen(),
     staffHomeScreen: (context) => StaffHomeScreen(),
   };
 }
