@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:untitled/data/shared/app_storage.dart';
+import 'package:untitled/utils/app_logger.dart';
 import 'package:untitled/utils/app_routes.dart';
 
-class TmpAllScreenListScreen extends StatelessWidget {
+class TmpAllScreenListScreen extends ConsumerWidget {
   TmpAllScreenListScreen({super.key});
 
   final List routeNames = AppRoutes.routes.keys.toList();
+
+  Future<void> tmpLog(ref) async {
+    final appStorage = ref.watch(appStorageProvider);
+    logger.d(
+        "App Storage: ${await appStorage.read(key: 'access_token')}, ${await appStorage.read(key: 'refresh_token')}");
+  }
 
   Widget listItem(BuildContext context, int index) {
     return GestureDetector(
@@ -35,7 +44,8 @@ class TmpAllScreenListScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    tmpLog(ref);
     return Scaffold(
       backgroundColor: Color(0xFFFFFFFF),
       body: SafeArea(

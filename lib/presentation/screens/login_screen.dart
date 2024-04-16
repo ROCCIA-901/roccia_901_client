@@ -1,24 +1,24 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/config/size_config.dart';
-import 'package:untitled/services/api_client.dart';
-import 'package:untitled/services/user_authentication/login_service.dart';
-import 'package:untitled/utils/app_storage.dart';
-import 'package:untitled/utils/snack_bar_helper.dart';
-import 'package:untitled/widgets/app_common_text_button.dart';
 
-import '../utils/dialog_helper.dart';
+import '../../constants/size_config.dart';
+import '../../exceptions/notification_exception.dart';
+import '../../utils/dialog_helper.dart';
+import '../../utils/snack_bar_helper.dart';
+import '../../widgets/app_common_text_button.dart';
+import '../viewmodels/authentication/login_viewmodel.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _receiveNotification();
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -59,25 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: SizeConfig.safeBlockHorizontal * 3),
 
               /// Login Button
-              AspectRatio(
-                  aspectRatio: 31 / 4,
-                  child: AppCommonTextButton(
-                    text: Text(
-                      '로그인',
-                      style: GoogleFonts.inter(
-                        fontSize: SizeConfig.safeBlockHorizontal * 4.0,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFFFFFFF),
-                      ),
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    cornerRadius: 10,
-                    width: double.maxFinite,
-                    height: double.maxFinite,
-                    onPressed: () {
-                      _onPressedLoginButton(context);
-                    },
-                  )),
+              LoginButton(
+                onPressed: () {
+                  _onPressed(context, ref);
+                },
+              ),
             ],
           ),
         ),
@@ -85,38 +72,53 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _onPressedLoginButton(BuildContext context) async {
+  Future<void> _onPressed(BuildContext context, WidgetRef ref) async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
     // 유효성 검사
-    if (!EmailValidator.validate(_emailController.text)) {
+    if (!EmailValidator.validate(email)) {
       SnackBarHelper.showTextSnackBar(context, '이메일 형식이 아닙니다.');
       return;
-    } else if (_passwordController.text.isEmpty) {
+    } else if (password.isEmpty) {
       SnackBarHelper.showTextSnackBar(context, '비밀번호를 입력해 주세요.');
       return;
     }
 
-    // 로딩 스피너
-    DialogHelper.showLoaderDialog(context);
-    if (!context.mounted) return;
-
     // 로그인 요청
-    try {
-      final data = await LoginService()
-          .authenticateUser(_emailController.text, _passwordController.text);
-    } on ApiException catch (e) {
-      debugPrint(e.toString());
-      if (e.statusCode == null) {
-        if (context.mounted) SnackBarHelper.showApiErrorSnackBar(context);
-      } else {
-        if (context.mounted) SnackBarHelper.showTextSnackBar(context, e.detail);
-      }
-    } catch (e) {
-      debugPrint(e.toString());
-      if (context.mounted) SnackBarHelper.showApiErrorSnackBar(context);
-    } finally {
-      // 로딩 스피너 닫기
-      if (context.mounted) Navigator.pop(context);
-    }
+    await ref.read(loginControllerProvider.notifier).execute(
+          email: email,
+          password: password,
+        );
+  }
+
+  void _receiveNotification() {
+    _checkLogin();
+  }
+
+  void _checkLogin() {
+    ref.listen(loginControllerProvider, (previous, next) {
+      next.when(
+        data: (value) {
+          if (previous is AsyncLoading) {
+            Navigator.pop(context);
+            SnackBarHelper.showTextSnackBar(context, "+_+: 로그인 성공.");
+          }
+        },
+        loading: () {
+          DialogHelper.showLoaderDialog(context);
+        },
+        error: (error, stackTrace) {
+          if (previous is AsyncLoading) {
+            Navigator.pop(context);
+          }
+          if (error is NotificationException) {
+            SnackBarHelper.showTextSnackBar(context, error.message);
+          } else {
+            SnackBarHelper.showErrorSnackBar(context);
+          }
+        },
+      );
+    });
   }
 }
 
@@ -161,7 +163,7 @@ class EmailField extends StatelessWidget {
   }
 }
 
-// Password Field
+/// Password Field
 class PasswordField extends StatelessWidget {
   final TextEditingController controller;
 
@@ -197,6 +199,40 @@ class PasswordField extends StatelessWidget {
           ),
         ),
         textInputAction: TextInputAction.done,
+      ),
+    );
+  }
+}
+
+/// Login Button
+class LoginButton extends StatelessWidget {
+  LoginButton({
+    super.key,
+    required this.onPressed,
+  });
+
+  final Function onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 31 / 4,
+      child: AppCommonTextButton(
+        text: Text(
+          '로그인',
+          style: GoogleFonts.inter(
+            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFFFFFFF),
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        cornerRadius: 10,
+        width: double.maxFinite,
+        height: double.maxFinite,
+        onPressed: () {
+          onPressed();
+        },
       ),
     );
   }
