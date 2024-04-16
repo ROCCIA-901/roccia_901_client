@@ -11,13 +11,10 @@ class SnackBarHelper {
       );
   }
 
-  static void showApiErrorSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('에러 발생. 운영진에게 문의바랍니다.'),
-        ),
-      );
+  static void showErrorSnackBar(BuildContext context) {
+    showTextSnackBar(
+      context,
+      '에러 발생. 운영진에게 문의바랍니다.',
+    );
   }
 }
