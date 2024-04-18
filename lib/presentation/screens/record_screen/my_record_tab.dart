@@ -16,7 +16,7 @@ class MyRecordTab extends StatelessWidget {
         Container(
           child: InkWell(
             child: SvgPicture.asset(
-              'assets/icons/buttons/record_myrecord.svg',
+              'assets/buttons/record_button.svg',
               height: 50,
             ),
           ),

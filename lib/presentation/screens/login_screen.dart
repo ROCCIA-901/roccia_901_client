@@ -46,7 +46,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               /// Placeholder for logo
               SvgPicture.asset(
-                'assets/roccia_full_logo.svg',
+                'assets/logos/roccia_full_logo.svg',
                 width: SizeConfig.safeBlockHorizontal * 50,
               ),
               SizedBox(height: SizeConfig.safeBlockVertical * 8),
