@@ -43,9 +43,9 @@
 //         title: GestureDetector(
 //           onTap: () => Navigator.of(context).pop(),
 //           child: SvgPicture.asset(
-//             'assets/icons/attendance_management.svg',
+//             'assets/titles/attendance_management_title.svg',
 //             color: Color(0xFF000000),
-//             width: SizeConfig.safeBlockHorizontal * 25.28,
+//             height: SizeConfig.safeBlockVertical * 5,
 //           ),
 //         ),
 //         automaticallyImplyLeading: false,

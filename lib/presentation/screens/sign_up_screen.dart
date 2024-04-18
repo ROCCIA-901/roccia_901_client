@@ -80,7 +80,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         title: GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: SvgPicture.asset(
-            'assets/icons/sign_up.svg',
+            'assets/titles/sign_up_title.svg',
             color: Color(0xFF000000),
             width: SizeConfig.safeBlockHorizontal * 25.28,
           ),

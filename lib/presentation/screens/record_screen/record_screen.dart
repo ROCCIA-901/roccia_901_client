@@ -43,13 +43,15 @@
 //           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
 //             Container(
-//               padding: EdgeInsets.only(left: 20, top: 10),
-//               width: 100,
-//               height: 50,
+//               padding: EdgeInsets.only(
+//                   left: SizeConfig.safeBlockHorizontal * 6,
+//                   top: SizeConfig.safeBlockVertical * 1.5
+//               ),
+//               height: SizeConfig.safeBlockVertical * 8,
 //               child: Text(
 //                 '기록',
 //                 style: TextStyle(
-//                   fontSize: 28,
+//                   fontSize: SizeConfig.safeBlockHorizontal * 5.4,
 //                   fontWeight: FontWeight.bold,
 //                 ),
 //               ),
