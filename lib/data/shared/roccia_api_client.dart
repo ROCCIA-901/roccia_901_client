@@ -12,13 +12,17 @@ import '../authentication/token_repository.dart';
 
 class RocciaApiClient {
   final List<InterceptorContract> _interceptors;
+  final RetryPolicy? _retryPolicy;
   late final InterceptedHttp _http;
 
   RocciaApiClient({
     List<InterceptorContract>? interceptors,
-  }) : _interceptors = interceptors ?? [] {
+    RetryPolicy? retryPolicy,
+  })  : _interceptors = interceptors ?? [],
+        _retryPolicy = retryPolicy {
     _http = InterceptedHttp.build(
       interceptors: _interceptors,
+      retryPolicy: _retryPolicy,
       requestTimeout: Duration(seconds: AppConstants.apiRequestTimeout),
     );
   }
@@ -26,9 +30,17 @@ class RocciaApiClient {
   Future<Map<String, dynamic>> get(
     Uri path, {
     Map<String, String>? headers,
-  }) {
-    // TODO: implement get
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _http.get(
+        path,
+        headers: headers,
+      );
+      return _processResponse(response);
+    } catch (e, stackTrace) {
+      _errorHandler(e, stackTrace);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> post(
@@ -37,8 +49,7 @@ class RocciaApiClient {
     Map<String, dynamic>? body,
   }) async {
     try {
-      headers ??= {};
-      headers["Content-Type"] = "application/json";
+      headers = _addContentTypeHeader(headers);
       final response = await _http.post(
         path,
         headers: headers,
@@ -67,8 +78,7 @@ class RocciaApiClient {
     Map<String, dynamic>? body,
   }) async {
     try {
-      headers ??= {};
-      headers["Content-Type"] = "application/json";
+      headers = _addContentTypeHeader(headers);
       final response = await _http.patch(
         path,
         headers: headers,
@@ -106,6 +116,13 @@ class RocciaApiClient {
 
     final Map<String, dynamic> data = body["data"] ?? {};
     return data;
+  }
+
+  // add content type header
+  Map<String, String> _addContentTypeHeader(Map<String, String>? headers) {
+    headers ??= {};
+    headers["Content-Type"] = "application/json";
+    return headers;
   }
 
   void _errorHandler(e, StackTrace stackTrace) {
@@ -196,15 +213,15 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
   Future<void> _refreshToken() async {
     final refreshToken = await _tokenRepo.refreshToken;
-    final uri = _api.refreshToken();
+    final uri = _api.auth.refreshToken();
     // Pure dart http
     final response = await http.post(
       uri,
       headers: {
         "Content-Type": "application/json",
       },
-      body:
-          jsonEncode(_api.refreshTokenRequestBody(refreshToken: refreshToken)),
+      body: jsonEncode(
+          _api.auth.refreshTokenRequestBody(refreshToken: refreshToken)),
       encoding: utf8,
     );
     if (response.statusCode != 200) {
