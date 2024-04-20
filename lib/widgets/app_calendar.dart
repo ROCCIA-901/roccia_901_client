@@ -14,68 +14,89 @@ class CalendarEvent {
   const CalendarEvent(this.backgroundColor, this.dateColor);
 }
 
-class AppCalendar extends StatelessWidget {
-  final double _width;
-  final double _height;
-  late final DateTime _today;
-  late final double _dateFontSize;
-  late final LinkedHashMap<DateTime, CalendarEvent> _events;
+class AppCalendar extends StatefulWidget {
+  final double width;
+  final double height;
+  final void Function(DateTime)? onSelected;
+  late final double dateFontSize;
+  late final LinkedHashMap<DateTime, CalendarEvent> events;
 
   AppCalendar({
     super.key,
-    required double width,
-    required double height,
-    DateTime? focusedDay,
+    required this.width,
+    required this.height,
+    this.onSelected,
     Map<DateTime, CalendarEvent>? eventsSource,
-  })  : _height = height,
-        _width = width {
-    _today = _toMidnight(focusedDay ?? DateTime.now());
-    _dateFontSize = SizeConfig.safeBlockHorizontal * 4.0;
-    _events = _getEvents(eventsSource ?? {});
+  }) {
+    dateFontSize = SizeConfig.safeBlockHorizontal * 4.0;
+    events = _getEvents(eventsSource ?? {});
   }
+
+  @override
+  State<AppCalendar> createState() => _AppCalendarState();
+
+  LinkedHashMap<DateTime, CalendarEvent> _getEvents(
+      CalendarEventsSource eventsSource) {
+    return LinkedHashMap(
+      equals: isSameDay,
+    )..addAll(eventsSource);
+  }
+}
+
+class _AppCalendarState extends State<AppCalendar> {
+  late final DateTime _today = _toMidnight(DateTime.now());
+
+  late final _dateTextStyle = TextStyle(
+    fontSize: widget.dateFontSize,
+    color: AppColors.grayDark,
+  );
+  late final _todayTextStyle = _dateTextStyle.copyWith(
+    fontSize: widget.dateFontSize * 1.2,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  );
+
+  DateTime? _selectedDay;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: _width,
-      height: _height,
+      width: widget.width,
+      height: widget.height,
       child: TableCalendar(
         focusedDay: _today,
         shouldFillViewport: true,
-        // selectedDayPredicate: (day) => isSameDay(day, today),
         firstDay: DateTime(2015),
         lastDay: DateTime(2050),
         locale: 'ko-KR',
-        // onDaySelected: _onDaySelected,
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
         ),
-        daysOfWeekHeight: SizeConfig.safeBlockHorizontal * 6.0,
+        daysOfWeekHeight: SizeConfig.safeBlockHorizontal * 10.0,
         calendarStyle: _calendarStyle(),
         calendarBuilders: _calendarBuilders(),
+        onDaySelected: (selectedDay, _) {
+          if (widget.onSelected == null) {
+            return;
+          }
+          widget.onSelected!(selectedDay);
+          setState(() {
+            _selectedDay = _toMidnight(selectedDay);
+          });
+        },
       ),
     );
   }
 
   CalendarStyle _calendarStyle() {
-    final dateTextStyle = TextStyle(
-      fontSize: _dateFontSize,
-      color: AppColors.grayMedium,
-    );
     return CalendarStyle(
-      defaultTextStyle: dateTextStyle,
-      weekendTextStyle: dateTextStyle,
-      todayDecoration: switch (_events[_today]) {
-        null => BoxDecoration(
-            color: Colors.transparent,
-            border: Border(
-              bottom: BorderSide(width: 3, color: AppColors.grayMedium),
-            ),
-          ),
-        _ => BoxDecoration(),
-      },
-      todayTextStyle: dateTextStyle.copyWith(fontWeight: FontWeight.bold),
+      defaultTextStyle: _dateTextStyle,
+      weekendTextStyle: _dateTextStyle,
+      todayTextStyle: _todayTextStyle,
+      todayDecoration: BoxDecoration(
+        color: Colors.transparent,
+      ),
       outsideDaysVisible: false,
     );
   }
@@ -84,44 +105,44 @@ class AppCalendar extends StatelessWidget {
     return CalendarBuilders(
       markerBuilder: (context, dateUtc, _) {
         final date = _toMidnight(dateUtc);
-        if (_events[date] == null) {
+        if (widget.events[date] == null) {
           return null;
         }
-        return Container(
-          margin: const EdgeInsets.all(4.0),
-          alignment: Alignment.center,
-          width: SizeConfig.safeBlockHorizontal * 9.0,
-          decoration: BoxDecoration(
-            color: _events[date]!.backgroundColor,
-            shape: BoxShape.circle,
-            border: isSameDay(date, _today)
-                ? Border.all(
-                    width: SizeConfig.safeBlockHorizontal * 0.4,
-                    color: AppColors.grayMedium,
-                  )
-                : Border.all(
-                    color: Colors.transparent,
-                    width: 0.0,
-                  ),
-          ),
-          child: Text(
-            date.day.toString(),
-            style: TextStyle(color: _events[date]!.dateColor),
-          ),
-        );
+        return _makerStyle(date, widget.events[date]!.backgroundColor,
+            widget.events[date]!.dateColor);
       },
     );
-  }
-
-  LinkedHashMap<DateTime, CalendarEvent> _getEvents(
-      CalendarEventsSource eventsSource) {
-    return LinkedHashMap(
-      equals: isSameDay,
-    )..addAll(eventsSource);
   }
 
   // 시간을 전부 자정으로 바꾸는 함수
   DateTime _toMidnight(DateTime date) {
     return DateTime(date.year, date.month, date.day);
+  }
+
+  Container _makerStyle(
+    DateTime date,
+    Color backgroundColor,
+    Color dateColor,
+  ) {
+    if (isSameDay(date, _selectedDay)) {
+      backgroundColor = AppColors.grayMedium;
+      dateColor = Colors.white;
+    }
+    var textStyle = TextStyle(color: dateColor, fontSize: widget.dateFontSize);
+    if (isSameDay(date, _today)) {
+      textStyle = _todayTextStyle;
+    }
+    return Container(
+      alignment: Alignment.center,
+      width: SizeConfig.safeBlockHorizontal * 8.0,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+      ),
+      child: Text(
+        date.day.toString(),
+        style: textStyle,
+      ),
+    );
   }
 }
