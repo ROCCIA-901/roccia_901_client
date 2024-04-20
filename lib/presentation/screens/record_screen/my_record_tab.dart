@@ -74,7 +74,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _button(
-                        text: "저장하기",
+                        text: "기록하기",
                         width: _smallButtonWidth,
                         height: _buttonHeight,
                       ),
@@ -87,7 +87,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab> {
                   ),
                 )
               : _button(
-                  text: "저장하기",
+                  text: "기록하기",
                   width: _buttonWidth,
                   height: _buttonHeight,
                 ),
