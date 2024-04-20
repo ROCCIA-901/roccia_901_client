@@ -118,7 +118,6 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
                 AppCalendar(
                   width: SizeConfig.safeBlockHorizontal * 100,
                   height: SizeConfig.safeBlockVertical * 40,
-                  focusedDay: today,
                   eventsSource: switch (state) {
                     AsyncData(:final value) => value.eventsSource,
                     _ => {},
