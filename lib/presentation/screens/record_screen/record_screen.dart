@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:untitled/presentation/screens/record_screen/ranking_tab.dart';
 
 import '../../../constants/size_config.dart';
+import '../../viewmodels/record/record_screen_viewmodel.dart';
 import 'my_record_tab.dart';
 
-class RecordScreen extends StatefulWidget {
+class RecordScreen extends ConsumerStatefulWidget {
   const RecordScreen({Key? key}) : super(key: key);
 
   @override
-  State<RecordScreen> createState() => _RecordScreenState();
+  ConsumerState<RecordScreen> createState() => _RecordScreenState();
 }
 
-class _RecordScreenState extends State<RecordScreen>
+class _RecordScreenState extends ConsumerState<RecordScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -37,6 +40,7 @@ class _RecordScreenState extends State<RecordScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(recordScreenViewmodelProvider);
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -64,6 +68,16 @@ class _RecordScreenState extends State<RecordScreen>
               indicatorWeight: 3,
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
+              onTap: (_) {
+                if (ref
+                    .read(recordScreenViewmodelProvider)
+                    .isBottomSheetOpened) {
+                  ref
+                      .read(recordScreenViewmodelProvider.notifier)
+                      .closeBottomSheet();
+                  Navigator.of(context).pop();
+                }
+              },
             ),
             Expanded(
               child: TabBarView(
@@ -71,7 +85,7 @@ class _RecordScreenState extends State<RecordScreen>
                 controller: _tabController,
                 children: [
                   MyRecordTab(),
-                  MyRecordTab(),
+                  RankingTab(),
                   // RankingTab(),
                 ],
               ),
