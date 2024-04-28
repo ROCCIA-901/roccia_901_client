@@ -6,6 +6,7 @@ class AppTheme {
         colorScheme: ColorScheme.fromSeed(
           seedColor: Color(0xFFCAE4C1),
           primary: Color(0xFFCAE4C1),
+          secondary: Colors.white,
           onPrimary: Colors.white,
           background: Colors.white,
           brightness: Brightness.light,
