@@ -25,7 +25,8 @@ class RecordDates {
     }
   }
 
-  static List<DateTime> _datesFromJson(List<String> dates) {
-    return dates.map((e) => DateTime.parse(e)).toList();
+  static List<DateTime> _datesFromJson(List<dynamic> dates) {
+    final datesString = List<String>.from(dates);
+    return datesString.map((e) => DateTime.parse(e)).toList();
   }
 }
