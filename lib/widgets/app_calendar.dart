@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/size_config.dart';
@@ -17,6 +18,7 @@ class CalendarEvent {
 class AppCalendar extends StatefulWidget {
   final double width;
   final double height;
+  final DateTime? selectedDay;
   final void Function(DateTime)? onSelected;
   late final double dateFontSize;
   late final LinkedHashMap<DateTime, CalendarEvent> events;
@@ -25,6 +27,7 @@ class AppCalendar extends StatefulWidget {
     super.key,
     required this.width,
     required this.height,
+    this.selectedDay,
     this.onSelected,
     Map<DateTime, CalendarEvent>? eventsSource,
   }) {
@@ -59,6 +62,20 @@ class _AppCalendarState extends State<AppCalendar> {
   DateTime? _selectedDay;
 
   @override
+  void initState() {
+    super.initState();
+
+    _selectedDay = widget.selectedDay;
+  }
+
+  @override
+  void didUpdateWidget(covariant AppCalendar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    _selectedDay = widget.selectedDay;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width,
@@ -72,6 +89,18 @@ class _AppCalendarState extends State<AppCalendar> {
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
+        ),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: GoogleFonts.inter().copyWith(
+            fontSize: widget.dateFontSize,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+          ),
+          weekendStyle: GoogleFonts.inter().copyWith(
+            fontSize: widget.dateFontSize,
+            fontWeight: FontWeight.bold,
+            color: AppColors.redLight,
+          ),
         ),
         daysOfWeekHeight: SizeConfig.safeBlockHorizontal * 10.0,
         calendarStyle: _calendarStyle(),
@@ -106,6 +135,9 @@ class _AppCalendarState extends State<AppCalendar> {
       markerBuilder: (context, dateUtc, _) {
         final date = _toMidnight(dateUtc);
         if (widget.events[date] == null) {
+          if (isSameDay(date, _selectedDay)) {
+            return _selectedStyle(AppColors.grayMedium);
+          }
           return null;
         }
         return _makerStyle(date, widget.events[date]!.backgroundColor,
@@ -142,6 +174,25 @@ class _AppCalendarState extends State<AppCalendar> {
       child: Text(
         date.day.toString(),
         style: textStyle,
+      ),
+    );
+  }
+
+  Container _selectedStyle(
+    Color backgroundColor,
+  ) {
+    return Container(
+      alignment: Alignment.center,
+      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockHorizontal * 1.8),
+      width: SizeConfig.safeBlockHorizontal * 8.0,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border(
+          bottom: BorderSide(
+            color: backgroundColor,
+            width: SizeConfig.safeBlockHorizontal * 0.5,
+          ),
+        ),
       ),
     );
   }
