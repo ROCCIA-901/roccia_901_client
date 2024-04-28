@@ -7,6 +7,7 @@ class SnackBarHelper {
       ..showSnackBar(
         SnackBar(
           content: Text(content),
+          behavior: SnackBarBehavior.floating,
         ),
       );
   }

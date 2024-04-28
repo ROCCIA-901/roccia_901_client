@@ -28,7 +28,7 @@ class _MyAppState extends State<MyPageScreen> {
               children: [
                 Container(
                   child: SvgPicture.asset(
-                    'assets/icons/my_page.svg',
+                    'assets/titles/my_page_title.svg',
                     height: MediaQuery.of(context).size.width * (1 / 18),
                   ),
                 ),

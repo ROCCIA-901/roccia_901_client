@@ -72,53 +72,68 @@ enum Location {
   };
 }
 
-enum Level {
+enum BoulderLevel {
+  @JsonValue("노란색")
   yellow,
-  @JsonValue("노랑색")
-  orange,
   @JsonValue("주황색")
-  green,
+  orange,
   @JsonValue("초록색")
+  green,
+  @JsonValue("파란색")
   blue,
-  @JsonValue("파랑색")
+  @JsonValue("빨간색")
   red,
-  @JsonValue("빨강색")
-  purple,
   @JsonValue("보라색")
-  gray,
+  purple,
   @JsonValue("회색")
-  brown,
+  gray,
   @JsonValue("갈색")
+  brown,
+  @JsonValue("검정색")
   black;
 
-  @JsonValue("검정색")
-  static final Map<String, Level> fromName = {
-    "노랑색": Level.yellow,
-    "주황색": Level.orange,
-    "초록색": Level.green,
-    "파랑색": Level.blue,
-    "빨강색": Level.red,
-    "보라색": Level.purple,
-    "회색": Level.gray,
-    "갈색": Level.brown,
-    "검정색": Level.black,
+  static final Map<String, BoulderLevel> fromName = {
+    "노란색": BoulderLevel.yellow,
+    "주황색": BoulderLevel.orange,
+    "초록색": BoulderLevel.green,
+    "파란색": BoulderLevel.blue,
+    "빨간색": BoulderLevel.red,
+    "보라색": BoulderLevel.purple,
+    "회색": BoulderLevel.gray,
+    "갈색": BoulderLevel.brown,
+    "검정색": BoulderLevel.black,
   };
 
-  static final Map<Level, String> toName = {
-    Level.yellow: "노랑색",
-    Level.orange: "주황색",
-    Level.green: "초록색",
-    Level.blue: "파랑색",
-    Level.red: "빨강색",
-    Level.purple: "보라색",
-    Level.gray: "회색",
-    Level.brown: "갈색",
-    Level.black: "검정색"
+  static final Map<BoulderLevel, String> toName = {
+    BoulderLevel.yellow: "노란색",
+    BoulderLevel.orange: "주황색",
+    BoulderLevel.green: "초록색",
+    BoulderLevel.blue: "파란색",
+    BoulderLevel.red: "빨간색",
+    BoulderLevel.purple: "보라색",
+    BoulderLevel.gray: "회색",
+    BoulderLevel.brown: "갈색",
+    BoulderLevel.black: "검정색"
   };
 }
 
-/// Navigator.pop에 ApiCall의 결과를 전달할 때 사용
-enum ApiCallResult {
-  success,
-  failure,
-}
+// enum AttendanceStatus {
+//   @JsonValue("attendance")
+//   present,
+//   @JsonValue("absent")
+//   absent,
+//   @JsonValue("late")
+//   late;
+//
+//   static final Map<String, AttendanceStatus> fromName = {
+//     "출석": AttendanceStatus.present,
+//     "결석": AttendanceStatus.absent,
+//     "지각": AttendanceStatus.late,
+//   };
+//
+//   static final Map<AttendanceStatus, String> toName = {
+//     AttendanceStatus.present: "출석",
+//     AttendanceStatus.absent: "결석",
+//     AttendanceStatus.late: "지각",
+//   };
+// }

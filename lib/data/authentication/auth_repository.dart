@@ -31,10 +31,10 @@ class AuthRepository {
 
   Future<void> login({required String email, required String password}) async {
     try {
-      final uri = _api.login();
+      final uri = _api.auth.login();
       final body = await _apiClient.post(
         uri,
-        body: _api.loginRequestBody(email: email, password: password),
+        body: _api.auth.loginRequestBody(email: email, password: password),
       );
       final token = Token.fromJson(body);
       if (token.refresh == null) {
@@ -52,7 +52,7 @@ class AuthRepository {
 
   Future<void> register({required RegisterForm form}) async {
     try {
-      final uri = _api.register();
+      final uri = _api.auth.register();
       final body = await _apiClient.post(
         uri,
         body: form.toJson(),
@@ -73,10 +73,10 @@ class AuthRepository {
 
   Future<void> requestRegisterAuthCode({required String email}) async {
     try {
-      final uri = _api.getRegisterAuthCode();
+      final uri = _api.auth.getRegisterAuthCode();
       await _apiClient.post(
         uri,
-        body: _api.getRegisterAuthCodeRequestBody(email: email),
+        body: _api.auth.getRegisterAuthCodeRequestBody(email: email),
       );
     } catch (e, stackTrace) {
       _errorHandler(e, stackTrace);
@@ -88,10 +88,10 @@ class AuthRepository {
     required String authCode,
   }) async {
     try {
-      final uri = _api.verifyRegisterAuthCode();
+      final uri = _api.auth.verifyRegisterAuthCode();
       await _apiClient.post(
         uri,
-        body: _api.verifyRegisterAuthCodeRequestBody(
+        body: _api.auth.verifyRegisterAuthCodeRequestBody(
           email: email,
           authCode: authCode,
         ),
@@ -103,10 +103,10 @@ class AuthRepository {
 
   Future<void> requestPasswordUpdateAuthCode({required String email}) async {
     try {
-      final uri = _api.getPasswordUpdateAuthCode();
+      final uri = _api.auth.getPasswordUpdateAuthCode();
       await _apiClient.post(
         uri,
-        body: _api.getPasswordUpdateAuthCodeRequestBody(email: email),
+        body: _api.auth.getPasswordUpdateAuthCodeRequestBody(email: email),
       );
     } catch (e, stackTrace) {
       _errorHandler(e, stackTrace);
@@ -118,10 +118,10 @@ class AuthRepository {
     required String authCode,
   }) async {
     try {
-      final uri = _api.verifyPasswordUpdateAuthCode();
+      final uri = _api.auth.verifyPasswordUpdateAuthCode();
       await _apiClient.post(
         uri,
-        body: _api.verifyPasswordUpdateAuthCodeRequestBody(
+        body: _api.auth.verifyPasswordUpdateAuthCodeRequestBody(
           email: email,
           authCode: authCode,
         ),
@@ -136,10 +136,10 @@ class AuthRepository {
       required String password,
       required String passwordConfirmation}) async {
     try {
-      final uri = _api.updatePassword();
+      final uri = _api.auth.updatePassword();
       await _apiClient.patch(
         uri,
-        body: _api.updatePasswordRequestBody(
+        body: _api.auth.updatePasswordRequestBody(
           email: email,
           password: password,
           passwordConfirmation: passwordConfirmation,

@@ -21,10 +21,9 @@ class ApiRequestTimeoutException extends ApiException {
         );
 }
 
-class ApiRequestInvalidRefreshTokenException extends ApiException {
-  ApiRequestInvalidRefreshTokenException()
+class ApiUnkownException extends ApiException {
+  ApiUnkownException()
       : super(
-          statusCode: HttpStatus.unauthorized,
-          message: 'Refresh Token is invalid',
+          message: '알 수 없는 에러 발생. 운영진에게 문의바랍니다.',
         );
 }

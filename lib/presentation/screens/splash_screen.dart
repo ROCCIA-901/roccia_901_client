@@ -25,7 +25,7 @@
 //       body: Container(
 //         alignment: Alignment.center,
 //         child: SvgPicture.asset(
-//           'assets/roccia_full_logo.svg',
+//           'assets/logos/roccia_full_logo.svg',
 //           width: SizeConfig.safeBlockHorizontal * 55,
 //         ),
 //       ),

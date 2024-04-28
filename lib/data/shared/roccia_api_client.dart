@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:http/http.dart' as http;
@@ -12,13 +13,17 @@ import '../authentication/token_repository.dart';
 
 class RocciaApiClient {
   final List<InterceptorContract> _interceptors;
+  final RetryPolicy? _retryPolicy;
   late final InterceptedHttp _http;
 
   RocciaApiClient({
     List<InterceptorContract>? interceptors,
-  }) : _interceptors = interceptors ?? [] {
+    RetryPolicy? retryPolicy,
+  })  : _interceptors = interceptors ?? [],
+        _retryPolicy = retryPolicy {
     _http = InterceptedHttp.build(
       interceptors: _interceptors,
+      retryPolicy: _retryPolicy,
       requestTimeout: Duration(seconds: AppConstants.apiRequestTimeout),
     );
   }
@@ -26,9 +31,17 @@ class RocciaApiClient {
   Future<Map<String, dynamic>> get(
     Uri path, {
     Map<String, String>? headers,
-  }) {
-    // TODO: implement get
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _http.get(
+        path,
+        headers: headers,
+      );
+      return _processResponse(response);
+    } catch (e, stackTrace) {
+      _errorHandler(e, stackTrace);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> post(
@@ -37,8 +50,7 @@ class RocciaApiClient {
     Map<String, dynamic>? body,
   }) async {
     try {
-      headers ??= {};
-      headers["Content-Type"] = "application/json";
+      headers = _addContentTypeHeader(headers);
       final response = await _http.post(
         path,
         headers: headers,
@@ -56,9 +68,20 @@ class RocciaApiClient {
     Uri path, {
     Map<String, String>? headers,
     Map<String, dynamic>? body,
-  }) {
-    // TODO: implement put
-    throw UnimplementedError();
+  }) async {
+    try {
+      headers = _addContentTypeHeader(headers);
+      final response = await _http.put(
+        path,
+        headers: headers,
+        body: jsonEncode(body),
+        encoding: utf8,
+      );
+      return _processResponse(response);
+    } catch (e, stackTrace) {
+      _errorHandler(e, stackTrace);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> patch(
@@ -67,8 +90,7 @@ class RocciaApiClient {
     Map<String, dynamic>? body,
   }) async {
     try {
-      headers ??= {};
-      headers["Content-Type"] = "application/json";
+      headers = _addContentTypeHeader(headers);
       final response = await _http.patch(
         path,
         headers: headers,
@@ -85,9 +107,18 @@ class RocciaApiClient {
   Future<Map<String, dynamic>> delete(
     Uri path, {
     Map<String, String>? headers,
-  }) {
-    // TODO: implement delete
-    throw UnimplementedError();
+  }) async {
+    try {
+      final response = await _http.delete(
+        path,
+        headers: headers,
+        encoding: utf8,
+      );
+      return _processResponse(response);
+    } catch (e, stackTrace) {
+      _errorHandler(e, stackTrace);
+      rethrow;
+    }
   }
 
   /// If the response is successful, body is returned.
@@ -108,6 +139,13 @@ class RocciaApiClient {
     return data;
   }
 
+  // add content type header
+  Map<String, String> _addContentTypeHeader(Map<String, String>? headers) {
+    headers ??= {};
+    headers["Content-Type"] = "application/json";
+    return headers;
+  }
+
   void _errorHandler(e, StackTrace stackTrace) {
     logger.w("On Rccia API Client: ${e.toString()}",
         stackTrace: stackTrace, error: e);
@@ -120,10 +158,16 @@ class RocciaApiClient {
 }
 
 class RocciaApiAuthInterceptor extends InterceptorContract {
+  final TokenRepository _tokenRepo;
+
+  RocciaApiAuthInterceptor(this._tokenRepo);
+
   @override
   Future<BaseRequest> interceptRequest({
     required BaseRequest request,
   }) async {
+    request.headers[HttpHeaders.authorizationHeader] =
+        "Bearer ${await _tokenRepo.accessToken}";
     return request;
   }
 
@@ -140,7 +184,10 @@ class RocciaApiLoggerInterceptor extends InterceptorContract {
   Future<BaseRequest> interceptRequest({
     required BaseRequest request,
   }) async {
-    logger.i('Roccia Api Request: ${request.url}');
+    logger.i('Roccia Api Request: ${request.method} ${request.url}');
+    if (request is Request && request.body != "") {
+      logger.d('Roccia Api Request Body: ${request.body}');
+    }
     return request;
   }
 
@@ -153,7 +200,7 @@ class RocciaApiLoggerInterceptor extends InterceptorContract {
         final body =
             jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         logger.i(
-            'Roccia Api Response: ${response.statusCode}: ${body["detail"] ?? ''}');
+            'Roccia Api Response: ${response.request?.url ?? ""} ${response.statusCode}: ${body["detail"] ?? ''}');
       }
     } on FormatException catch (e, stackTrace) {
       logger.w('On Roccia API Client: Body is not JSON format',
@@ -176,6 +223,8 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
   ExpiredTokenRetryPolicy(this._api, this._tokenRepo);
 
+  static Future? isRefreshing;
+
   @override
   int get maxRetryAttempts => 2;
 
@@ -188,7 +237,13 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
   Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
-      await _refreshToken();
+      if (isRefreshing == null) {
+        isRefreshing = _refreshToken();
+      } else {
+        await isRefreshing?.whenComplete(() {
+          isRefreshing = null;
+        });
+      }
       return true;
     }
     return false;
@@ -196,22 +251,31 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
   Future<void> _refreshToken() async {
     final refreshToken = await _tokenRepo.refreshToken;
-    final uri = _api.refreshToken();
+    final uri = _api.auth.refreshToken();
+    final requestBody =
+        _api.auth.refreshTokenRequestBody(refreshToken: refreshToken);
     // Pure dart http
     final response = await http.post(
       uri,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body:
-          jsonEncode(_api.refreshTokenRequestBody(refreshToken: refreshToken)),
+      headers: {HttpHeaders.contentTypeHeader: "application/json"},
+      body: jsonEncode(requestBody),
       encoding: utf8,
     );
-    if (response.statusCode != 200) {
-      throw ApiRequestInvalidRefreshTokenException();
+    logger.i('Roccia Api Request: ${uri.toString()}');
+    logger.d('Roccia Api Request Body: $requestBody');
+    if (response.statusCode != HttpStatus.ok &&
+        response.statusCode != HttpStatus.badRequest &&
+        response.statusCode != HttpStatus.unauthorized) {
+      throw ApiUnkownException();
     }
     final body =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    if (response.statusCode != HttpStatus.ok) {
+      throw ApiException(
+        statusCode: response.statusCode,
+        message: body["detail"],
+      );
+    }
     final accessToken = body["data"]["token"]["access"];
     if (accessToken == null) {
       throw ApiException(
