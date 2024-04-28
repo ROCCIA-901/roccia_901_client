@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../constants/size_config.dart';
-import '../../exceptions/notification_exception.dart';
+import '../viewmodels/shared/notification_exception.dart';
 import '../../utils/dialog_helper.dart';
 import '../../utils/snack_bar_helper.dart';
 import '../../widgets/app_common_text_button.dart';
