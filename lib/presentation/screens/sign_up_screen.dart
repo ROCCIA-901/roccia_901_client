@@ -38,12 +38,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   late String _name; // 이름
   late String _introduction; // 소개
 
+  /// email이 인증되었는지
+  bool _isEmailVerified = false;
+
   /// Dropdown Button2에서 선택된 값들(package 이름이 button2 입니다.)
   // 선택되지 않은 초기값은 null
   int? _generation; // 기수
   UserRole? _userRole; // 역할
   Location? _location; // 운동 지점
-  Level? _level; // 운동 난이도
+  BoulderLevel? _level; // 운동 난이도
 
   /// 선택된 프로필
   int? _profileIndex;
@@ -72,7 +75,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _receiveNotification();
+    _setListener();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -118,6 +121,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         child: SizedBox(
                           width: SizeConfig.safeBlockHorizontal * 55.56,
                           child: TextFormField(
+                            readOnly: _isEmailVerified,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
                             style: GoogleFonts.roboto(
@@ -202,6 +206,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             alignment: Alignment.topLeft,
                             children: [
                               TextFormField(
+                                readOnly: _isEmailVerified,
                                 keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.done,
                                 style: GoogleFonts.roboto(
@@ -501,8 +506,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     /// 운동 난이도 label
                     InputLabel(label: '운동 난이도'),
                     GenericDropdown(
-                      values: Level.values,
-                      toName: Level.toName,
+                      values: BoulderLevel.values,
+                      toName: BoulderLevel.toName,
                       selectedValue: _level,
                       onChanged: changeLevel,
                       hintText: "본인의 볼더링 난이도를 선택해 주세요.(더클라임 기준)",
@@ -637,7 +642,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
   }
 
-  void changeLevel(Level? level) {
+  void changeLevel(BoulderLevel? level) {
     setState(() {
       _level = level;
     });
@@ -681,13 +686,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         .execute(email: _email, authCode: _authenticationCode);
   }
 
-  void _receiveNotification() {
-    _checkRequestAuthCode();
-    _checkEmailValidation();
-    _checkRegister();
+  void _setListener() {
+    _listenRequestAuthCode();
+    _listenEmailValidation();
+    _listenRegister();
   }
 
-  void _checkRequestAuthCode() {
+  void _listenRequestAuthCode() {
     ref.listen(
       requestRegisterAuthCodeControllerProvider,
       (previous, next) {
@@ -716,7 +721,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
   }
 
-  void _checkEmailValidation() {
+  void _listenEmailValidation() {
+    void onSuccess() {
+      SnackBarHelper.showTextSnackBar(context, "인증번호 확인이 성공했습니다.");
+      _countdownTimer.cancel();
+      setState(() {
+        _isEmailVerified = true;
+      });
+    }
+
     ref.listen(
       verifyRegisterAuthCodeControllerProvider,
       (previous, next) {
@@ -724,8 +737,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           data: (data) {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
-              SnackBarHelper.showTextSnackBar(context, "인증번호 확인이 성공했습니다.");
             }
+            onSuccess();
           },
           loading: () {
             DialogHelper.showLoaderDialog(context);
@@ -745,7 +758,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
   }
 
-  void _checkRegister() {
+  void _listenRegister() {
     ref.listen(
       registerControllerProvider,
       (previous, next) {
@@ -801,7 +814,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           generation: "$_generation기",
           role: UserRole.toName[_userRole]!,
           workoutLocation: Location.toName[_location]!,
-          workoutLevel: Level.toName[_level]!,
+          workoutLevel: BoulderLevel.toName[_level]!,
           profileNumber: _profileIndex! + 1,
           introduction: _introduction,
         );
