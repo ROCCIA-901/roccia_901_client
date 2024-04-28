@@ -9,7 +9,7 @@ import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting(); // Initialize for default locale
+  await initializeDateFormatting('ko'); // Initialize for default locale
   runApp(
     ProviderScope(
       child: MyApp(),
