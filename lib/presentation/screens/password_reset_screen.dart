@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/exceptions/notification_exception.dart';
+import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 
 import '../../constants/size_config.dart';

@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:untitled/exceptions/notification_exception.dart';
+import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
 
 import '../../../application/authentication/auth_use_case.dart';
 import '../../../data/shared/api_exception.dart';
