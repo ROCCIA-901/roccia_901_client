@@ -5,14 +5,19 @@ import '../../utils/app_logger.dart';
 
 part 'boulder_problem.g.dart';
 
-@JsonSerializable(checked: true, fieldRename: FieldRename.snake)
+@JsonSerializable(
+  checked: true,
+  includeIfNull: false,
+  fieldRename: FieldRename.snake,
+)
 class BoulderProblem {
+  @JsonKey(name: "workout_level")
   final BoulderLevel level;
-  final int numberOfCompletions;
+  final int count;
 
   const BoulderProblem({
     required this.level,
-    required this.numberOfCompletions,
+    required this.count,
   });
 
   // ------------------------------------------------------------------------ //
@@ -26,4 +31,6 @@ class BoulderProblem {
       rethrow;
     }
   }
+
+  Map<String, dynamic> toJson() => _$BoulderProblemToJson(this);
 }
