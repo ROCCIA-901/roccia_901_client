@@ -6,6 +6,7 @@ import 'package:untitled/widgets/app_calendar.dart';
 
 import '../../../application/attendance/attendance_use_cases.dart';
 import '../../../constants/app_colors.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'attendance_dates_viewmodel.g.dart';
 
@@ -22,8 +23,13 @@ class AttendanceDatesViewModel extends _$AttendanceDatesViewModel {
   @override
   Future<AttendanceDatesState> build() async {
     logger.d('Execute AttendanceDatesViewModel');
-    final AttendanceDates attendanceDates =
-        await ref.refresh(getAttendanceDatesUseCaseProvider.future);
+    late final AttendanceDates attendanceDates;
+    try {
+      attendanceDates =
+          await ref.refresh(getAttendanceDatesUseCaseProvider.future);
+    } catch (e, stackTrace) {
+      exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
+    }
     return AttendanceDatesState(
       eventsSource: _buildEventsSource(attendanceDates),
     );

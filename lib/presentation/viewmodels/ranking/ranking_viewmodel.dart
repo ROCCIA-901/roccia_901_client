@@ -3,6 +3,7 @@ import 'package:untitled/domain/ranking/rankings.dart';
 
 import '../../../application/ranking/ranking_use_case.dart';
 import '../../../constants/app_enum.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'ranking_viewmodel.g.dart';
 
@@ -36,8 +37,13 @@ class RankingProfileState {
 class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
   @override
   Future<WeeklyRankingsState> build() async {
-    return _fromModel(
-        await ref.refresh(getWeeklyRankingsUseCaseProvider.future));
+    try {
+      return _fromModel(
+          await ref.refresh(getWeeklyRankingsUseCaseProvider.future));
+    } catch (e, stackTrace) {
+      exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
+      rethrow; // Never execute
+    }
   }
 
   WeeklyRankingsState _fromModel(WeeklyRankings weeklyRankings) {
@@ -73,8 +79,13 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
 class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
   @override
   Future<GenerationRankingsState> build() async {
-    return _fromModel(
-        await ref.refresh(getGenerationRankingsUseCaseProvider.future));
+    try {
+      return _fromModel(
+          await ref.refresh(getGenerationRankingsUseCaseProvider.future));
+    } catch (e, stackTrace) {
+      exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
+      rethrow; // Never execute
+    }
   }
 
   GenerationRankingsState _fromModel(GenerationRankings generationRankings) {

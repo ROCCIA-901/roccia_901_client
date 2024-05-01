@@ -2,8 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
 
 import '../../../application/authentication/auth_use_case.dart';
-import '../../../data/shared/api_exception.dart';
 import '../../../utils/app_logger.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'password_update_viewmodel.g.dart';
 
@@ -22,11 +22,16 @@ class RequestPasswordUpdateAuthCodeController
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () async {
-        await ref.refresh(
-          requestPasswordUpdateAuthCodeUseCaseProvider(
-            email: email,
-          ).future,
-        );
+        try {
+          await ref.refresh(
+            requestPasswordUpdateAuthCodeUseCaseProvider(
+              email: email,
+            ).future,
+          );
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
+        }
       },
     );
   }
@@ -48,12 +53,17 @@ class VerifyPasswordUpdateAuthCodeController
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () async {
-        await ref.refresh(
-          verifyPasswordUpdateAuthCodeUseCaseProvider(
-            email: email,
-            authCode: authCode,
-          ).future,
-        );
+        try {
+          await ref.refresh(
+            verifyPasswordUpdateAuthCodeUseCaseProvider(
+              email: email,
+              authCode: authCode,
+            ).future,
+          );
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
+        }
       },
     );
   }
@@ -86,8 +96,9 @@ class UpdatePasswordController extends _$UpdatePasswordController {
               passwordConfirm: passwordConfirm,
             ).future,
           );
-        } on ApiException catch (e) {
-          throw NotificationException(e.message);
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
         }
       },
     );

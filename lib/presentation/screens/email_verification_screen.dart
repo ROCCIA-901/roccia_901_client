@@ -1,18 +1,22 @@
+import 'dart:math';
+
+import 'package:auto_route/auto_route.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:untitled/presentation/screens/password_reset_screen.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/authentication/password_update_viewmodel.dart';
 
 import '../../constants/app_constants.dart';
 import '../../constants/size_config.dart';
-import '../../data/shared/api_exception.dart';
 import '../../utils/countdown_timer.dart';
 import '../../utils/dialog_helper.dart';
 import '../../utils/snack_bar_helper.dart';
 import '../../widgets/app_common_text_button.dart';
 
+@RoutePage()
 class EmailVerificationScreen extends ConsumerStatefulWidget {
   const EmailVerificationScreen({super.key});
 
@@ -54,7 +58,7 @@ class _EmailVerificationScreenState
 
   @override
   Widget build(BuildContext context) {
-    _receiveNotification();
+    _setListeners();
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -65,14 +69,7 @@ class _EmailVerificationScreenState
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: SizeConfig.safeBlockVertical * 18),
-
-              /// Logo
-              SvgPicture.asset(
-                'assets/logos/roccia_full_logo.svg',
-                width: SizeConfig.safeBlockHorizontal * 50,
-              ),
-              SizedBox(height: SizeConfig.safeBlockVertical * 6),
+              _buildLogo(),
 
               /// "비밀번호 찾기"
               InputLabel(label: "비밀번호 찾기"),
@@ -81,7 +78,7 @@ class _EmailVerificationScreenState
               Container(
                 width: double.maxFinite,
                 margin: EdgeInsets.only(
-                  bottom: SizeConfig.safeBlockVertical * 0.7,
+                  bottom: SizeConfig.safeBlockHorizontal * 2,
                 ),
                 alignment: Alignment.center,
                 child: AspectRatio(
@@ -97,6 +94,10 @@ class _EmailVerificationScreenState
                           child: TextFormField(
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
+                            style: GoogleFonts.roboto(
+                              fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                              color: Colors.black,
+                            ),
                             decoration: InputDecoration(
                               labelText: '이메일을 입력해주세요.',
                               labelStyle: GoogleFonts.roboto(
@@ -161,7 +162,7 @@ class _EmailVerificationScreenState
               Container(
                 width: double.maxFinite,
                 margin: EdgeInsets.only(
-                  bottom: SizeConfig.safeBlockVertical * 3.0,
+                  bottom: SizeConfig.safeBlockHorizontal * 3,
                 ),
                 alignment: Alignment.center,
                 child: AspectRatio(
@@ -274,6 +275,19 @@ class _EmailVerificationScreenState
     );
   }
 
+  Widget _buildLogo() {
+    return Container(
+        alignment: Alignment.bottomCenter,
+        padding: EdgeInsets.only(
+          bottom: SizeConfig.safeBlockVertical * 7,
+        ),
+        height: SizeConfig.safeBlockVertical * 40,
+        child: Image(
+            image: AssetImage('assets/logos/roccia_full_logo.png'),
+            height: min(SizeConfig.safeBlockHorizontal * 22,
+                SizeConfig.safeBlockVertical * 16)));
+  }
+
   /// 카운트다운 초당 callback 함수
   void decreaseCount() {
     setState(() {
@@ -283,6 +297,9 @@ class _EmailVerificationScreenState
     });
   }
 
+  // ------------------------------------------------------------------------ //
+  // Event Handlers                                                           //
+  // ------------------------------------------------------------------------ //
   /// 인증번호 받기 버튼을 눌렀을 때 호출되는 함수
   void _requestAuthCode() {
     if (!(_emailFormKey.currentState!.validate())) {
@@ -294,7 +311,7 @@ class _EmailVerificationScreenState
         );
   }
 
-  /// 인증번호 확인 버튼을 눌렀을 때 호출되는 함수
+  /// 비밀번호 변경하기 버튼 눌렀을 때 호출되는 함수
   void _verifyAuthCode() {
     if (!(_emailFormKey.currentState!.validate()) ||
         !(_authCodeFormKey.currentState!.validate())) {
@@ -308,12 +325,15 @@ class _EmailVerificationScreenState
         );
   }
 
-  void _receiveNotification() {
-    _checkRequestAuthCode();
-    _checkVerifyAuthCode();
+  // ------------------------------------------------------------------------ //
+  // Notification Listeners                                                   //
+  // ------------------------------------------------------------------------ //
+  void _setListeners() {
+    _listenRequestAuthCode();
+    _listenVerifyAuthCode();
   }
 
-  void _checkRequestAuthCode() {
+  void _listenRequestAuthCode() {
     ref.listen(
       requestPasswordUpdateAuthCodeControllerProvider,
       (previous, next) {
@@ -331,10 +351,8 @@ class _EmailVerificationScreenState
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is ApiException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
@@ -342,7 +360,12 @@ class _EmailVerificationScreenState
     );
   }
 
-  void _checkVerifyAuthCode() {
+  void _listenVerifyAuthCode() {
+    void onSuccess() {
+      SnackBarHelper.showTextSnackBar(context, "인증번호 확인이 성공했습니다.");
+      AutoRouter.of(context).pushWidget(PasswordResetScreen(email: _email));
+    }
+
     ref.listen(
       verifyPasswordUpdateAuthCodeControllerProvider,
       (previous, next) {
@@ -350,8 +373,7 @@ class _EmailVerificationScreenState
           data: (data) {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
-              SnackBarHelper.showTextSnackBar(context, "인증번호 확인이 성공했습니다.");
-              _onPressedToUpdatePassword();
+              onSuccess();
             }
           },
           loading: () {
@@ -361,19 +383,13 @@ class _EmailVerificationScreenState
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is ApiException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
       },
     );
-  }
-
-  void _onPressedToUpdatePassword() {
-    // Navigator.pushNamed(context, '/update_password');
   }
 }
 
@@ -393,7 +409,7 @@ class InputLabel extends StatelessWidget {
       padding: EdgeInsets.only(
         left: SizeConfig.safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 1.5),
+      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockHorizontal * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
@@ -440,7 +456,7 @@ class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        cornerRadius: 10,
+        cornerRadius: 6,
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: () {

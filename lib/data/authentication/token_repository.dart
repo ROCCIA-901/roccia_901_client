@@ -19,19 +19,13 @@ class TokenRepository {
   final _accessTokenKey = 'access_token';
   final _refreshTokenKey = 'refresh_token';
 
-  Future<String> get accessToken async {
+  Future<String?> get accessToken async {
     final accessToken = await _appStorage.read(key: _accessTokenKey);
-    if (accessToken == null) {
-      throw Exception('Access Token is null');
-    }
     return accessToken;
   }
 
-  Future<String> get refreshToken async {
+  Future<String?> get refreshToken async {
     final refreshToken = await _appStorage.read(key: _refreshTokenKey);
-    if (refreshToken == null) {
-      throw Exception('Refresh Token is null');
-    }
     return refreshToken;
   }
 

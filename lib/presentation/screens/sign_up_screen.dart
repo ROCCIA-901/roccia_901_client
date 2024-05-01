@@ -1,11 +1,14 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/data/shared/api_exception.dart';
+import 'package:untitled/constants/app_colors.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/authentication/register_viewmodel.dart';
+import 'package:untitled/utils/app_router.dart';
 import 'package:untitled/utils/dialog_helper.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 
@@ -18,6 +21,7 @@ import '../../widgets/app_common_text_button.dart';
 // Todo 드롭다운 메뉴 확장 시 화면 스크롤 안되는 문제 해결
 // Todo Timer Logic이 UI에 종속되어 있음. Timer Logic을 분리하자.
 
+@RoutePage()
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
@@ -38,7 +42,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   late String _name; // 이름
   late String _introduction; // 소개
 
-  /// email이 인증되었는지
+  // 인증번호 요청 버튼이 눌렸는지
+  bool _isRequestAuthCodePressed = false;
+  // email이 인증되었는지
   bool _isEmailVerified = false;
 
   /// Dropdown Button2에서 선택된 값들(package 이름이 button2 입니다.)
@@ -54,6 +60,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   /// 인증 타임아웃 카운트다운을 위한 변수
   late int _currentCount; // 화면에 표시되는 현재 카운트
   late CountdownTimer _countdownTimer;
+
+  /// 제출을 한번이라도 시도 했는지
+  bool _hasTriedSubmit = false;
 
   @override
   void initState() {
@@ -121,7 +130,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         child: SizedBox(
                           width: SizeConfig.safeBlockHorizontal * 55.56,
                           child: TextFormField(
-                            readOnly: _isEmailVerified,
+                            readOnly:
+                                _isRequestAuthCodePressed || _isEmailVerified,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
                             style: GoogleFonts.roboto(
@@ -146,6 +156,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 borderRadius: BorderRadius.circular(6),
                                 borderSide: BorderSide(
                                   color: Color(0xFFD1D3D9),
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6),
+                                borderSide: BorderSide(
+                                  color: Colors.red,
                                 ),
                               ),
                               border: OutlineInputBorder(
@@ -182,6 +198,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           _countdownTimer.restart();
                           _requestRegisterAuthCode();
                         },
+                        enabled: !_isEmailVerified,
                       ),
                     ],
                   ),
@@ -278,12 +295,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               color: Color(0xFFFFFFFF),
                             ),
                           ),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          cornerRadius: 10,
+                          backgroundColor: _isEmailVerified
+                              ? AppColors.grayLight
+                              : Theme.of(context).colorScheme.primary,
+                          cornerRadius: 6,
                           width: double.maxFinite,
                           height: double.maxFinite,
                           onPressed: () {
+                            if (_isEmailVerified) {
+                              return;
+                            }
                             _verifyRegisterAuthCode();
                           },
                         ),
@@ -336,6 +357,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               borderRadius: BorderRadius.circular(6),
                               borderSide: BorderSide(
                                 color: Color(0xFFD1D3D9),
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: BorderSide(
+                                color: Colors.red,
                               ),
                             ),
                             border: OutlineInputBorder(
@@ -398,6 +425,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 color: Color(0xFFD1D3D9),
                               ),
                             ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: BorderSide(
+                                color: Colors.red,
+                              ),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(6),
                               borderSide: BorderSide(
@@ -452,6 +485,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 color: Color(0xFFD1D3D9),
                               ),
                             ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: BorderSide(
+                                color: Colors.red,
+                              ),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(6),
                               borderSide: BorderSide(
@@ -477,6 +516,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     GenerationDropdown(
                       selectedValue: _generation,
                       onChanged: changeGeneration,
+                      doValidate: _hasTriedSubmit,
                     ),
                     SizedBox(height: SizeConfig.safeBlockVertical * 4.7),
 
@@ -488,6 +528,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       selectedValue: _userRole,
                       onChanged: changeRole,
                       hintText: "본인의 역할을 선택해 주세요.",
+                      doValidate: _hasTriedSubmit,
                     ),
                     SizedBox(height: SizeConfig.safeBlockVertical * 4.7),
 
@@ -500,6 +541,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       selectedValue: _location,
                       onChanged: changeLocation,
                       hintText: "본인의 운동 지점을 선택해 주세요.",
+                      doValidate: _hasTriedSubmit,
                     ),
                     SizedBox(height: SizeConfig.safeBlockVertical * 4.7),
 
@@ -511,6 +553,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       selectedValue: _level,
                       onChanged: changeLevel,
                       hintText: "본인의 볼더링 난이도를 선택해 주세요.(더클라임 기준)",
+                      doValidate: _hasTriedSubmit,
                     ),
                     SizedBox(height: SizeConfig.safeBlockVertical * 4.7),
 
@@ -548,6 +591,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         textInputAction: TextInputAction.newline,
                         maxLength: 300,
                         maxLines: 7,
+                        cursorOpacityAnimates: true,
                         style: GoogleFonts.roboto(
                           fontSize: SizeConfig.safeBlockHorizontal * 3.5,
                           color: Colors.black,
@@ -570,6 +614,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             borderRadius: BorderRadius.circular(6),
                             borderSide: BorderSide(
                               color: Color(0xFFD1D3D9),
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(
+                              color: Colors.red,
                             ),
                           ),
                           border: OutlineInputBorder(
@@ -607,7 +657,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ),
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  cornerRadius: 10,
+                  cornerRadius: 6,
                   width: double.maxFinite,
                   height: double.maxFinite,
                   onPressed: () {
@@ -665,10 +715,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   void _requestRegisterAuthCode() {
-    if (!(_emailFormKey.currentState!.validate())) {
-      return;
+    if (!_isRequestAuthCodePressed) {
+      if (!(_emailFormKey.currentState!.validate())) {
+        return;
+      }
+      _emailFormKey.currentState?.save();
     }
-    _emailFormKey.currentState?.save();
     ref
         .read(requestRegisterAuthCodeControllerProvider.notifier)
         .execute(email: _email);
@@ -679,13 +731,64 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         !(_authCodeFormKey.currentState!.validate())) {
       return;
     }
-    _emailFormKey.currentState?.save();
+    if (!_isRequestAuthCodePressed) {
+      SnackBarHelper.showTextSnackBar(context, "인증번호를 받아주세요.");
+      return;
+    }
     _authCodeFormKey.currentState?.save();
     ref
         .read(verifyRegisterAuthCodeControllerProvider.notifier)
         .execute(email: _email, authCode: _authenticationCode);
   }
 
+  void _submitResisterForm() {
+    setState(() {
+      _hasTriedSubmit = true;
+    });
+    final isEmailValid = _emailFormKey.currentState?.validate();
+    final isFormValid = _otherFormKey.currentState?.validate();
+
+    if (!_isEmailVerified) {
+      SnackBarHelper.showTextSnackBar(context, "이메일 인증을 완료해주세요.");
+      return;
+    }
+    if (_emailFormKey.currentState == null || isEmailValid != true) {
+      SnackBarHelper.showTextSnackBar(context, "이메일 형식이 올바르지 않습니다.");
+      return;
+    }
+    if (_otherFormKey.currentState == null || isFormValid != true) {
+      SnackBarHelper.showTextSnackBar(context, "비어있는 항목이 있습니다.");
+      return;
+    }
+    if (_generation == null ||
+        _userRole == null ||
+        _location == null ||
+        _level == null) {
+      SnackBarHelper.showTextSnackBar(context, "필수 항목을 선택해주세요.");
+      return;
+    }
+    if (_profileIndex == null) {
+      SnackBarHelper.showTextSnackBar(context, "프로필을 선택해주세요.");
+      return;
+    }
+    _otherFormKey.currentState?.save();
+    ref.read(registerControllerProvider.notifier).execute(
+          email: _email,
+          password: _password,
+          passwordConfirm: _passwordConfirm,
+          username: _name,
+          generation: "$_generation기",
+          role: UserRole.toName[_userRole]!,
+          workoutLocation: Location.toName[_location]!,
+          workoutLevel: BoulderLevel.toName[_level]!,
+          profileNumber: _profileIndex! + 1,
+          introduction: _introduction,
+        );
+  }
+
+  // ------------------------------------------------------------------------ //
+  // Notification Listeners                                                   //
+  // ------------------------------------------------------------------------ //
   void _setListener() {
     _listenRequestAuthCode();
     _listenEmailValidation();
@@ -693,6 +796,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   void _listenRequestAuthCode() {
+    void onSuccess() {
+      setState(() {
+        _isRequestAuthCodePressed = true;
+      });
+      SnackBarHelper.showTextSnackBar(context, "인증번호가 발송되었습니다.");
+    }
+
     ref.listen(
       requestRegisterAuthCodeControllerProvider,
       (previous, next) {
@@ -700,7 +810,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           data: (data) {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
-              SnackBarHelper.showTextSnackBar(context, "인증번호가 발송되었습니다.");
+              onSuccess();
             }
           },
           loading: () {
@@ -710,10 +820,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is ApiException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
@@ -747,10 +855,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is ApiException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
@@ -759,6 +865,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   void _listenRegister() {
+    void onSuccess() {
+      SnackBarHelper.showTextSnackBar(context, "회원가입이 완료되었습니다.");
+      AutoRouter.of(context).popUntilRoot();
+      AutoRouter.of(context).replace(MemberHomeRoute());
+    }
+
     ref.listen(
       registerControllerProvider,
       (previous, next) {
@@ -766,7 +878,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           data: (data) {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
-              SnackBarHelper.showTextSnackBar(context, "회원가입이 완료되었습니다.");
+              onSuccess();
             }
           },
           loading: () {
@@ -776,48 +888,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is ApiException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
       },
     );
-  }
-
-  void _submitResisterForm() {
-    if (_otherFormKey.currentState == null ||
-        !_otherFormKey.currentState!.validate()) {
-      SnackBarHelper.showTextSnackBar(context, "비어있는 항목이 있습니다.");
-      return;
-    }
-    if (_generation == null ||
-        _userRole == null ||
-        _location == null ||
-        _level == null) {
-      SnackBarHelper.showTextSnackBar(context, "필수 항목을 선택해주세요.");
-      return;
-    }
-    if (_profileIndex == null) {
-      SnackBarHelper.showTextSnackBar(context, "프로필을 선택해주세요.");
-      return;
-    }
-    _emailFormKey.currentState?.save();
-    _otherFormKey.currentState?.save();
-    ref.read(registerControllerProvider.notifier).execute(
-          email: _email,
-          password: _password,
-          passwordConfirm: _passwordConfirm,
-          username: _name,
-          generation: "$_generation기",
-          role: UserRole.toName[_userRole]!,
-          workoutLocation: Location.toName[_location]!,
-          workoutLevel: BoulderLevel.toName[_level]!,
-          profileNumber: _profileIndex! + 1,
-          introduction: _introduction,
-        );
   }
 }
 
@@ -853,14 +930,16 @@ class InputLabel extends StatelessWidget {
 /// 인증번호 받기 버튼
 /// 한번 누르면 onPressed 함수가 secondOnPressed로 바뀐다.
 class GetAuthenticationButton extends StatefulWidget {
+  final void Function() firstOnPressed;
+  final void Function() secondOnPressed;
+  final bool enabled;
+
   const GetAuthenticationButton({
     super.key,
     required this.firstOnPressed,
     required this.secondOnPressed,
+    this.enabled = true,
   });
-
-  final void Function() firstOnPressed;
-  final void Function() secondOnPressed;
 
   @override
   State<GetAuthenticationButton> createState() =>
@@ -883,11 +962,16 @@ class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
             color: Color(0xFFFFFFFF),
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        cornerRadius: 10,
+        backgroundColor: widget.enabled
+            ? Theme.of(context).colorScheme.primary
+            : AppColors.grayLight,
+        cornerRadius: 6,
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: () {
+          if (!widget.enabled) {
+            return;
+          }
           if (_isPressed) {
             widget.secondOnPressed();
           } else {
@@ -904,11 +988,22 @@ class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
 class GenerationDropdown extends StatelessWidget {
   final int? selectedValue;
   final void Function(int?) onChanged;
-  const GenerationDropdown({
+  final bool doValidate;
+
+  late final Color borderColor;
+
+  GenerationDropdown({
     super.key,
     required this.selectedValue,
     required this.onChanged,
-  });
+    this.doValidate = false,
+  }) {
+    if (doValidate && selectedValue == null) {
+      borderColor = Colors.red;
+    } else {
+      borderColor = AppColors.grayMediumDark;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -954,7 +1049,7 @@ class GenerationDropdown extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Color(0xFFD1D3D9),
+                color: borderColor,
               ),
               borderRadius: BorderRadius.circular(6),
             ),
@@ -969,7 +1064,7 @@ class GenerationDropdown extends StatelessWidget {
             width: SizeConfig.safeBlockHorizontal * 86,
             elevation: 3,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(6),
               color: Color(0xFFFFFFFF),
             ),
             offset: const Offset(0, 0),
@@ -998,6 +1093,9 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
   final T? selectedValue;
   final void Function(T?) onChanged;
   final String hintText;
+  final bool doValidate;
+
+  late final Color borderColor;
 
   GenericDropdown({
     super.key,
@@ -1006,7 +1104,14 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
     required this.selectedValue,
     required this.onChanged,
     required this.hintText,
-  });
+    this.doValidate = false,
+  }) {
+    if (doValidate && selectedValue == null) {
+      borderColor = Colors.red;
+    } else {
+      borderColor = AppColors.grayMediumDark;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1049,7 +1154,7 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Color(0xFFD1D3D9),
+                color: borderColor,
               ),
               borderRadius: BorderRadius.circular(6),
             ),
@@ -1064,7 +1169,7 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
             width: SizeConfig.safeBlockHorizontal * 86,
             elevation: 3,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(6),
               color: Color(0xFFFFFFFF),
             ),
             offset: const Offset(0, 0),
@@ -1130,7 +1235,7 @@ class ProfileSelection extends StatelessWidget {
               ),
               child: SvgPicture.asset(
                 'assets/profiles/profile_${index + 1}.svg',
-                fit: BoxFit.fill,
+                width: double.infinity,
               ),
             ),
           ),

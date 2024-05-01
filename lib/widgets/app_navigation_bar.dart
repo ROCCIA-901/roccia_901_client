@@ -1,47 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:untitled/constants/size_config.dart';
+
+import '../constants/app_colors.dart';
 
 class AppNavigationBar extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onItemSelected;
+  final Function(int) onTap;
 
-  const AppNavigationBar({
+  AppNavigationBar({
     super.key,
     required this.currentIndex,
-    required this.onItemSelected,
+    required this.onTap,
   });
+
+  /// Configurations
+  final double _height = SizeConfig.safeBlockVertical * 8.5;
+  static const List<String> _icons = [
+    "assets/icons/navi_home.svg",
+    "assets/icons/navi_calendar.svg",
+    "assets/icons/navi_crown.svg",
+    "assets/icons/navi_person.svg",
+  ];
+  static const List<String> _selectedIcons = [
+    "assets/icons/navi_home_selected.svg",
+    "assets/icons/navi_calendar_selected.svg",
+    "assets/icons/navi_crown_selected.svg",
+    "assets/icons/navi_person_selected.svg",
+  ];
+  static const List<String> _labels = ['홈', '기록', '랭킹', '마이페이지'];
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 90,
+      height: _height,
       child: BottomNavigationBar(
         backgroundColor: Color(0xfffbfbfb),
         type: BottomNavigationBarType.fixed,
         currentIndex: currentIndex,
-        onTap: onItemSelected,
-        selectedItemColor: const Color(0xffcae4c1),
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        iconSize: 40,
+        onTap: onTap,
+        selectedItemColor: AppColors.primary,
+        selectedFontSize: SizeConfig.safeBlockVertical * 1.5,
+        unselectedFontSize: SizeConfig.safeBlockVertical * 1.5,
         unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '홈',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: '기록',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.diversity_1),
-            label: '대회',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: '마이페이지',
-          ),
-        ],
+        items: _buildItems(),
+      ),
+    );
+  }
+
+  List<BottomNavigationBarItem> _buildItems() {
+    return List.generate(
+      _icons.length,
+      (index) => BottomNavigationBarItem(
+        icon: SvgPicture.asset(
+          currentIndex == index ? _selectedIcons[index] : _icons[index],
+          height: _height * 0.45,
+        ),
+        label: _labels[index],
       ),
     );
   }

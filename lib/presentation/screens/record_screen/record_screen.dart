@@ -1,3 +1,4 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/presentation/screens/record_screen/ranking_tab.dart';
@@ -6,8 +7,14 @@ import '../../../constants/size_config.dart';
 import '../../viewmodels/record/record_screen_viewmodel.dart';
 import 'my_record_tab.dart';
 
+@RoutePage()
 class RecordScreen extends ConsumerStatefulWidget {
-  const RecordScreen({Key? key}) : super(key: key);
+  final int? initialIndex;
+
+  const RecordScreen({
+    Key? key,
+    this.initialIndex,
+  }) : super(key: key);
 
   @override
   ConsumerState<RecordScreen> createState() => _RecordScreenState();
@@ -29,7 +36,18 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(
+        length: _tabs.length,
+        vsync: this,
+        initialIndex: widget.initialIndex ?? 0);
+  }
+
+  @override
+  void didUpdateWidget(covariant RecordScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialIndex != null) {
+      _tabController.animateTo(widget.initialIndex!);
+    }
   }
 
   @override
@@ -86,7 +104,6 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
                 children: [
                   MyRecordTab(),
                   RankingTab(),
-                  // RankingTab(),
                 ],
               ),
             ),

@@ -5,8 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/record/record_screen_viewmodel.dart';
-import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 import 'package:untitled/utils/time_of_day_utils.dart';
 import 'package:untitled/utils/toast_helper.dart';
@@ -37,10 +37,10 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   // widget size
   final double _calendarWidth = SizeConfig.safeBlockHorizontal * 90;
-  final double _calendarHeight = SizeConfig.safeBlockVertical * 40;
+  late final double _calendarHeight = _calendarWidth * 0.8;
   final double _recordDetailHeight = SizeConfig.safeBlockVertical * 42;
   final double _buttonWidth = SizeConfig.safeBlockHorizontal * 80;
-  final double _buttonHeight = SizeConfig.safeBlockVertical * 6;
+  late final double _buttonHeight = _buttonWidth * 0.15;
 
   @override
   void initState() {
@@ -60,6 +60,20 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
     if ((recordDatesState is! AsyncData || recordDatesState.value == null) &&
         (recordsState is! AsyncData || recordsState.value == null)) {
+      if (recordDatesState is AsyncError) {
+        exceptionHandlerOnView(
+          context,
+          e: recordDatesState.error as Exception,
+          stackTrace: recordDatesState.stackTrace ?? StackTrace.current,
+        );
+      }
+      if (recordsState is AsyncError) {
+        exceptionHandlerOnView(
+          context,
+          e: recordsState.error as Exception,
+          stackTrace: recordsState.stackTrace ?? StackTrace.current,
+        );
+      }
       return Center(child: CircularProgressIndicator());
     }
 
@@ -86,7 +100,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
         Container(
           margin: EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 5),
           alignment: Alignment.center,
-          child: _button(
+          child: _buildRecordButton(
             text: "기록하기",
             width: _buttonWidth,
             height: _buttonHeight,
@@ -97,6 +111,9 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     );
   }
 
+  // ------------------------------------------------------------------------ //
+  // Notification Listeners                                                   //
+  // ------------------------------------------------------------------------ //
   void _setListeners() {
     _listenRecordsViewModel();
     _listenRecordController();
@@ -110,10 +127,8 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           data: (_) {},
           loading: () {},
           error: (error, stackTrace) {
-            if (error is NotificationException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
@@ -150,10 +165,8 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is NotificationException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
@@ -200,7 +213,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     return false;
   }
 
-  Widget _button({
+  Widget _buildRecordButton({
     required String text,
     required double width,
     required double height,
@@ -817,7 +830,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.grayMediumDark
                     : AppColors.redMedium,
               ),
               SizedBox(
@@ -841,7 +854,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.grayMediumDark
                     : AppColors.redMedium,
               ),
             ],
@@ -1234,7 +1247,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.grayMediumDark
                     : AppColors.redMedium,
               ),
               SizedBox(
@@ -1258,7 +1271,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.grayMediumDark
                     : AppColors.redMedium,
               ),
             ],

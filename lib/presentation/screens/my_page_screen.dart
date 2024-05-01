@@ -1,12 +1,17 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+@RoutePage()
 class MyPageScreen extends StatefulWidget {
+  const MyPageScreen({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  State createState() => _MyPageScreenState();
 }
 
-class _MyAppState extends State<MyPageScreen> {
+class _MyPageScreenState extends State<MyPageScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
