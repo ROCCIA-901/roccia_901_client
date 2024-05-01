@@ -1,8 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:untitled/application/authentication/auth_use_case.dart';
-import 'package:untitled/data/shared/api_exception.dart';
 
-import '../shared/notification_exception.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 import '../../../utils/app_logger.dart';
 
 part 'login_viewmodel.g.dart';
@@ -29,8 +28,9 @@ class LoginController extends _$LoginController {
               password: password,
             ).future,
           );
-        } on ApiException catch (e) {
-          throw NotificationException(e.message);
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
         }
       },
     );
