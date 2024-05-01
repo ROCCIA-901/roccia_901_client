@@ -3,6 +3,7 @@ import 'package:untitled/application/authentication/auth_use_case.dart';
 
 import '../../../domain/authenticatioin/register_form.dart';
 import '../../../utils/app_logger.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'register_viewmodel.g.dart';
 
@@ -29,22 +30,27 @@ class RegisterController extends _$RegisterController {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () async {
-        await ref.refresh(
-          registerUseCaseProvider(
-            form: RegisterForm(
-              email: email,
-              password: password,
-              passwordConfirmation: passwordConfirm,
-              username: username,
-              generation: generation,
-              role: role,
-              workoutLocation: workoutLocation,
-              workoutLevel: workoutLevel,
-              profileNumber: profileNumber,
-              introduction: introduction,
-            ),
-          ).future,
-        );
+        try {
+          await ref.refresh(
+            registerUseCaseProvider(
+              form: RegisterForm(
+                email: email,
+                password: password,
+                passwordConfirmation: passwordConfirm,
+                username: username,
+                generation: generation,
+                role: role,
+                workoutLocation: workoutLocation,
+                workoutLevel: workoutLevel,
+                profileNumber: profileNumber,
+                introduction: introduction,
+              ),
+            ).future,
+          );
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
+        }
       },
     );
   }
@@ -65,11 +71,16 @@ class RequestRegisterAuthCodeController
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () async {
-        await ref.refresh(
-          requestRegisterAuthCodeUseCaseProvider(
-            email: email,
-          ).future,
-        );
+        try {
+          await ref.refresh(
+            requestRegisterAuthCodeUseCaseProvider(
+              email: email,
+            ).future,
+          );
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
+        }
       },
     );
   }
@@ -91,12 +102,17 @@ class VerifyRegisterAuthCodeController
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () async {
-        await ref.refresh(
-          verifyRegisterAuthCodeUseCaseProvider(
-            email: email,
-            authCode: authCode,
-          ).future,
-        );
+        try {
+          await ref.refresh(
+            verifyRegisterAuthCodeUseCaseProvider(
+              email: email,
+              authCode: authCode,
+            ).future,
+          );
+        } catch (e, stackTrace) {
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
+        }
       },
     );
   }

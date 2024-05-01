@@ -6,6 +6,7 @@ import '../../../constants/app_colors.dart';
 import '../../../domain/record/record_dates.dart';
 import '../../../utils/app_logger.dart';
 import '../../../widgets/app_calendar.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'record_dates_viewmodel.g.dart';
 
@@ -22,8 +23,12 @@ class RecordDatesViewModel extends _$RecordDatesViewModel {
   @override
   Future<RecordDatesState> build() async {
     logger.d('Execute RecordDatesViewModel');
-    final RecordDates recordDates =
-        await ref.refresh(getRecordDatesUseCaseProvider.future);
+    late final RecordDates recordDates;
+    try {
+      recordDates = await ref.refresh(getRecordDatesUseCaseProvider.future);
+    } catch (e, stackTrace) {
+      exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
+    }
     return RecordDatesState(
       eventsSource: _buildEventsSource(recordDates),
     );
