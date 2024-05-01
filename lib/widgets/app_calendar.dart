@@ -89,6 +89,22 @@ class _AppCalendarState extends State<AppCalendar> {
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
+          titleTextStyle: GoogleFonts.inter().copyWith(
+            fontSize: widget.dateFontSize * 1.2,
+            color: AppColors.grayDark,
+          ),
+          headerMargin: EdgeInsets.zero,
+          headerPadding: EdgeInsets.zero,
+          leftChevronIcon: Icon(
+            Icons.chevron_left,
+            size: widget.dateFontSize * 1.6,
+            color: AppColors.grayDark,
+          ),
+          rightChevronIcon: Icon(
+            Icons.chevron_right,
+            size: widget.dateFontSize * 1.6,
+            color: AppColors.grayDark,
+          ),
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
           weekdayStyle: GoogleFonts.inter().copyWith(
@@ -120,6 +136,9 @@ class _AppCalendarState extends State<AppCalendar> {
 
   CalendarStyle _calendarStyle() {
     return CalendarStyle(
+      cellMargin: EdgeInsets.zero,
+      cellPadding: EdgeInsets.zero,
+      cellAlignment: Alignment.center,
       defaultTextStyle: _dateTextStyle,
       weekendTextStyle: _dateTextStyle,
       todayTextStyle: _todayTextStyle,
