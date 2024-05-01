@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/ranking/ranking_viewmodel.dart';
 
 import '../../../constants/app_enum.dart';
@@ -57,6 +58,21 @@ class _RankingTabState extends ConsumerState<RankingTab> {
     var weeklyRankingsState = ref.watch(weeklyRankingsViewmodelProvider);
     var generationRankingsState =
         ref.watch(generationRankingsViewmodelProvider);
+
+    if (weeklyRankingsState is AsyncError) {
+      exceptionHandlerOnView(
+        context,
+        e: weeklyRankingsState.error as Exception,
+        stackTrace: weeklyRankingsState.stackTrace ?? StackTrace.current,
+      );
+    }
+    if (generationRankingsState is AsyncError) {
+      exceptionHandlerOnView(
+        context,
+        e: generationRankingsState.error as Exception,
+        stackTrace: generationRankingsState.stackTrace ?? StackTrace.current,
+      );
+    }
 
     return Column(
       children: [
