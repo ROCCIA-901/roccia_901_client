@@ -36,7 +36,7 @@ class ConfirmPopup extends StatelessWidget {
       actionsPadding: EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 3),
       backgroundColor: Color(0xFFFFFFFF),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       buttonPadding: EdgeInsets.symmetric(
         horizontal: SizeConfig.safeBlockHorizontal * 3,
       ),
