@@ -10,4 +10,23 @@ class AppConstants {
 
   /// 인증 번호 타임 아웃 시간(sec)
   static const int authenticationTimeOut = 600;
+
+  /// 배너 하이퍼링크 (asset, URL) 리스트
+  static const List<({String asset, String url})> banners = [
+    (
+      asset: 'assets/banners/howto.svg',
+      url:
+          'https://crystal-bowler-ff6.notion.site/71819cd3705b44eeb5b521ecfe1b7081?pvs=4',
+    ),
+    (
+      asset: 'assets/banners/notice.svg',
+      url:
+          'https://crystal-bowler-ff6.notion.site/ba37dd63ec12486a98c34a14a7eb0cc2?pvs=4',
+    ),
+    (
+      asset: 'assets/banners/rules.svg',
+      url:
+          'https://crystal-bowler-ff6.notion.site/Roccia-901-caedf2c1c911416c8162f7aaa25b59ae?pvs=4',
+    ),
+  ];
 }
