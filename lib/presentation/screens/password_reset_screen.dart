@@ -1,8 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 
 import '../../constants/size_config.dart';
@@ -27,7 +28,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _receiveNotification(context, ref);
+    _setListeners(context, ref);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -40,14 +41,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: SizeConfig.safeBlockVertical * 18),
-
-                /// Placeholder for logo
-                SvgPicture.asset(
-                  'assets/logos/roccia_full_logo.svg',
-                  width: SizeConfig.safeBlockHorizontal * 50,
-                ),
-                SizedBox(height: SizeConfig.safeBlockVertical * 6),
+                _buildLogo(),
 
                 /// "새 비밀번호"
                 InputLabel(label: "새 비밀번호"),
@@ -114,7 +108,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                 ),
                 SizedBox(
                   width: double.maxFinite,
-                  height: SizeConfig.safeBlockVertical * 2.5,
+                  height: SizeConfig.safeBlockHorizontal * 2,
                 ),
 
                 /// "새 비밀번호 확인"
@@ -174,7 +168,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                 ),
                 SizedBox(
                   width: double.maxFinite,
-                  height: SizeConfig.safeBlockVertical * 2,
+                  height: SizeConfig.safeBlockHorizontal * 3,
                 ),
 
                 /// 비밀번호 변경 버튼
@@ -205,6 +199,19 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
     );
   }
 
+  Widget _buildLogo() {
+    return Container(
+        alignment: Alignment.bottomCenter,
+        padding: EdgeInsets.only(
+          bottom: SizeConfig.safeBlockVertical * 7,
+        ),
+        height: SizeConfig.safeBlockVertical * 40,
+        child: Image(
+            image: AssetImage('assets/logos/roccia_full_logo.png'),
+            height: min(SizeConfig.safeBlockHorizontal * 22,
+                SizeConfig.safeBlockVertical * 16)));
+  }
+
   void _updatePassword(WidgetRef ref) {
     if (!(_formKey.currentState!.validate())) {
       return;
@@ -219,11 +226,14 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
     // Navigator.of(context).pushNamed('/login');
   }
 
-  void _receiveNotification(BuildContext context, WidgetRef ref) {
-    _checkUpdatePassword(context, ref);
+  // ------------------------------------------------------------------------ //
+  // Notification Listeners                                                   //
+  // ------------------------------------------------------------------------ //
+  void _setListeners(BuildContext context, WidgetRef ref) {
+    _listenUpdatePassword(context, ref);
   }
 
-  void _checkUpdatePassword(BuildContext context, WidgetRef ref) {
+  void _listenUpdatePassword(BuildContext context, WidgetRef ref) {
     ref.listen(
       updatePasswordControllerProvider,
       (previous, next) {
@@ -241,10 +251,8 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
             }
-            if (error is NotificationException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
             }
           },
         );
@@ -269,7 +277,7 @@ class InputLabel extends StatelessWidget {
       padding: EdgeInsets.only(
         left: SizeConfig.safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 1.5),
+      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockHorizontal * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
