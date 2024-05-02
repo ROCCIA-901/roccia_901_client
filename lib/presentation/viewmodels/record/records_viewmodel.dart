@@ -29,7 +29,7 @@ class RecordState {
 }
 
 @riverpod
-class RecordsViewModel extends _$RecordsViewModel {
+class RecordsViewmodel extends _$RecordsViewmodel {
   @override
   Future<List<RecordState>> build() async {
     logger.d('Execute RecordViewModel');
@@ -92,8 +92,8 @@ class RecordController extends _$RecordController {
         return RecordControllerAction.create;
       },
     );
-    ref.invalidate(recordsViewModelProvider);
-    ref.invalidate(recordDatesViewModelProvider);
+    ref.invalidate(recordsViewmodelProvider);
+    ref.invalidate(recordDatesViewmodelProvider);
   }
 
   Future<void> updateRecord({
@@ -116,8 +116,8 @@ class RecordController extends _$RecordController {
         return RecordControllerAction.update;
       },
     );
-    ref.invalidate(recordsViewModelProvider);
-    ref.invalidate(recordDatesViewModelProvider);
+    ref.invalidate(recordsViewmodelProvider);
+    ref.invalidate(recordDatesViewmodelProvider);
   }
 
   Future<void> deleteRecord({
@@ -138,8 +138,8 @@ class RecordController extends _$RecordController {
         return RecordControllerAction.delete;
       },
     );
-    ref.invalidate(recordsViewModelProvider);
-    ref.invalidate(recordDatesViewModelProvider);
+    ref.invalidate(recordsViewmodelProvider);
+    ref.invalidate(recordDatesViewmodelProvider);
   }
 
   RecordModel _toRecordModel(RecordState recordState) {

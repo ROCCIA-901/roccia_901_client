@@ -37,11 +37,13 @@ void _handleNotificationException(
 
       /// Todo: 로그인 요청 메시지 띄우기
       if (e.domain == NotificationDomain.auth) {
+        final currentRoute = AutoRouter.of(context).current;
         AutoRouter.of(context).push(
           LoginRoute(
-            onResult: (BuildContext context, bool result) {
+            onResult: (BuildContext innerContext, bool result) {
               if (result == true) {
-                AutoRouter.of(context).maybePop();
+                AutoRouter.of(innerContext).maybePop();
+                // AutoRouter.of(innerContext).navigate(currentRoute);
               }
             },
           ),

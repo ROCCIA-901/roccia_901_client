@@ -20,7 +20,7 @@ class LoginScreen extends ConsumerStatefulWidget {
   final void Function(BuildContext)? onInit;
   final void Function(BuildContext, bool)? onResult;
 
-  const LoginScreen({
+  LoginScreen({
     super.key,
     this.onInit,
     this.onResult,
@@ -56,7 +56,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: SizeConfig.safeBlockHorizontal * 7,
+            horizontal: AppSize.of(context).safeBlockHorizontal * 7,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -66,7 +66,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               /// Email Field
               EmailField(controller: _emailController),
-              SizedBox(height: SizeConfig.safeBlockHorizontal * 2),
+              SizedBox(height: AppSize.of(context).safeBlockHorizontal * 2),
 
               /// Password Field
               PasswordField(
@@ -75,7 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   _onPressedLogInButton(context, ref);
                 },
               ),
-              SizedBox(height: SizeConfig.safeBlockHorizontal * 3),
+              SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
 
               /// Login Button
               LoginButton(
@@ -83,7 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   _onPressedLogInButton(context, ref);
                 },
               ),
-              SizedBox(height: SizeConfig.safeBlockHorizontal * 2.5),
+              SizedBox(height: AppSize.of(context).safeBlockHorizontal * 2.5),
               _buildSignInAndPasswordResetButton(),
             ],
           ),
@@ -99,13 +99,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Container(
         alignment: Alignment.bottomCenter,
         padding: EdgeInsets.only(
-          bottom: SizeConfig.safeBlockVertical * 7,
+          bottom: AppSize.of(context).safeBlockVertical * 7,
         ),
-        height: SizeConfig.safeBlockVertical * 40,
+        height: AppSize.of(context).safeBlockVertical * 40,
         child: Image(
             image: AssetImage('assets/logos/roccia_full_logo.png'),
-            height: min(SizeConfig.safeBlockHorizontal * 22,
-                SizeConfig.safeBlockVertical * 16)));
+            height: min(AppSize.of(context).safeBlockHorizontal * 22,
+                AppSize.of(context).safeBlockVertical * 16)));
   }
 
   Widget _buildSignInAndPasswordResetButton() {
@@ -117,13 +117,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: Container(
           alignment: Alignment.center,
           padding: EdgeInsets.only(
-            bottom: SizeConfig.safeBlockHorizontal * 1,
+            bottom: AppSize.of(context).safeBlockHorizontal * 1,
           ),
           child: Text(
             text,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+              fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
               color: AppColors.grayMediumDark,
             ),
           ),
@@ -132,13 +132,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     Widget separator = Container(
-      width: SizeConfig.safeBlockHorizontal * 2.5,
+      width: AppSize.of(context).safeBlockHorizontal * 2.5,
       alignment: Alignment.center,
       child: Text(
         '|',
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
-          fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+          fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
           color: AppColors.grayMedium,
         ),
       ),
@@ -231,7 +231,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 class EmailField extends StatelessWidget {
   final TextEditingController controller;
 
-  const EmailField({
+  EmailField({
     super.key,
     required this.controller,
   });
@@ -244,24 +244,26 @@ class EmailField extends StatelessWidget {
         keyboardType: TextInputType.emailAddress,
         controller: controller,
         style: GoogleFonts.inter(
-          fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+          fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
           color: Colors.black,
         ),
         maxLines: 1,
         decoration: InputDecoration(
           hintText: '이메일',
           hintStyle: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             color: Color(0xFFD1D3D9),
           ),
           filled: true,
           fillColor: Colors.white,
           contentPadding: EdgeInsets.only(
-            left: SizeConfig.safeBlockHorizontal * 3,
-            bottom: SizeConfig.safeBlockHorizontal * 1.5,
+            left: AppSize.of(context).safeBlockHorizontal * 3,
+            bottom: AppSize.of(context).safeBlockHorizontal * 1.5,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(
+              AppSize.of(context).safeBlockHorizontal * 2,
+            ),
             borderSide: BorderSide(
               color: Color(0xFFD1D3D9),
             ),
@@ -278,7 +280,7 @@ class PasswordField extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onInputAction;
 
-  const PasswordField({
+  PasswordField({
     super.key,
     required this.controller,
     required this.onInputAction,
@@ -292,24 +294,26 @@ class PasswordField extends StatelessWidget {
         obscureText: true,
         controller: controller,
         style: GoogleFonts.inter(
-          fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+          fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
           color: Colors.black,
         ),
         maxLines: 1,
         decoration: InputDecoration(
           hintText: '비밀번호',
           hintStyle: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             color: Color(0xFFD1D3D9),
           ),
           filled: true,
           fillColor: Colors.white,
           contentPadding: EdgeInsets.only(
-            left: SizeConfig.safeBlockHorizontal * 3,
-            bottom: SizeConfig.safeBlockHorizontal * 1.5,
+            left: AppSize.of(context).safeBlockHorizontal * 3,
+            bottom: AppSize.of(context).safeBlockHorizontal * 1.5,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(
+              AppSize.of(context).safeBlockHorizontal * 2,
+            ),
             borderSide: BorderSide(
               color: Color(0xFFD1D3D9),
             ),
@@ -338,13 +342,13 @@ class LoginButton extends StatelessWidget {
         text: Text(
           '로그인',
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        cornerRadius: 10,
+        cornerRadius: AppSize.of(context).safeBlockHorizontal * 3,
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: () {

@@ -9,6 +9,7 @@ import 'package:untitled/widgets/app_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants/size_config.dart';
+import '../../widgets/app_custom_bar.dart';
 import '../viewmodels/attendance/attendance_dates_viewmodel.dart';
 
 @RoutePage()
@@ -22,88 +23,90 @@ class MemberHomeScreen extends ConsumerStatefulWidget {
 class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
   DateTime today = DateTime.now();
 
-  /// Configurations
-  final double _calendarWidth = SizeConfig.safeBlockHorizontal * 90;
-  late final double _calendarHeight = _calendarWidth * 0.85;
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _calendarWidth;
+  late double _calendarHeight;
 
   @override
   void initState() {
     super.initState();
 
-    ref.read(attendanceDatesViewModelProvider);
+    ref.read(attendanceDatesViewmodelProvider);
   }
 
   @override
   Widget build(BuildContext context) {
-    var state = ref.watch(attendanceDatesViewModelProvider);
+    _updateSize(context);
+    var state = ref.watch(attendanceDatesViewmodelProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '홈',
-          style: TextStyle(
-            fontSize: SizeConfig.font.headline1,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.only(
-              left: SizeConfig.safeBlockHorizontal * 6.667,
-              right: SizeConfig.safeBlockHorizontal * 6.667,
-              top: SizeConfig.safeBlockVertical * 2,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildBannerSlider(),
-                Container(
-                  padding: EdgeInsets.only(
-                    top: SizeConfig.safeBlockVertical * 4,
-                    bottom: SizeConfig.safeBlockVertical * 2,
-                  ),
-                  child: Text(
-                    '출석',
-                    style: TextStyle(
-                      fontSize: SizeConfig.font.headline2,
-                      color: Color(0xff9a9a9a),
+        child: CustomScrollView(
+          slivers: [
+            AppSliverBar(title: '홈'),
+            SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: AppSize.of(context).safeBlockHorizontal * 6.667,
+                  right: AppSize.of(context).safeBlockHorizontal * 6.667,
+                  top: AppSize.of(context).safeBlockVertical * 2,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBannerSlider(),
+                    Container(
+                      padding: EdgeInsets.only(
+                        top: AppSize.of(context).safeBlockVertical * 4,
+                        bottom: AppSize.of(context).safeBlockVertical * 2,
+                      ),
+                      child: Text(
+                        '출석',
+                        style: TextStyle(
+                          fontSize: AppSize.of(context).font.headline3,
+                          color: Color(0xff9a9a9a),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                _buildAttendanceButtons(),
-                Container(
-                  padding: EdgeInsets.only(
-                    top: SizeConfig.safeBlockVertical * 4,
-                  ),
-                  child: Text(
-                    '출석 현황',
-                    style: TextStyle(
-                      fontSize: SizeConfig.font.headline2,
-                      color: Color(0xff9a9a9a),
+                    _buildAttendanceButtons(),
+                    Container(
+                      padding: EdgeInsets.only(
+                        top: AppSize.of(context).safeBlockVertical * 4,
+                      ),
+                      child: Text(
+                        '출석 현황',
+                        style: TextStyle(
+                          fontSize: AppSize.of(context).font.headline3,
+                          color: Color(0xff9a9a9a),
+                        ),
+                      ),
                     ),
-                  ),
+                    AppCalendar(
+                      width: _calendarWidth,
+                      height: _calendarHeight,
+                      // eventsSource: switch (state) {
+                      //   AsyncData(:final value) => value.eventsSource,
+                      //   _ => {},
+                      // },
+                    ),
+                    SizedBox(
+                      height: AppSize.of(context).safeBlockVertical * 5,
+                    ),
+                  ],
                 ),
-                AppCalendar(
-                  width: _calendarWidth,
-                  height: _calendarHeight,
-                  // eventsSource: switch (state) {
-                  //   AsyncData(:final value) => value.eventsSource,
-                  //   _ => {},
-                  // },
-                ),
-                SizedBox(
-                  height: SizeConfig.safeBlockVertical * 5,
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
+  }
+
+  void _updateSize(BuildContext context) {
+    _calendarWidth = AppSize.of(context).safeBlockHorizontal * 90;
+    _calendarHeight = _calendarWidth * 0.85;
   }
 
   Widget _buildBannerSlider() {
@@ -113,7 +116,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
         autoPlayInterval: Duration(seconds: 4),
         autoPlayAnimationDuration: Duration(milliseconds: 800),
         viewportFraction: 1,
-        height: SizeConfig.safeBlockHorizontal * 23,
+        height: AppSize.of(context).safeBlockHorizontal * 23,
       ),
       items: AppConstants.banners.map((banner) {
         return Builder(
@@ -122,7 +125,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
               onTap: () async => await launchUrl(Uri.parse(banner.url)),
               child: SvgPicture.asset(
                 banner.asset,
-                width: SizeConfig.safeBlockHorizontal * 100,
+                width: AppSize.of(context).safeBlockHorizontal * 100,
               ),
             );
           },
@@ -137,12 +140,12 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
       children: [
         Container(
           margin: EdgeInsets.only(
-            right: SizeConfig.safeBlockHorizontal * 3,
+            right: AppSize.of(context).safeBlockHorizontal * 3,
           ),
           child: InkWell(
             child: SvgPicture.asset(
               'assets/buttons/goto_attendance_request_button.svg',
-              width: SizeConfig.safeBlockHorizontal * 41,
+              width: AppSize.of(context).safeBlockHorizontal * 41,
             ),
             onTap: () {
               ToastHelper.showUnimplemented(context);
@@ -152,7 +155,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
         InkWell(
           child: SvgPicture.asset(
             'assets/buttons/goto_attendance_history_button.svg',
-            width: SizeConfig.safeBlockHorizontal * 41,
+            width: AppSize.of(context).safeBlockHorizontal * 41,
           ),
           onTap: () {
             ToastHelper.showUnimplemented(context);

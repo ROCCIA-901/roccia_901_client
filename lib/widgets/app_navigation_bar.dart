@@ -14,8 +14,11 @@ class AppNavigationBar extends StatelessWidget {
     required this.onTap,
   });
 
-  /// Configurations
-  final double _height = SizeConfig.safeBlockVertical * 8.5;
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _height;
+
   static const List<String> _icons = [
     "assets/icons/navi_home.svg",
     "assets/icons/navi_calendar.svg",
@@ -32,6 +35,7 @@ class AppNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _height = AppSize.of(context).safeBlockVertical * 8.5;
     return SizedBox(
       height: _height,
       child: BottomNavigationBar(
@@ -40,8 +44,8 @@ class AppNavigationBar extends StatelessWidget {
         currentIndex: currentIndex,
         onTap: onTap,
         selectedItemColor: AppColors.primary,
-        selectedFontSize: SizeConfig.safeBlockVertical * 1.5,
-        unselectedFontSize: SizeConfig.safeBlockVertical * 1.5,
+        selectedFontSize: AppSize.of(context).safeBlockVertical * 1.5,
+        unselectedFontSize: AppSize.of(context).safeBlockVertical * 1.5,
         unselectedItemColor: Colors.grey,
         items: _buildItems(),
       ),
