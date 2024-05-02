@@ -11,8 +11,11 @@ class AttendanceRequestScreen extends StatefulWidget {
 }
 
 class _AttendanseRequestState extends State<AttendanceRequestScreen> {
+  SizeConfig _sizeConfig = SizeConfig();
+
   @override
   Widget build(BuildContext context) {
+    _sizeConfig = SizeConfig();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -22,7 +25,7 @@ class _AttendanseRequestState extends State<AttendanceRequestScreen> {
           child: SvgPicture.asset(
             'assets/titles/attendance_request_title.svg',
             color: Color(0xFF000000),
-            height: SizeConfig.safeBlockVertical * 5,
+            height: _sizeConfig.safeBlockVertical * 5,
           ),
         ),
         automaticallyImplyLeading: false,
@@ -34,11 +37,12 @@ class _AttendanseRequestState extends State<AttendanceRequestScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(top: SizeConfig.safeBlockVertical * 8),
+                padding:
+                    EdgeInsets.only(top: _sizeConfig.safeBlockVertical * 8),
                 child: RichText(
                   text: TextSpan(
                     style: TextStyle(
-                        fontSize: SizeConfig.safeBlockHorizontal * 4,
+                        fontSize: _sizeConfig.safeBlockHorizontal * 4,
                         color: Colors.black),
                     children: [
                       TextSpan(text: "   오늘은 "),
@@ -53,18 +57,18 @@ class _AttendanseRequestState extends State<AttendanceRequestScreen> {
               ),
               Container(
                 padding: EdgeInsets.only(
-                    left: SizeConfig.safeBlockHorizontal * 3.5,
-                    top: SizeConfig.safeBlockVertical * 10),
+                    left: _sizeConfig.safeBlockHorizontal * 3.5,
+                    top: _sizeConfig.safeBlockVertical * 10),
                 child: Text(
                   "내 출석률",
                   style: TextStyle(
-                    fontSize: SizeConfig.safeBlockHorizontal * 3.3,
+                    fontSize: _sizeConfig.safeBlockHorizontal * 3.3,
                     color: Color(0xff9a9a9a),
                   ),
                 ),
               ),
               Container(
-                height: SizeConfig.safeBlockVertical * 50,
+                height: _sizeConfig.safeBlockVertical * 50,
                 color: Colors.transparent,
               ),
               Container(
@@ -72,7 +76,7 @@ class _AttendanseRequestState extends State<AttendanceRequestScreen> {
                 child: InkWell(
                   child: SvgPicture.asset(
                     'assets/buttons/attendance_request_button.svg',
-                    width: SizeConfig.safeBlockHorizontal * 80,
+                    width: _sizeConfig.safeBlockHorizontal * 80,
                   ),
                 ),
               )

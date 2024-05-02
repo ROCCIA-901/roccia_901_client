@@ -12,9 +12,12 @@ class AttendanceHistoryScreen extends StatefulWidget {
 }
 
 class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
+  SizeConfig _sizeConfig = SizeConfig();
+
   Map<String, double> dataMap = {"출석": 3, "지각": 1, "결석": 1};
   @override
   Widget build(BuildContext context) {
+    _sizeConfig = SizeConfig();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -24,7 +27,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           child: SvgPicture.asset(
             'assets/titles/attendance_history_title.svg',
             color: Color(0xFF000000),
-            height: SizeConfig.safeBlockVertical * 5,
+            height: _sizeConfig.safeBlockVertical * 5,
           ),
         ),
         automaticallyImplyLeading: false,
@@ -35,14 +38,14 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           children: [
             Container(
               padding: EdgeInsets.only(
-                left: SizeConfig.safeBlockHorizontal * 9,
-                top: SizeConfig.safeBlockVertical * 5,
-                bottom: SizeConfig.safeBlockVertical * 6,
+                left: _sizeConfig.safeBlockHorizontal * 9,
+                top: _sizeConfig.safeBlockVertical * 5,
+                bottom: _sizeConfig.safeBlockVertical * 6,
               ),
               child: Text(
                 "출석 종합",
                 style: TextStyle(
-                  fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                  fontSize: _sizeConfig.safeBlockHorizontal * 3.5,
                   color: Color(0xff9a9a9a),
                 ),
               ),
@@ -56,7 +59,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
                   Color(0xffffe200),
                   Color(0xffea7373)
                 ],
-                chartRadius: SizeConfig.safeBlockHorizontal * 50,
+                chartRadius: _sizeConfig.safeBlockHorizontal * 50,
                 legendOptions: LegendOptions(
                   legendPosition: LegendPosition.bottom,
                   showLegendsInRow: true,

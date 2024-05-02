@@ -10,8 +10,11 @@ class CompetitionScreen extends StatefulWidget {
 }
 
 class _CompetitionScreenState extends State<CompetitionScreen> {
+  SizeConfig _sizeConfig = SizeConfig();
+
   @override
   Widget build(BuildContext context) {
+    _sizeConfig = SizeConfig();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -19,25 +22,25 @@ class _CompetitionScreenState extends State<CompetitionScreen> {
           children: [
             Container(
               padding: EdgeInsets.only(
-                left: SizeConfig.safeBlockHorizontal * 7,
-                top: SizeConfig.safeBlockVertical * 3,
+                left: _sizeConfig.safeBlockHorizontal * 7,
+                top: _sizeConfig.safeBlockVertical * 3,
               ),
               child: Text(
                 '대회',
                 style: TextStyle(
-                  fontSize: SizeConfig.safeBlockHorizontal * 5.4,
+                  fontSize: _sizeConfig.safeBlockHorizontal * 5.4,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             Container(
-              height: SizeConfig.safeBlockVertical * 70,
+              height: _sizeConfig.safeBlockVertical * 70,
               alignment: Alignment.center,
               child: Text(
                 "대회 기간에 사용하실 수 있습니다.",
                 style: TextStyle(
                   color: Color(0xff9a9a9a),
-                  fontSize: SizeConfig.safeBlockHorizontal * 4,
+                  fontSize: _sizeConfig.safeBlockHorizontal * 4,
                 ),
               ),
             )

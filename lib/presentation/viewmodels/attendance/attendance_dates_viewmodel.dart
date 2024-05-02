@@ -19,7 +19,7 @@ class AttendanceDatesState {
 }
 
 @riverpod
-class AttendanceDatesViewModel extends _$AttendanceDatesViewModel {
+class AttendanceDatesViewmodel extends _$AttendanceDatesViewmodel {
   @override
   Future<AttendanceDatesState> build() async {
     logger.d('Execute AttendanceDatesViewModel');

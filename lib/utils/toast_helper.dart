@@ -7,14 +7,15 @@ class ToastHelper {
     BuildContext context,
     String message,
   ) {
+    final SizeConfig sizeConfig = SizeConfig();
     final ftoast = FToast().init(context);
     ftoast.removeCustomToast();
     ftoast.showToast(
       child: Container(
-        width: SizeConfig.safeBlockHorizontal * 90.0,
+        width: sizeConfig.safeBlockHorizontal * 90.0,
         padding: EdgeInsets.symmetric(
-          horizontal: SizeConfig.safeBlockHorizontal * 4.0,
-          vertical: SizeConfig.safeBlockHorizontal * 2.5,
+          horizontal: sizeConfig.safeBlockHorizontal * 4.0,
+          vertical: sizeConfig.safeBlockHorizontal * 2.5,
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
@@ -24,7 +25,7 @@ class ToastHelper {
         child: Text(
           message,
           style: TextStyle(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: sizeConfig.safeBlockHorizontal * 4.0,
             color: Colors.white,
           ),
         ),

@@ -12,23 +12,49 @@ void main() async {
   runApp(
     ProviderScope(child: Builder(
       builder: (context) {
-        SizeConfig.init(context);
         return MyWebApp();
       },
     )),
   );
 }
 
-class MyWebApp extends StatelessWidget {
+class MyWebApp extends ConsumerWidget {
   MyWebApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
+      routerConfig: AppRouter(ref).config(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(1.0),
+          ),
+          child: AppSize(
+            context: context,
+            child: MyAppBox(child: child!),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class MyAppBox extends StatelessWidget {
+  final Widget? child;
+
+  const MyAppBox({super.key, this.child});
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: ClipRect(
         child: SizedBox(
-          width: SizeConfig.safeBlockHorizontal * 100,
-          child: MyApp(),
+          width: AppSize.of(context).safeBlockHorizontal * 100,
+          // width: SizeConfig(context: context).safeBlockHorizontal * 100,
+          child: child!,
         ),
       ),
     );

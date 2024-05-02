@@ -33,12 +33,16 @@ class ConfirmPopup extends StatelessWidget {
       ),
       actions: actions,
       actionsAlignment: MainAxisAlignment.center,
-      actionsPadding: EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 3),
+      actionsPadding:
+          EdgeInsets.only(bottom: AppSize.of(context).safeBlockHorizontal * 2),
       backgroundColor: Color(0xFFFFFFFF),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 4),
+      ),
       buttonPadding: EdgeInsets.symmetric(
-        horizontal: SizeConfig.safeBlockHorizontal * 3,
+        horizontal: AppSize.of(context).safeBlockHorizontal * 3,
       ),
     );
   }
@@ -69,7 +73,7 @@ class ConfirmPopupButton extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
           backgroundColor: backgroundColor,
           textStyle: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 2.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 2.5,
             fontWeight: FontWeight.bold,
           ),
         ),

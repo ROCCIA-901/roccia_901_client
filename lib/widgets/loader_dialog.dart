@@ -8,9 +8,12 @@ class LoaderDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      shape: RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 4),
+      ),
       content: Container(
-        width: SizeConfig.safeBlockHorizontal * 70,
+        width: AppSize.of(context).safeBlockHorizontal * 70,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,

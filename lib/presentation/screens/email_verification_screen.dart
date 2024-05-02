@@ -27,6 +27,8 @@ class EmailVerificationScreen extends ConsumerStatefulWidget {
 
 class _EmailVerificationScreenState
     extends ConsumerState<EmailVerificationScreen> {
+  SizeConfig _sizeConfig = SizeConfig();
+
   final _emailFormKey = GlobalKey<FormState>();
   final _authCodeFormKey = GlobalKey<FormState>();
 
@@ -58,12 +60,13 @@ class _EmailVerificationScreenState
 
   @override
   Widget build(BuildContext context) {
+    _sizeConfig = SizeConfig();
     _setListeners();
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: SizeConfig.safeBlockHorizontal * 7,
+            horizontal: _sizeConfig.safeBlockHorizontal * 7,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -78,7 +81,7 @@ class _EmailVerificationScreenState
               Container(
                 width: double.maxFinite,
                 margin: EdgeInsets.only(
-                  bottom: SizeConfig.safeBlockHorizontal * 2,
+                  bottom: _sizeConfig.safeBlockHorizontal * 2,
                 ),
                 alignment: Alignment.center,
                 child: AspectRatio(
@@ -90,18 +93,18 @@ class _EmailVerificationScreenState
                       Form(
                         key: _emailFormKey,
                         child: SizedBox(
-                          width: SizeConfig.safeBlockHorizontal * 55.56,
+                          width: _sizeConfig.safeBlockHorizontal * 55.56,
                           child: TextFormField(
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
                             style: GoogleFonts.roboto(
-                              fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                              fontSize: _sizeConfig.safeBlockHorizontal * 3.5,
                               color: Colors.black,
                             ),
                             decoration: InputDecoration(
                               labelText: '이메일을 입력해주세요.',
                               labelStyle: GoogleFonts.roboto(
-                                fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                                fontSize: _sizeConfig.safeBlockHorizontal * 3.5,
                                 color: Color(0xFFD1D3D9),
                               ),
                               errorStyle: TextStyle(
@@ -109,7 +112,7 @@ class _EmailVerificationScreenState
                                 color: Colors.transparent,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                horizontal: SizeConfig.safeBlockHorizontal * 3,
+                                horizontal: _sizeConfig.safeBlockHorizontal * 3,
                                 vertical: 0,
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -162,7 +165,7 @@ class _EmailVerificationScreenState
               Container(
                 width: double.maxFinite,
                 margin: EdgeInsets.only(
-                  bottom: SizeConfig.safeBlockHorizontal * 3,
+                  bottom: _sizeConfig.safeBlockHorizontal * 3,
                 ),
                 alignment: Alignment.center,
                 child: AspectRatio(
@@ -174,7 +177,7 @@ class _EmailVerificationScreenState
                       Form(
                         key: _authCodeFormKey,
                         child: SizedBox(
-                          width: SizeConfig.safeBlockHorizontal * 85.7,
+                          width: _sizeConfig.safeBlockHorizontal * 85.7,
                           child: Stack(
                             alignment: Alignment.topLeft,
                             children: [
@@ -183,14 +186,14 @@ class _EmailVerificationScreenState
                                 textInputAction: TextInputAction.done,
                                 style: GoogleFonts.roboto(
                                   fontSize:
-                                      SizeConfig.safeBlockHorizontal * 3.5,
+                                      _sizeConfig.safeBlockHorizontal * 3.5,
                                   color: Colors.black,
                                 ),
                                 decoration: InputDecoration(
                                   labelText: '인증번호 입력',
                                   labelStyle: GoogleFonts.roboto(
                                     fontSize:
-                                        SizeConfig.safeBlockHorizontal * 3.5,
+                                        _sizeConfig.safeBlockHorizontal * 3.5,
                                     color: Color(0xFFD1D3D9),
                                   ),
                                   errorStyle: TextStyle(
@@ -199,7 +202,7 @@ class _EmailVerificationScreenState
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
                                     horizontal:
-                                        SizeConfig.safeBlockHorizontal * 3,
+                                        _sizeConfig.safeBlockHorizontal * 3,
                                     vertical: 0,
                                   ),
                                   enabledBorder: OutlineInputBorder(
@@ -228,13 +231,13 @@ class _EmailVerificationScreenState
                               ),
                               // 카운트 다운 타이머
                               Positioned(
-                                top: SizeConfig.safeBlockHorizontal * 3.2,
-                                right: SizeConfig.safeBlockHorizontal * 3.2,
+                                top: _sizeConfig.safeBlockHorizontal * 3.2,
+                                right: _sizeConfig.safeBlockHorizontal * 3.2,
                                 child: Text(
                                   "${(_currentCount / 60).floor()}:${(_currentCount % 60).toString().padLeft(2, '0')}",
                                   style: GoogleFonts.roboto(
                                     fontSize:
-                                        SizeConfig.safeBlockHorizontal * 3.7,
+                                        _sizeConfig.safeBlockHorizontal * 3.7,
                                     color: Color(0xFFD1D3D9),
                                   ),
                                 ),
@@ -255,7 +258,7 @@ class _EmailVerificationScreenState
                     text: Text(
                       '이메일 인증으로 비밀번호 변경하기',
                       style: GoogleFonts.inter(
-                        fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+                        fontSize: _sizeConfig.safeBlockHorizontal * 4.0,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFFFFFFFF),
                       ),
@@ -279,13 +282,13 @@ class _EmailVerificationScreenState
     return Container(
         alignment: Alignment.bottomCenter,
         padding: EdgeInsets.only(
-          bottom: SizeConfig.safeBlockVertical * 7,
+          bottom: _sizeConfig.safeBlockVertical * 7,
         ),
-        height: SizeConfig.safeBlockVertical * 40,
+        height: _sizeConfig.safeBlockVertical * 40,
         child: Image(
             image: AssetImage('assets/logos/roccia_full_logo.png'),
-            height: min(SizeConfig.safeBlockHorizontal * 22,
-                SizeConfig.safeBlockVertical * 16)));
+            height: min(_sizeConfig.safeBlockHorizontal * 22,
+                _sizeConfig.safeBlockVertical * 16)));
   }
 
   /// 카운트다운 초당 callback 함수
@@ -395,9 +398,11 @@ class _EmailVerificationScreenState
 
 /// 입력 정보 라벨 위젯
 class InputLabel extends StatelessWidget {
+  final SizeConfig _sizeConfig = SizeConfig();
+
   final String label;
 
-  const InputLabel({
+  InputLabel({
     super.key,
     required this.label,
   });
@@ -407,13 +412,13 @@ class InputLabel extends StatelessWidget {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.only(
-        left: SizeConfig.safeBlockHorizontal * 0.5,
+        left: _sizeConfig.safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockHorizontal * 1.5),
+      margin: EdgeInsets.only(bottom: _sizeConfig.safeBlockHorizontal * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
-          fontSize: SizeConfig.safeBlockHorizontal * 4,
+          fontSize: _sizeConfig.safeBlockHorizontal * 4,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -440,17 +445,20 @@ class GetAuthenticationButton extends StatefulWidget {
 }
 
 class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
+  SizeConfig _sizeConfig = SizeConfig();
+
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
+    _sizeConfig = SizeConfig();
     return SizedBox(
-      width: SizeConfig.safeBlockHorizontal * 27.78,
+      width: _sizeConfig.safeBlockHorizontal * 27.78,
       child: AppCommonTextButton(
         text: Text(
           '인증번호 받기',
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: _sizeConfig.safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
