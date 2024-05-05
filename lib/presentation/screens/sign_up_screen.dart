@@ -30,8 +30,6 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  SizeConfig sizeConfig = SizeConfig();
-
   final _emailFormKey = GlobalKey<FormState>();
   final _authCodeFormKey = GlobalKey<FormState>();
   final _otherFormKey = GlobalKey<FormState>();
@@ -86,7 +84,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    sizeConfig = SizeConfig();
     _setListener();
     return Scaffold(
       appBar: AppBar(
@@ -97,7 +94,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           child: SvgPicture.asset(
             'assets/titles/sign_up_title.svg',
             color: Color(0xFF000000),
-            width: sizeConfig.safeBlockHorizontal * 25.28,
+            width: AppSize.of(context).safeBlockHorizontal * 25.28,
           ),
         ),
         automaticallyImplyLeading: false,
@@ -105,8 +102,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: sizeConfig.safeBlockHorizontal * 7,
-            vertical: sizeConfig.safeBlockVertical * 3,
+            horizontal: AppSize.of(context).safeBlockHorizontal * 7,
+            vertical: AppSize.of(context).safeBlockVertical * 3,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -119,7 +116,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               Container(
                 width: double.maxFinite,
                 margin: EdgeInsets.only(
-                  bottom: sizeConfig.safeBlockVertical * 0.7,
+                  bottom: AppSize.of(context).safeBlockVertical * 0.7,
                 ),
                 alignment: Alignment.center,
                 child: AspectRatio(
@@ -131,20 +128,24 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       Form(
                         key: _emailFormKey,
                         child: SizedBox(
-                          width: sizeConfig.safeBlockHorizontal * 55.56,
+                          width:
+                              AppSize.of(context).safeBlockHorizontal * 55.56,
                           child: TextFormField(
                             readOnly:
                                 _isRequestAuthCodePressed || _isEmailVerified,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
                             style: GoogleFonts.roboto(
-                              fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                              fontSize:
+                                  AppSize.of(context).safeBlockHorizontal * 3.5,
                               color: Colors.black,
                             ),
                             decoration: InputDecoration(
                               labelText: '이메일을 입력해주세요.',
                               labelStyle: GoogleFonts.roboto(
-                                fontSize: sizeConfig.safeBlockHorizontal * 3.3,
+                                fontSize:
+                                    AppSize.of(context).safeBlockHorizontal *
+                                        3.3,
                                 color: Color(0xFFD1D3D9),
                               ),
                               errorStyle: TextStyle(
@@ -152,7 +153,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 color: Colors.transparent,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                horizontal: sizeConfig.safeBlockHorizontal * 3,
+                                horizontal:
+                                    AppSize.of(context).safeBlockHorizontal * 3,
                                 vertical: 0,
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -221,7 +223,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       Form(
                         key: _authCodeFormKey,
                         child: SizedBox(
-                          width: sizeConfig.safeBlockHorizontal * 55.56,
+                          width:
+                              AppSize.of(context).safeBlockHorizontal * 55.56,
                           child: Stack(
                             alignment: Alignment.topLeft,
                             children: [
@@ -231,7 +234,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 textInputAction: TextInputAction.done,
                                 style: GoogleFonts.roboto(
                                   fontSize:
-                                      sizeConfig.safeBlockHorizontal * 3.5,
+                                      AppSize.of(context).safeBlockHorizontal *
+                                          3.5,
                                   color: Colors.black,
                                 ),
                                 decoration: InputDecoration(
@@ -240,8 +244,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     color: Colors.transparent,
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
-                                    horizontal:
-                                        sizeConfig.safeBlockHorizontal * 3,
+                                    horizontal: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        3,
                                     vertical: 0,
                                   ),
                                   enabledBorder: OutlineInputBorder(
@@ -270,13 +275,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               ),
                               // 카운트 다운 타이머
                               Positioned(
-                                top: sizeConfig.safeBlockHorizontal * 3.2,
-                                right: sizeConfig.safeBlockHorizontal * 3.2,
+                                top: AppSize.of(context).safeBlockHorizontal *
+                                    3.2,
+                                right: AppSize.of(context).safeBlockHorizontal *
+                                    3.2,
                                 child: Text(
                                   "${(_currentCount / 60).floor()}:${(_currentCount % 60).toString().padLeft(2, '0')}",
                                   style: GoogleFonts.roboto(
-                                    fontSize:
-                                        sizeConfig.safeBlockHorizontal * 3.5,
+                                    fontSize: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        3.5,
                                     color: Color(0xFFD1D3D9),
                                   ),
                                 ),
@@ -288,18 +296,19 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                       /// 인증번호 확인 버튼
                       SizedBox(
-                        width: sizeConfig.safeBlockHorizontal * 27.78,
+                        width: AppSize.of(context).safeBlockHorizontal * 27.78,
                         child: AppCommonTextButton(
                           text: Text(
                             '인증번호 확인',
                             style: GoogleFonts.inter(
-                              fontSize: sizeConfig.safeBlockHorizontal * 4.0,
+                              fontSize:
+                                  AppSize.of(context).safeBlockHorizontal * 4.0,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFFFFFFFF),
                             ),
                           ),
                           backgroundColor: _isEmailVerified
-                              ? AppColors.grayLight
+                              ? AppColors.greyLight
                               : Theme.of(context).colorScheme.primary,
                           cornerRadius: 6,
                           width: double.maxFinite,
@@ -316,7 +325,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+              SizedBox(height: AppSize.of(context).safeBlockVertical * 4.7),
 
               Form(
                 key: _otherFormKey,
@@ -339,13 +348,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           enableSuggestions: false, // 제안 비활성화
                           autocorrect: false, // 자동 검사 비활성화
                           style: GoogleFonts.roboto(
-                            fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                            fontSize:
+                                AppSize.of(context).safeBlockHorizontal * 3.5,
                             color: Colors.black,
                           ),
                           decoration: InputDecoration(
                             labelText: '영문, 숫자, 특수문자를 포함하여 7자 이상 입력해 주세요.',
                             labelStyle: GoogleFonts.roboto(
-                              fontSize: sizeConfig.safeBlockHorizontal * 3.2,
+                              fontSize:
+                                  AppSize.of(context).safeBlockHorizontal * 3.2,
                               color: Color(0xFFD1D3D9),
                             ),
                             errorStyle: TextStyle(
@@ -353,7 +364,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               color: Colors.transparent,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              horizontal: sizeConfig.safeBlockHorizontal * 3,
+                              horizontal:
+                                  AppSize.of(context).safeBlockHorizontal * 3,
                               vertical: 0,
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -386,7 +398,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 비밀번호 확인 label
                     InputLabel(label: '비밀번호 확인'),
@@ -405,13 +418,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           enableSuggestions: false, // 제안 비활성화
                           autocorrect: false, // 자동 검사 비활성화
                           style: GoogleFonts.roboto(
-                            fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                            fontSize:
+                                AppSize.of(context).safeBlockHorizontal * 3.5,
                             color: Colors.black,
                           ),
                           decoration: InputDecoration(
                             labelText: '비밀번호를 다시 한번 입력해주세요.',
                             labelStyle: GoogleFonts.roboto(
-                              fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                              fontSize:
+                                  AppSize.of(context).safeBlockHorizontal * 3.5,
                               color: Color(0xFFD1D3D9),
                             ),
                             errorStyle: TextStyle(
@@ -419,7 +434,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               color: Colors.transparent,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              horizontal: sizeConfig.safeBlockHorizontal * 3,
+                              horizontal:
+                                  AppSize.of(context).safeBlockHorizontal * 3,
                               vertical: 0,
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -452,7 +468,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 이름 label
                     InputLabel(label: '이름'),
@@ -465,13 +482,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.done,
                           style: GoogleFonts.roboto(
-                            fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                            fontSize:
+                                AppSize.of(context).safeBlockHorizontal * 3.5,
                             color: Colors.black,
                           ),
                           decoration: InputDecoration(
                             labelText: '본인 이름을 입력해 주세요.',
                             labelStyle: GoogleFonts.roboto(
-                              fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                              fontSize:
+                                  AppSize.of(context).safeBlockHorizontal * 3.5,
                               color: Color(0xFFD1D3D9),
                             ),
                             errorStyle: TextStyle(
@@ -479,8 +498,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               color: Colors.transparent,
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              horizontal: sizeConfig.safeBlockHorizontal * 3,
-                              vertical: sizeConfig.safeBlockHorizontal * 2.0,
+                              horizontal:
+                                  AppSize.of(context).safeBlockHorizontal * 3,
+                              vertical:
+                                  AppSize.of(context).safeBlockHorizontal * 2.0,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(6),
@@ -512,7 +533,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 기수 label
                     InputLabel(label: '기수'),
@@ -521,7 +543,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       onChanged: changeGeneration,
                       doValidate: _hasTriedSubmit,
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 역할 label
                     InputLabel(label: '역할'),
@@ -533,7 +556,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       hintText: "본인의 역할을 선택해 주세요.",
                       doValidate: _hasTriedSubmit,
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 운동 지점 label
                     InputLabel(label: '운동 지점'),
@@ -546,7 +570,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       hintText: "본인의 운동 지점을 선택해 주세요.",
                       doValidate: _hasTriedSubmit,
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 운동 난이도 label
                     InputLabel(label: '운동 난이도'),
@@ -558,21 +583,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       hintText: "본인의 볼더링 난이도를 선택해 주세요.(더클라임 기준)",
                       doValidate: _hasTriedSubmit,
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 프로필 label
                     InputLabel(label: '프로필'),
                     Container(
                       width: double.maxFinite,
                       padding: EdgeInsets.only(
-                        left: sizeConfig.safeBlockHorizontal * 0.5,
+                        left: AppSize.of(context).safeBlockHorizontal * 0.5,
                       ),
                       margin: EdgeInsets.only(
-                          bottom: sizeConfig.safeBlockVertical * 1.5),
+                          bottom: AppSize.of(context).safeBlockVertical * 1.5),
                       child: Text(
                         "프로필로 사용할 이미지를 선택해 주세요.",
                         style: GoogleFonts.roboto(
-                          fontSize: sizeConfig.safeBlockHorizontal * 4,
+                          fontSize: AppSize.of(context).safeBlockHorizontal * 4,
                           color: Color(0xFFD1D3D9),
                         ),
                       ),
@@ -581,7 +607,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       selectedProfileIndex: _profileIndex,
                       onTap: changeProfileIndex,
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 4.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 4.7),
 
                     /// 소개 label
                     InputLabel(label: '소개'),
@@ -596,13 +623,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         maxLines: 7,
                         cursorOpacityAnimates: true,
                         style: GoogleFonts.roboto(
-                          fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                          fontSize:
+                              AppSize.of(context).safeBlockHorizontal * 3.5,
                           color: Colors.black,
                         ),
                         decoration: InputDecoration(
                           hintText: '본인 소개 글을 작성해 주세요.(300자 이하)',
                           hintStyle: GoogleFonts.roboto(
-                            fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                            fontSize:
+                                AppSize.of(context).safeBlockHorizontal * 3.5,
                             color: Color(0xFFD1D3D9),
                           ),
                           errorStyle: TextStyle(
@@ -610,8 +639,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             color: Colors.transparent,
                           ),
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: sizeConfig.safeBlockHorizontal * 3,
-                            vertical: sizeConfig.safeBlockHorizontal * 2.0,
+                            horizontal:
+                                AppSize.of(context).safeBlockHorizontal * 3,
+                            vertical:
+                                AppSize.of(context).safeBlockHorizontal * 2.0,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(6),
@@ -642,7 +673,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         },
                       ),
                     ),
-                    SizedBox(height: sizeConfig.safeBlockVertical * 3.7),
+                    SizedBox(
+                        height: AppSize.of(context).safeBlockVertical * 3.7),
                   ],
                 ),
               ),
@@ -654,7 +686,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   text: Text(
                     '가입하기',
                     style: GoogleFonts.inter(
-                      fontSize: sizeConfig.safeBlockHorizontal * 4.0,
+                      fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFFFFFFFF),
                     ),
@@ -668,7 +700,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                 ),
               ),
-              SizedBox(height: sizeConfig.safeBlockVertical * 1.0),
+              SizedBox(height: AppSize.of(context).safeBlockVertical * 1.0),
             ],
           ),
         ),
@@ -903,8 +935,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
 /// 입력 정보 라벨 위젯
 class InputLabel extends StatelessWidget {
-  final SizeConfig sizeConfig = SizeConfig();
-
   final String label;
 
   InputLabel({
@@ -917,13 +947,14 @@ class InputLabel extends StatelessWidget {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.only(
-        left: sizeConfig.safeBlockHorizontal * 0.5,
+        left: AppSize.of(context).safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(bottom: sizeConfig.safeBlockVertical * 1.5),
+      margin:
+          EdgeInsets.only(bottom: AppSize.of(context).safeBlockVertical * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
-          fontSize: sizeConfig.safeBlockHorizontal * 4,
+          fontSize: AppSize.of(context).safeBlockHorizontal * 4,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
@@ -952,26 +983,24 @@ class GetAuthenticationButton extends StatefulWidget {
 }
 
 class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
-  SizeConfig sizeConfig = SizeConfig();
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
-    sizeConfig = SizeConfig();
     return SizedBox(
-      width: sizeConfig.safeBlockHorizontal * 27.78,
+      width: AppSize.of(context).safeBlockHorizontal * 27.78,
       child: AppCommonTextButton(
         text: Text(
           '인증번호 받기',
           style: GoogleFonts.inter(
-            fontSize: sizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
         ),
         backgroundColor: widget.enabled
             ? Theme.of(context).colorScheme.primary
-            : AppColors.grayLight,
+            : AppColors.greyLight,
         cornerRadius: 6,
         width: double.maxFinite,
         height: double.maxFinite,
@@ -993,8 +1022,6 @@ class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
 
 /// 기수 선택 드롭아웃 위젯
 class GenerationDropdown extends StatelessWidget {
-  final SizeConfig sizeConfig = SizeConfig();
-
   final int? selectedValue;
   final void Function(int?) onChanged;
   final bool doValidate;
@@ -1010,7 +1037,7 @@ class GenerationDropdown extends StatelessWidget {
     if (doValidate && selectedValue == null) {
       borderColor = Colors.red;
     } else {
-      borderColor = AppColors.grayMediumDark;
+      borderColor = AppColors.greyMediumDark;
     }
   }
 
@@ -1024,7 +1051,7 @@ class GenerationDropdown extends StatelessWidget {
           hint: Text(
             "본인의 기수를 선택해 주세요.",
             style: GoogleFonts.roboto(
-              fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+              fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
               color: Color(0xFFD1D3D9),
             ),
             overflow: TextOverflow.ellipsis,
@@ -1037,7 +1064,7 @@ class GenerationDropdown extends StatelessWidget {
               child: Text(
                 "${index + 1}기",
                 style: GoogleFonts.roboto(
-                  fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                  fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                   color: Color(0xFF4E5055),
                 ),
               ),
@@ -1046,15 +1073,15 @@ class GenerationDropdown extends StatelessWidget {
           value: selectedValue,
           onChanged: onChanged,
           style: GoogleFonts.roboto(
-            fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             color: Colors.black,
           ),
           buttonStyleData: ButtonStyleData(
             width: double.maxFinite,
-            height: sizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.symmetric(
               vertical: 0,
-              horizontal: sizeConfig.safeBlockHorizontal * 3,
+              horizontal: AppSize.of(context).safeBlockHorizontal * 3,
             ),
             decoration: BoxDecoration(
               border: Border.all(
@@ -1065,12 +1092,12 @@ class GenerationDropdown extends StatelessWidget {
           ),
           iconStyleData: IconStyleData(
             icon: Icon(Icons.keyboard_arrow_down_rounded),
-            iconSize: sizeConfig.safeBlockHorizontal * 7,
+            iconSize: AppSize.of(context).safeBlockHorizontal * 7,
             iconEnabledColor: Color(0xFFD1D3D9),
           ),
           dropdownStyleData: DropdownStyleData(
-            maxHeight: sizeConfig.safeBlockVertical * 25,
-            width: sizeConfig.safeBlockHorizontal * 86,
+            maxHeight: AppSize.of(context).safeBlockVertical * 25,
+            width: AppSize.of(context).safeBlockHorizontal * 86,
             elevation: 3,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
@@ -1084,9 +1111,9 @@ class GenerationDropdown extends StatelessWidget {
             ),
           ),
           menuItemStyleData: MenuItemStyleData(
-            height: sizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.only(
-              left: sizeConfig.safeBlockHorizontal * 3,
+              left: AppSize.of(context).safeBlockHorizontal * 3,
             ),
           ),
         ),
@@ -1097,8 +1124,6 @@ class GenerationDropdown extends StatelessWidget {
 
 /// Generic 드롭다운 위젯
 class GenericDropdown<T extends Enum> extends StatelessWidget {
-  final SizeConfig sizeConfig = SizeConfig();
-
   final List<T> values;
   final Map<T, String> toName;
   final T? selectedValue;
@@ -1120,7 +1145,7 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
     if (doValidate && selectedValue == null) {
       borderColor = Colors.red;
     } else {
-      borderColor = AppColors.grayMediumDark;
+      borderColor = AppColors.greyMediumDark;
     }
   }
 
@@ -1135,8 +1160,8 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
             hintText,
             style: GoogleFonts.roboto(
               fontSize: (hintText.length > 25
-                  ? sizeConfig.safeBlockHorizontal * 3.0
-                  : sizeConfig.safeBlockHorizontal * 3.5),
+                  ? AppSize.of(context).safeBlockHorizontal * 3.0
+                  : AppSize.of(context).safeBlockHorizontal * 3.5),
               color: Color(0xFFD1D3D9),
             ),
             overflow: TextOverflow.ellipsis,
@@ -1148,7 +1173,7 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
               child: Text(
                 toName[value] ?? "error42",
                 style: GoogleFonts.roboto(
-                  fontSize: sizeConfig.safeBlockHorizontal * 3.5,
+                  fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                   color: Color(0xFF4E5055),
                 ),
               ),
@@ -1158,10 +1183,10 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
           onChanged: onChanged,
           buttonStyleData: ButtonStyleData(
             width: double.maxFinite,
-            height: sizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.symmetric(
               vertical: 0,
-              horizontal: sizeConfig.safeBlockHorizontal * 3,
+              horizontal: AppSize.of(context).safeBlockHorizontal * 3,
             ),
             decoration: BoxDecoration(
               border: Border.all(
@@ -1172,12 +1197,12 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
           ),
           iconStyleData: IconStyleData(
             icon: Icon(Icons.keyboard_arrow_down_rounded),
-            iconSize: sizeConfig.safeBlockHorizontal * 7,
+            iconSize: AppSize.of(context).safeBlockHorizontal * 7,
             iconEnabledColor: Color(0xFFD1D3D9),
           ),
           dropdownStyleData: DropdownStyleData(
-            maxHeight: sizeConfig.safeBlockVertical * 25,
-            width: sizeConfig.safeBlockHorizontal * 86,
+            maxHeight: AppSize.of(context).safeBlockVertical * 25,
+            width: AppSize.of(context).safeBlockHorizontal * 86,
             elevation: 3,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
@@ -1191,9 +1216,9 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
             ),
           ),
           menuItemStyleData: MenuItemStyleData(
-            height: sizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.only(
-              left: sizeConfig.safeBlockHorizontal * 3,
+              left: AppSize.of(context).safeBlockHorizontal * 3,
             ),
           ),
         ),
@@ -1204,8 +1229,6 @@ class GenericDropdown<T extends Enum> extends StatelessWidget {
 
 /// 프로필 선택 위젯
 class ProfileSelection extends StatelessWidget {
-  final SizeConfig sizeConfig = SizeConfig();
-
   final int? selectedProfileIndex; // 처음엔 아무 프로필도 선택되어 있지 않는다.
   final void Function(int) onTap;
 
@@ -1224,7 +1247,7 @@ class ProfileSelection extends StatelessWidget {
       width: double.maxFinite,
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
-        runSpacing: sizeConfig.safeBlockHorizontal * 2.2,
+        runSpacing: AppSize.of(context).safeBlockHorizontal * 2.2,
         children: List.generate(
           profileUrls.length,
           (index) => InkResponse(
@@ -1233,9 +1256,10 @@ class ProfileSelection extends StatelessWidget {
             },
             splashFactory: NoSplash.splashFactory,
             child: Container(
-              width: sizeConfig.safeBlockHorizontal * 19,
-              height: sizeConfig.safeBlockHorizontal * 19,
-              padding: EdgeInsets.all(sizeConfig.safeBlockHorizontal * 0.667),
+              width: AppSize.of(context).safeBlockHorizontal * 19,
+              height: AppSize.of(context).safeBlockHorizontal * 19,
+              padding: EdgeInsets.all(
+                  AppSize.of(context).safeBlockHorizontal * 0.667),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -1243,7 +1267,7 @@ class ProfileSelection extends StatelessWidget {
                   color: selectedProfileIndex == index
                       ? Color(0xFFB1E2B6)
                       : Color(0xFFE9E9E9),
-                  width: sizeConfig.safeBlockHorizontal * 1,
+                  width: AppSize.of(context).safeBlockHorizontal * 1,
                 ),
               ),
               child: SvgPicture.asset(

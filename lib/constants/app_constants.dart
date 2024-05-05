@@ -28,5 +28,13 @@ class AppConstants {
       url:
           'https://crystal-bowler-ff6.notion.site/Roccia-901-caedf2c1c911416c8162f7aaa25b59ae?pvs=4',
     ),
+    (
+      asset: 'assets/banners/report.png',
+      url:
+          'https://docs.google.com/forms/d/1Fg3Nk0H3nAoAYAq5elkzUyn69latA9Nv6tJGgD-aENU/edit',
+    ),
   ];
+
+  static const String reportUrl =
+      "https://docs.google.com/forms/d/1Fg3Nk0H3nAoAYAq5elkzUyn69latA9Nv6tJGgD-aENU/edit";
 }

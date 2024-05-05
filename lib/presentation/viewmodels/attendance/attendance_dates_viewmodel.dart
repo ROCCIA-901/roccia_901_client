@@ -46,7 +46,7 @@ class AttendanceDatesViewmodel extends _$AttendanceDatesViewmodel {
     final CalendarEvent present =
         CalendarEvent(AppColors.primary, Colors.white);
     final CalendarEvent late =
-        CalendarEvent(AppColors.yellow, AppColors.grayDark);
+        CalendarEvent(AppColors.yellow, AppColors.greyDark);
     CalendarEventsSource eventsSource = {};
     if (attendanceDates.presentDates != null) {
       eventsSource

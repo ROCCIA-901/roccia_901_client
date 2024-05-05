@@ -129,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
-              color: AppColors.grayMediumDark,
+              color: AppColors.greyMediumDark,
             ),
           ),
         ),
@@ -144,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
           fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
-          color: AppColors.grayMedium,
+          color: AppColors.greyMedium,
         ),
       ),
     );

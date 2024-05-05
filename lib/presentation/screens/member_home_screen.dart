@@ -7,6 +7,7 @@ import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path/path.dart' as path_package;
 
 import '../../constants/size_config.dart';
 import '../../widgets/app_custom_bar.dart';
@@ -123,10 +124,15 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
           builder: (BuildContext context) {
             return InkWell(
               onTap: () async => await launchUrl(Uri.parse(banner.url)),
-              child: SvgPicture.asset(
-                banner.asset,
-                width: AppSize.of(context).safeBlockHorizontal * 100,
-              ),
+              child: path_package.extension(banner.asset) == '.svg'
+                  ? SvgPicture.asset(
+                      banner.asset,
+                      width: AppSize.of(context).safeBlockHorizontal * 100,
+                    )
+                  : Image.asset(
+                      banner.asset,
+                      width: AppSize.of(context).safeBlockHorizontal * 100,
+                    ),
             );
           },
         );
