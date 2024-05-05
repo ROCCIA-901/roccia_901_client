@@ -124,69 +124,6 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     _buttonHeight = _buttonWidth * 0.15;
   }
 
-  // ------------------------------------------------------------------------ //
-  // Notification Listeners                                                   //
-  // ------------------------------------------------------------------------ //
-  void _setListeners() {
-    _listenRecordsViewModel();
-    _listenRecordController();
-  }
-
-  void _listenRecordsViewModel() {
-    ref.listen(
-      recordsViewmodelProvider,
-      (previous, next) {
-        next.when(
-          data: (_) {},
-          loading: () {},
-          error: (error, stackTrace) {
-            if (error is Exception) {
-              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _listenRecordController() {
-    ref.listen(
-      recordControllerProvider,
-      (previous, next) {
-        next.when(
-          data: (data) {
-            if (previous is! AsyncLoading) {
-              return;
-            }
-            Navigator.pop(context);
-            final message = switch (data) {
-              RecordControllerAction.create => "기록이 생성되었습니다.",
-              RecordControllerAction.update => "기록이 수정되었습니다.",
-              RecordControllerAction.delete => "기록이 삭제되었습니다.",
-              _ => null,
-            };
-            if (message != null) {
-              ToastHelper.show(context, message);
-            } else {
-              ToastHelper.showErrorOccurred(context);
-            }
-          },
-          loading: () {
-            DialogHelper.showLoaderDialog(context);
-          },
-          error: (error, stackTrace) {
-            if (previous is AsyncLoading) {
-              Navigator.pop(context);
-            }
-            if (error is Exception) {
-              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
-            }
-          },
-        );
-      },
-    );
-  }
-
   void _onDateSelected(
       DateTime date, AsyncValue<List<RecordState>> recordsState) {
     if (recordsState.value == null) {
@@ -200,7 +137,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     } else if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
         RecordScreenBottomSheetState.none) {
       // 기록 없는 날을 선택할 시,
-      _displayedDate = null;
+      _resetDisplayedDate();
       _closeBottomSheet();
     }
     setState(() {
@@ -216,11 +153,21 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     if (_displayedDate != null &&
         isSameDay(_displayedDate!, prevDisplayedDate)) {
       ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
-      setState(() {
-        _selectedDate = null;
-        _displayedDate = null;
-      });
+      _resetSelectedDate();
+      _resetDisplayedDate();
     }
+  }
+
+  void _resetSelectedDate() {
+    setState(() {
+      _selectedDate = null;
+    });
+  }
+
+  void _resetDisplayedDate() {
+    setState(() {
+      _displayedDate = null;
+    });
   }
 
   bool _isDayInRecords(DateTime date, List<RecordState> records) {
@@ -240,7 +187,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   }) {
     Color backgroundColor = AppColors.primary;
     if (_selectedDate == null) {
-      backgroundColor = AppColors.grayLight;
+      backgroundColor = AppColors.greyLight;
       onPressed = () {
         SnackBarHelper.showTextSnackBar(context, "날짜를 선택해주세요.");
       };
@@ -289,6 +236,8 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
               RecordScreenBottomSheetState.create) {
             ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+            _resetSelectedDate();
+            _resetDisplayedDate();
           }
         });
       },
@@ -348,6 +297,8 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
               RecordScreenBottomSheetState.edit) {
             ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+            _resetSelectedDate();
+            _resetDisplayedDate();
           }
         });
       },
@@ -413,6 +364,69 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     _closeBottomSheet();
     ref.read(recordControllerProvider.notifier).deleteRecord(id: id);
   }
+
+  // ------------------------------------------------------------------------ //
+  // Notification Listeners                                                   //
+  // ------------------------------------------------------------------------ //
+  void _setListeners() {
+    _listenRecordsViewModel();
+    _listenRecordController();
+  }
+
+  void _listenRecordsViewModel() {
+    ref.listen(
+      recordsViewmodelProvider,
+      (previous, next) {
+        next.when(
+          data: (_) {},
+          loading: () {},
+          error: (error, stackTrace) {
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _listenRecordController() {
+    ref.listen(
+      recordControllerProvider,
+      (previous, next) {
+        next.when(
+          data: (data) {
+            if (previous is! AsyncLoading) {
+              return;
+            }
+            Navigator.pop(context);
+            final message = switch (data) {
+              RecordControllerAction.create => "기록이 생성되었습니다.",
+              RecordControllerAction.update => "기록이 수정되었습니다.",
+              RecordControllerAction.delete => "기록이 삭제되었습니다.",
+              _ => null,
+            };
+            if (message != null) {
+              ToastHelper.show(context, message);
+            } else {
+              ToastHelper.showErrorOccurred(context);
+            }
+          },
+          loading: () {
+            DialogHelper.showLoaderDialog(context);
+          },
+          error: (error, stackTrace) {
+            if (previous is AsyncLoading) {
+              Navigator.pop(context);
+            }
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
+            }
+          },
+        );
+      },
+    );
+  }
 }
 
 class _RecordDetailWidget extends StatelessWidget {
@@ -467,7 +481,7 @@ class _RecordDetailWidget extends StatelessWidget {
     if (_record == null) {
       return Align(
         alignment: Alignment.topCenter,
-        child: Container(height: 1.5, color: AppColors.grayLight),
+        child: Container(height: 1.5, color: AppColors.greyLight),
       );
     }
     final String location = Location.toName[_record!.location]!;
@@ -489,18 +503,19 @@ class _RecordDetailWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   /// 가로선
-                  Container(height: 1.5, color: AppColors.grayLight),
+                  Container(height: 1.5, color: AppColors.greyLight),
 
                   /// 닫기 버튼
                   Container(
                     width: double.infinity,
-                    alignment: Alignment.centerRight,
+                    alignment: Alignment.bottomRight,
                     padding: EdgeInsets.only(
+                        top: AppSize.of(context).safeBlockHorizontal * 2,
                         right: AppSize.of(context).safeBlockHorizontal * 3),
                     child: IconButton(
                       constraints: BoxConstraints(
-                        minHeight: AppSize.of(context).safeBlockHorizontal * 9,
-                        maxHeight: AppSize.of(context).safeBlockHorizontal * 9,
+                        minHeight: AppSize.of(context).safeBlockHorizontal * 7,
+                        maxHeight: AppSize.of(context).safeBlockHorizontal * 7,
                       ),
                       padding: EdgeInsets.zero,
                       onPressed: () {
@@ -508,7 +523,7 @@ class _RecordDetailWidget extends StatelessWidget {
                       },
                       icon: Icon(Icons.close_rounded,
                           size: AppSize.of(context).safeBlockHorizontal * 7,
-                          color: AppColors.grayMedium),
+                          color: AppColors.greyMedium),
                     ),
                   ),
 
@@ -581,8 +596,8 @@ class _RecordDetailWidget extends StatelessWidget {
     _labelHeight = AppSize.of(context).safeBlockHorizontal * 10;
     _contentWidth = AppSize.of(context).safeBlockHorizontal * 60;
     _contentHeight = AppSize.of(context).safeBlockHorizontal * 8;
-    _levelContentWidth = AppSize.of(context).safeBlockHorizontal * 20;
-    _countContentWidth = AppSize.of(context).safeBlockHorizontal * 40;
+    _levelContentWidth = AppSize.of(context).safeBlockHorizontal * 25;
+    _countContentWidth = AppSize.of(context).safeBlockHorizontal * 35;
     _buttonHeight = AppSize.of(context).safeBlockHorizontal * 12;
     _buttonWidth = AppSize.of(context).safeBlockHorizontal * 37;
     _buttonBottomMargin = AppSize.of(context).safeBlockVertical * 5;
@@ -634,7 +649,7 @@ class _RecordDetailWidget extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             fontWeight: FontWeight.normal,
-          ).copyWith(color: AppColors.grayDark),
+          ).copyWith(color: AppColors.greyDark),
         ),
       ),
     );
@@ -721,11 +736,11 @@ class _RecordDetailWidget extends StatelessWidget {
             content: Text(
               "아니오",
               style: TextStyle(
-                color: AppColors.grayDark,
+                color: AppColors.greyDark,
                 fontSize: AppSize.of(context).safeBlockHorizontal * 3.0,
               ),
             ),
-            backgroundColor: AppColors.grayLight,
+            backgroundColor: AppColors.greyLight,
             onPressed: () {
               Navigator.of(context).pop(false);
             },
@@ -839,9 +854,11 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          icon: Icon(Icons.close_rounded,
-                              size: AppSize.of(context).safeBlockHorizontal * 7,
-                              color: AppColors.grayMedium),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            size: AppSize.of(context).safeBlockHorizontal * 7,
+                            color: AppColors.greyMedium,
+                          ),
                         ),
                       ),
                     ],
@@ -893,7 +910,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
       width: AppSize.of(context).safeBlockHorizontal * 13,
       height: AppSize.of(context).safeBlockVertical * 0.5,
       decoration: BoxDecoration(
-        color: AppColors.grayMedium,
+        color: AppColors.greyMedium,
         borderRadius:
             BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
       ),
@@ -961,7 +978,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayMediumDark
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
               SizedBox(
@@ -971,7 +988,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   "~",
                   style: GoogleFonts.roboto().copyWith(
                     fontSize: AppSize.of(context).safeBlockHorizontal * 4.5,
-                    color: AppColors.grayMedium,
+                    color: AppColors.greyMedium,
                   ),
                 )),
               ),
@@ -985,7 +1002,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayMediumDark
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
             ],
@@ -1284,7 +1301,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                           },
                           icon: Icon(Icons.close_rounded,
                               size: AppSize.of(context).safeBlockHorizontal * 7,
-                              color: AppColors.grayMedium),
+                              color: AppColors.greyMedium),
                         ),
                       ),
                     ],
@@ -1337,7 +1354,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
       width: AppSize.of(context).safeBlockHorizontal * 13,
       height: AppSize.of(context).safeBlockVertical * 0.5,
       decoration: BoxDecoration(
-        color: AppColors.grayMedium,
+        color: AppColors.greyMedium,
         borderRadius:
             BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
       ),
@@ -1405,7 +1422,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayMediumDark
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
               SizedBox(
@@ -1415,7 +1432,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   "~",
                   style: GoogleFonts.roboto().copyWith(
                     fontSize: AppSize.of(context).safeBlockHorizontal * 4.5,
-                    color: AppColors.grayMedium,
+                    color: AppColors.greyMedium,
                   ),
                 )),
               ),
@@ -1429,7 +1446,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayMediumDark
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
             ],
