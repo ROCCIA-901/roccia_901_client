@@ -84,7 +84,7 @@ class _AppCalendarState extends State<AppCalendar> {
           titleCentered: true,
           titleTextStyle: GoogleFonts.inter().copyWith(
             fontSize: _dateFontSize * 1.2,
-            color: AppColors.grayDark,
+            color: AppColors.greyDark,
           ),
           headerMargin: EdgeInsets.symmetric(
             vertical: AppSize.of(context).safeBlockHorizontal * 3,
@@ -97,7 +97,7 @@ class _AppCalendarState extends State<AppCalendar> {
           leftChevronIcon: Icon(
             Icons.chevron_left,
             size: _dateFontSize * 1.6,
-            color: AppColors.grayDark,
+            color: AppColors.greyDark,
           ),
           rightChevronMargin: EdgeInsets.only(
             right: AppSize.of(context).safeBlockHorizontal * 7,
@@ -106,7 +106,7 @@ class _AppCalendarState extends State<AppCalendar> {
           rightChevronIcon: Icon(
             Icons.chevron_right,
             size: _dateFontSize * 1.6,
-            color: AppColors.grayDark,
+            color: AppColors.greyDark,
           ),
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
@@ -118,7 +118,7 @@ class _AppCalendarState extends State<AppCalendar> {
           weekendStyle: GoogleFonts.inter().copyWith(
             fontSize: _dateFontSize,
             fontWeight: FontWeight.bold,
-            color: AppColors.grayMediumDark,
+            color: AppColors.greyMediumDark,
           ),
         ),
         daysOfWeekHeight: AppSize.of(context).safeBlockHorizontal * 10.0,
@@ -141,7 +141,7 @@ class _AppCalendarState extends State<AppCalendar> {
     _dateFontSize = AppSize.of(context).safeBlockHorizontal * 4.0;
     _dateTextStyle = TextStyle(
       fontSize: _dateFontSize,
-      color: AppColors.grayDark,
+      color: AppColors.greyDark,
     );
     _todayTextStyle = _dateTextStyle.copyWith(
       fontSize: _dateFontSize * 1.2,
@@ -171,7 +171,7 @@ class _AppCalendarState extends State<AppCalendar> {
         final date = _toMidnight(dateUtc);
         if (widget.events[date] == null) {
           if (isSameDay(date, _selectedDay)) {
-            return _selectedStyle(AppColors.grayMedium);
+            return _selectedStyle(AppColors.greyMedium);
           }
           return null;
         }
@@ -192,7 +192,7 @@ class _AppCalendarState extends State<AppCalendar> {
     Color dateColor,
   ) {
     if (isSameDay(date, _selectedDay)) {
-      backgroundColor = AppColors.grayMedium;
+      backgroundColor = AppColors.greyMedium;
       dateColor = Colors.white;
     }
     var textStyle = TextStyle(color: dateColor, fontSize: _dateFontSize);
