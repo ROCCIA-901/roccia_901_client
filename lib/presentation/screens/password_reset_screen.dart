@@ -21,7 +21,6 @@ class PasswordResetScreen extends ConsumerStatefulWidget {
 }
 
 class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
-  SizeConfig _sizeConfig = SizeConfig();
   final _formKey = GlobalKey<FormState>();
 
   late String _password;
@@ -29,13 +28,12 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _sizeConfig = SizeConfig();
     _setListeners(context, ref);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: _sizeConfig.safeBlockHorizontal * 7,
+            horizontal: AppSize.of(context).safeBlockHorizontal * 7,
           ),
           child: Form(
             key: _formKey,
@@ -62,13 +60,14 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                       enableSuggestions: false, // 제안 비활성화
                       autocorrect: false, // 자동 검사 비활성화
                       style: GoogleFonts.roboto(
-                        fontSize: _sizeConfig.safeBlockHorizontal * 3.5,
+                        fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                         color: Colors.black,
                       ),
                       decoration: InputDecoration(
                         labelText: '영문, 숫자, 특수문자를 포함하여 7자 이상 입력해 주세요.',
                         labelStyle: GoogleFonts.roboto(
-                          fontSize: _sizeConfig.safeBlockHorizontal * 3.2,
+                          fontSize:
+                              AppSize.of(context).safeBlockHorizontal * 3.2,
                           color: Color(0xFFD1D3D9),
                         ),
                         errorStyle: TextStyle(
@@ -76,7 +75,8 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                           color: Colors.transparent,
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: _sizeConfig.safeBlockHorizontal * 3,
+                          horizontal:
+                              AppSize.of(context).safeBlockHorizontal * 3,
                           vertical: 0,
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -110,7 +110,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                 ),
                 SizedBox(
                   width: double.maxFinite,
-                  height: _sizeConfig.safeBlockHorizontal * 2,
+                  height: AppSize.of(context).safeBlockHorizontal * 2,
                 ),
 
                 /// "새 비밀번호 확인"
@@ -132,7 +132,8 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                       decoration: InputDecoration(
                         labelText: '비밀번호를 다시 한번 입력해 주세요.',
                         labelStyle: GoogleFonts.roboto(
-                          fontSize: _sizeConfig.safeBlockHorizontal * 3.5,
+                          fontSize:
+                              AppSize.of(context).safeBlockHorizontal * 3.5,
                           color: Color(0xFFD1D3D9),
                         ),
                         errorStyle: TextStyle(
@@ -140,7 +141,8 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                           color: Colors.transparent,
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: _sizeConfig.safeBlockHorizontal * 3,
+                          horizontal:
+                              AppSize.of(context).safeBlockHorizontal * 3,
                           vertical: 0,
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -170,7 +172,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                 ),
                 SizedBox(
                   width: double.maxFinite,
-                  height: _sizeConfig.safeBlockHorizontal * 3,
+                  height: AppSize.of(context).safeBlockHorizontal * 3,
                 ),
 
                 /// 비밀번호 변경 버튼
@@ -180,7 +182,8 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                       text: Text(
                         '비밀번호 변경하기',
                         style: GoogleFonts.inter(
-                          fontSize: _sizeConfig.safeBlockHorizontal * 4.0,
+                          fontSize:
+                              AppSize.of(context).safeBlockHorizontal * 4.0,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFFFFFFFF),
                         ),
@@ -205,13 +208,13 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
     return Container(
         alignment: Alignment.bottomCenter,
         padding: EdgeInsets.only(
-          bottom: _sizeConfig.safeBlockVertical * 7,
+          bottom: AppSize.of(context).safeBlockVertical * 7,
         ),
-        height: _sizeConfig.safeBlockVertical * 40,
+        height: AppSize.of(context).safeBlockVertical * 40,
         child: Image(
             image: AssetImage('assets/logos/roccia_full_logo.png'),
-            height: min(_sizeConfig.safeBlockHorizontal * 22,
-                _sizeConfig.safeBlockVertical * 16)));
+            height: min(AppSize.of(context).safeBlockHorizontal * 22,
+                AppSize.of(context).safeBlockVertical * 16)));
   }
 
   void _updatePassword(WidgetRef ref) {
@@ -265,8 +268,6 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
 
 /// 입력 정보 라벨 위젯
 class InputLabel extends StatelessWidget {
-  final SizeConfig _sizeConfig = SizeConfig();
-
   final String label;
 
   InputLabel({
@@ -279,13 +280,14 @@ class InputLabel extends StatelessWidget {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.only(
-        left: _sizeConfig.safeBlockHorizontal * 0.5,
+        left: AppSize.of(context).safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(bottom: _sizeConfig.safeBlockHorizontal * 1.5),
+      margin: EdgeInsets.only(
+          bottom: AppSize.of(context).safeBlockHorizontal * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
-          fontSize: _sizeConfig.safeBlockHorizontal * 4,
+          fontSize: AppSize.of(context).safeBlockHorizontal * 4,
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),
