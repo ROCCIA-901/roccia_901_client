@@ -13,9 +13,11 @@ import '../presentation/screens/sign_up_screen.dart';
 
 part 'app_router.gr.dart';
 
+final appRouterProvider = Provider<AppRouter>((ref) => AppRouter(ref));
+
 @AutoRouterConfig(replaceInRouteName: 'Screen,Route')
 class AppRouter extends _$AppRouter {
-  final WidgetRef ref;
+  final ProviderRef<AppRouter> ref;
 
   AppRouter(this.ref);
 
@@ -68,7 +70,7 @@ class AppRouter extends _$AppRouter {
 }
 
 class AuthGuard extends AutoRouteGuard {
-  final WidgetRef ref;
+  final ProviderRef<AppRouter> ref;
 
   AuthGuard(this.ref);
 

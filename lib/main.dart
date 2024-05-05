@@ -23,8 +23,9 @@ class MyWebApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AppRouter appRouter = ref.watch(appRouterProvider);
     return MaterialApp.router(
-      routerConfig: AppRouter(ref).config(),
+      routerConfig: appRouter!.config(),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       builder: (context, child) {
@@ -66,8 +67,9 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final AppRouter appRouter = ref.watch(appRouterProvider);
     return MaterialApp.router(
-      routerConfig: AppRouter(ref).config(),
+      routerConfig: appRouter!.config(),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       builder: (context, child) {
