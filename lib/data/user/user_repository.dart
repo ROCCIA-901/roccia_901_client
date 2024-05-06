@@ -54,6 +54,17 @@ class UserRepository {
     }
   }
 
+  Future<ProfileModel> fetchOtherProfile(int userId) async {
+    try {
+      final uri = _api.user.otherProfile(userId);
+      final response = await _apiClient.get(uri);
+      return ProfileModel.fromJson(response);
+    } catch (e, stackTrace) {
+      _errorHandler(e, stackTrace);
+      rethrow;
+    }
+  }
+
   void _errorHandler(e, StackTrace stackTrace) {
     try {
       throw e;

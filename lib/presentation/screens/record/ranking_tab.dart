@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/record/ranking_tab_member_profile_dialog.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/ranking/ranking_viewmodel.dart';
 
@@ -688,7 +689,7 @@ class MemberRankingCard extends StatelessWidget {
       onTap: () {
         showDialog(
           context: context,
-          builder: (_) => _UserProfileDialog(userId: _userId),
+          builder: (_) => RankingTabMemberProfileDialog(userId: _userId),
         );
       },
       child: Container(
@@ -910,156 +911,6 @@ class MemberRankingCard extends StatelessWidget {
             }),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _UserProfileDialog extends StatelessWidget {
-  final int _userId;
-
-  const _UserProfileDialog({
-    super.key,
-    required int userId,
-  }) : _userId = userId;
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: AppSize.of(context).safeBlockHorizontal * 10,
-      ),
-      child: Container(
-        width: double.infinity,
-        height: AppSize.of(context).safeBlockVertical * 70,
-        padding: EdgeInsets.symmetric(
-          horizontal: AppSize.of(context).safeBlockHorizontal * 5,
-          vertical: AppSize.of(context).safeBlockHorizontal * 5,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(
-            AppSize.of(context).safeBlockHorizontal * 5,
-          ),
-        ),
-        child: Column(
-          children: [
-            Flexible(
-              fit: FlexFit.tight,
-              flex: 17,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                        width: double.infinity,
-                        height: AppSize.of(context).safeBlockHorizontal * 5),
-                    _LabelText(text: '이름'),
-                    _ContentText(text: '네글자에요'),
-                    SizedBox(
-                        height: AppSize.of(context).safeBlockHorizontal * 2),
-                    _LabelText(text: '지점'),
-                    _ContentText(text: '더클라인 백두대간점'),
-                    SizedBox(
-                        height: AppSize.of(context).safeBlockHorizontal * 2),
-                    _LabelText(text: '기수'),
-                    _ContentText(text: '10기'),
-                    SizedBox(
-                        height: AppSize.of(context).safeBlockHorizontal * 2),
-                    _LabelText(text: '난이도'),
-                    _ContentText(text: '찐빨강'),
-                    SizedBox(
-                        height: AppSize.of(context).safeBlockHorizontal * 2),
-                    SizedBox(
-                        height: AppSize.of(context).safeBlockHorizontal * 2),
-                    SizedBox(
-                        height: AppSize.of(context).safeBlockHorizontal * 2),
-                    _LabelText(text: '자기소개'),
-                    _ContentText(
-                        text:
-                            '자자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개자기소개기소개'),
-                  ],
-                ),
-              ),
-            ),
-            Flexible(
-              fit: FlexFit.tight,
-              flex: 2,
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  '닫기',
-                  style: TextStyle(
-                    color: AppColors.primaryDark,
-                    fontSize: AppSize.of(context).font.headline1,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _UserInfoColumn extends StatelessWidget {
-  final List<Widget> _listTiles;
-  const _UserInfoColumn({
-    super.key,
-    required List<Widget> listTiles,
-  }) : _listTiles = listTiles;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _listTiles.map((e) {
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: AppSize.of(context).safeBlockHorizontal * 1.5,
-            ),
-            child: e,
-          );
-        }).toList());
-  }
-}
-
-class _LabelText extends StatelessWidget {
-  final String text;
-
-  _LabelText({
-    super.key,
-    required this.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: AppSize.of(context).font.headline2,
-        color: AppColors.greyDark,
-      ),
-    );
-  }
-}
-
-class _ContentText extends StatelessWidget {
-  final String text;
-
-  _ContentText({
-    super.key,
-    required this.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: AppSize.of(context).font.headline3,
-        color: Colors.black,
       ),
     );
   }

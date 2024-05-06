@@ -22,3 +22,12 @@ Future<void> updateProfileUseCase(
   logger.d('Execute updateProfileUseCase');
   await ref.read(userRepositoryProvider).updateProfile(profile: profile);
 }
+
+@riverpod
+Future<ProfileModel> getOtherProfileUseCase(
+  GetOtherProfileUseCaseRef ref,
+  int userId,
+) async {
+  logger.d('Execute getOtherProfileUseCase');
+  return await ref.read(userRepositoryProvider).fetchOtherProfile(userId);
+}

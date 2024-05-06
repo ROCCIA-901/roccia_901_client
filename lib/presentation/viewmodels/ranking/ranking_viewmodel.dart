@@ -14,6 +14,7 @@ typedef GenerationRankingsState
     = List<({String generation, List<RankingProfileState> rankings})>;
 
 class RankingProfileState {
+  final int userId;
   final String username;
   final String generation;
   final BoulderLevel level;
@@ -23,6 +24,7 @@ class RankingProfileState {
   final double score;
 
   RankingProfileState({
+    required this.userId,
     required this.username,
     required this.generation,
     required this.level,
@@ -54,6 +56,7 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
             week: weekly.week,
             rankings: weekly.rankings.map((ranking) {
               return RankingProfileState(
+                userId: ranking.userId,
                 username: ranking.username,
                 generation: ranking.generation,
                 level: ranking.level,
@@ -96,6 +99,7 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
             generation: generation.generation,
             rankings: generation.rankings.map((ranking) {
               return RankingProfileState(
+                userId: ranking.userId,
                 username: ranking.username,
                 generation: ranking.generation,
                 level: ranking.level,
