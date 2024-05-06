@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/record/record_screen_viewmodel.dart';
-import 'package:untitled/utils/app_logger.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 import 'package:untitled/utils/time_of_day_utils.dart';
 import 'package:untitled/utils/toast_helper.dart';
@@ -346,12 +345,10 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   }
 
   void _updateRecord(RecordState recordState) {
-    logger.wtf('updateRecord');
     ref
         .read(recordControllerProvider.notifier)
         .updateRecord(recordState: recordState)
         .whenComplete(() {
-      logger.wtf("updateRecord complete");
       _closeBottomSheet();
       _showRecordDetail(
         AsyncValue.data([recordState]),
