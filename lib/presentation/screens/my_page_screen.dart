@@ -82,7 +82,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                                         initialProfile: ProfileUpdateState(
                                           location: userInfoState.location,
                                           level: userInfoState.level,
-                                          profileImageNumber: 1,
+                                          profileImageNumber:
+                                              userInfoState.profileImageNumber,
                                           introduction:
                                               userInfoState.introduction,
                                         ),
@@ -503,7 +504,7 @@ class _MyPageAppBarFlexibleSpace extends StatelessWidget {
                       _profileImageSize) /
                   2,
               child: SvgPicture.asset(
-                _userInfo.profileImageUrl,
+                "assets/profiles/profile_${_userInfo.profileImageNumber}.svg",
                 width: _profileImageSize,
                 height: _profileImageSize,
               ),
