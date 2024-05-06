@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/size_config.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
@@ -367,15 +368,15 @@ class RankingCriteriaButton extends StatelessWidget {
         },
         icon: SvgPicture.asset(
           'assets/icons/question_mark_circle.svg',
-          color: Color(0xFFE0E0E0),
-          width: AppSize.of(context).safeBlockHorizontal * 2.75,
+          color: AppColors.greyDark,
+          width: AppSize.of(context).safeBlockHorizontal * 3.5,
         ),
         label: Text(
           '랭킹 기준',
           style: GoogleFonts.inter(
             textStyle: TextStyle(
-              color: Color(0xFFE0E0E0),
-              fontSize: AppSize.of(context).safeBlockHorizontal * 2.75,
+              color: AppColors.greyDark,
+              fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -392,14 +393,24 @@ class RankingCriteriaPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("랭킹 기준"),
+      title: Text(
+        "랭킹 기준",
+        style: TextStyle(fontSize: AppSize.of(context).font.headline1),
+      ),
       content: Text(
         "본인의 난이도 문제: 1점\n본인의 난이도보다 낮은 문제: 0.5점\n본인의 난이도보다 높은 문제: 2점",
-        style: TextStyle(color: Color(0xFF7B7B7B)),
+        style: TextStyle(
+          color: AppColors.greyDark,
+          fontSize: AppSize.of(context).font.content,
+        ),
       ),
       backgroundColor: Color(0xFFFFFFFF),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          AppSize.of(context).safeBlockHorizontal * 6.0,
+        ),
+      ),
     );
   }
 }
@@ -506,7 +517,8 @@ class WeeklyRankingPageView extends StatelessWidget {
         child: Text(
           "랭킹이 없어요 😢",
           style: TextStyle(
-            fontSize: AppSize.of(context).font.headline2,
+            color: AppColors.greyMediumDark,
+            fontSize: AppSize.of(context).font.headline3,
           ),
         ),
       );
@@ -596,7 +608,8 @@ class AllRankingPageView extends StatelessWidget {
         child: Text(
           "랭킹이 없어요 😢",
           style: TextStyle(
-            fontSize: AppSize.of(context).font.headline2,
+            color: AppColors.greyMediumDark,
+            fontSize: AppSize.of(context).font.headline3,
           ),
         ),
       );
