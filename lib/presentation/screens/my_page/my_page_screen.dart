@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,15 +12,16 @@ import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/app_enum.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/my_page/my_page_header.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../utils/app_router.dart';
-import '../../utils/dialog_helper.dart';
-import '../viewmodels/authentication/logout_viewmodel.dart';
-import '../viewmodels/user/my_page_viewmodel.dart';
+import '../../../utils/app_router.dart';
+import '../../../utils/dialog_helper.dart';
+import '../../viewmodels/authentication/logout_viewmodel.dart';
+import '../../viewmodels/user/my_page_viewmodel.dart';
 
 @RoutePage()
 class MyPageScreen extends ConsumerStatefulWidget {
@@ -56,6 +58,11 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
             SliverList(
               delegate: SliverChildListDelegate(
                 [
+                  MyPageHeader(
+                    profileImagePath:
+                        "assets/profiles/profile_${userInfoState.profileImageNumber}.svg",
+                    introduction: userInfoState.introduction,
+                  ),
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
                   _Panel(
                     title: Stack(
@@ -119,8 +126,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
                   _HorizontalLine(),
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
-                  _GenerationChangeButton(),
-                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
+                  // _GenerationChangeButton(),
+                  // SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
                   Container(
                     width: double.infinity,
                     margin: EdgeInsets.only(
@@ -154,6 +161,29 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                         SizedBox(
                             height:
                                 AppSize.of(context).safeBlockHorizontal * 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.only(
+                                left: AppSize.of(context).safeBlockHorizontal *
+                                    12.5,
+                              ),
+                              child: _LabelText(text: "총 운동 시간"),
+                            ),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: _LabelText(
+                                  text:
+                                      "${userInfoState.totalWorkoutTime ~/ 60}시간 ${userInfoState.totalWorkoutTime % 60}분",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: AppSize.of(context).safeBlockHorizontal * 5.5,
+                        ),
                         // _Panel(
                         //   title: _PanelTitle(label: "내 출석"),
                         //   elements: [
@@ -227,9 +257,9 @@ class _MyPageAppBar extends StatelessWidget {
       elevation: 1,
       shadowColor: Colors.grey,
       toolbarHeight: _appBarHeight,
-      expandedHeight: _appBarExpandedHeight,
+      // expandedHeight: _appBarExpandedHeight,
+      pinned: false,
       floating: false,
-      pinned: true,
       title: Text(
         "마이페이지",
         style: TextStyle(
@@ -240,11 +270,11 @@ class _MyPageAppBar extends StatelessWidget {
       actions: [
         _LogOutButton(),
       ],
-      flexibleSpace: _MyPageAppBarFlexibleSpace(
-        toolbarHeight: _appBarHeight,
-        expandedHeight: _appBarExpandedHeight,
-        userInfo: _userInfo,
-      ),
+      // flexibleSpace: _MyPageAppBarFlexibleSpace(
+      //   toolbarHeight: _appBarHeight,
+      //   expandedHeight: _appBarExpandedHeight,
+      //   userInfo: _userInfo,
+      // ),
     );
   }
 
@@ -376,212 +406,6 @@ class _LogOutPopUp extends ConsumerWidget {
     _yesButtonWidth = _popUpWidth * 0.2;
     _noButtonWidth = _popUpWidth * 0.3;
     _buttonHeight = _popUpWidth * 0.1;
-  }
-}
-
-/*
-  Container(
-  width: MediaQuery.of(context).size.width * 1,
-  height: MediaQuery.of(context).size.width * (1 / 7),
-  color: Color(0xfff8faed),
-  padding: EdgeInsets.only(
-    left: MediaQuery.of(context).size.width * (1 / 12),
-    right: MediaQuery.of(context).size.width * (1 / 12),
-    top: MediaQuery.of(context).size.width * (1 / 20),
-  ),
-  child: Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Container(
-        child: SvgPicture.asset(
-          'assets/titles/my_page_title.svg',
-          height:
-              MediaQuery.of(context).size.width * (1 / 18),
-        ),
-      ),
-      Container(
-          onTap: () {
-            showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text(
-                      "로그아웃",
-                    ),
-                    content: Text("로그아웃 하시겠습니까?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          '네',
-                          style: TextStyle(
-                              color: Colors.lightBlueAccent),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          '아니오',
-                          style: TextStyle(
-                              color: Colors.lightBlueAccent),
-                        ),
-                      ),
-                    ],
-                  );
-                });
-          },
-        ),
-      )
-    ],
-  ),
-),
-
-   */
-
-class _MyPageAppBarFlexibleSpace extends StatelessWidget {
-  final MyPageStateModel _userInfo;
-  final double _toolbarHeight;
-  final double _expandedHeight;
-
-  // ------------------------------------------------------------------------ //
-  // Size Variables - Must init in build() !                                  //
-  // ------------------------------------------------------------------------ //
-  late double _flexibleSpaceHeight;
-  late double _introductionWidth;
-  late double _introductionHeight;
-  late double _bottomWhiteSpaceHeight;
-  late double _profileImageSize;
-
-  _MyPageAppBarFlexibleSpace({
-    super.key,
-    required double toolbarHeight,
-    required double expandedHeight,
-    required MyPageStateModel userInfo,
-  })  : _toolbarHeight = toolbarHeight,
-        _expandedHeight = expandedHeight,
-        _userInfo = userInfo;
-
-  @override
-  Widget build(BuildContext context) {
-    _updateSize(context);
-    return FlexibleSpaceBar(
-      background: Container(
-        margin: EdgeInsets.only(
-          top: _toolbarHeight,
-        ),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: _flexibleSpaceHeight - _bottomWhiteSpaceHeight,
-                  decoration: BoxDecoration(
-                    color: Color(0xfff8faed),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.greyMediumDark,
-                        width: AppSize.of(context).safeBlockHorizontal * 0.2,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: _bottomWhiteSpaceHeight,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-            Positioned(
-              left: (AppSize.of(context).safeBlockHorizontal * 100 -
-                      _profileImageSize) /
-                  2,
-              child: SvgPicture.asset(
-                "assets/profiles/profile_${_userInfo.profileImageNumber}.svg",
-                width: _profileImageSize,
-                height: _profileImageSize,
-              ),
-            ),
-            Positioned(
-              left: (AppSize.of(context).safeBlockHorizontal * 100 -
-                      _introductionWidth) /
-                  2,
-              bottom:
-                  max(_bottomWhiteSpaceHeight - (_introductionHeight / 2), 0),
-              child: _MyPageAppBarFlexibleSpaceIntroduction(
-                introductionWidth: _introductionWidth,
-                introductionHeight: _introductionHeight,
-                userInfo: _userInfo,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _updateSize(BuildContext context) {
-    _flexibleSpaceHeight = _expandedHeight - _toolbarHeight;
-    _introductionWidth = AppSize.of(context).safeBlockHorizontal * 85;
-    _introductionHeight = _flexibleSpaceHeight * 0.45;
-    _bottomWhiteSpaceHeight = _flexibleSpaceHeight * 0.3;
-    _profileImageSize = _flexibleSpaceHeight * 0.4;
-  }
-}
-
-class _MyPageAppBarFlexibleSpaceIntroduction extends StatelessWidget {
-  final double _introductionWidth;
-  final double _introductionHeight;
-  final MyPageStateModel _userInfo;
-
-  const _MyPageAppBarFlexibleSpaceIntroduction({
-    super.key,
-    required double introductionWidth,
-    required double introductionHeight,
-    required MyPageStateModel userInfo,
-  })  : _introductionWidth = introductionWidth,
-        _introductionHeight = introductionHeight,
-        _userInfo = userInfo;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: _introductionWidth,
-      height: _introductionHeight,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
-        border: Border.all(
-          width: AppSize.of(context).safeBlockHorizontal * 0.5,
-          color: AppColors.greyMedium,
-        ),
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSize.of(context).safeBlockHorizontal * 2,
-        vertical: AppSize.of(context).safeBlockHorizontal * 2,
-      ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Text(
-          _userInfo.introduction,
-          softWrap: true,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 3,
-          style: TextStyle(
-            fontSize: AppSize.of(context).font.content,
-            height: 1.5,
-          ),
-        ),
-      ),
-    );
   }
 }
 

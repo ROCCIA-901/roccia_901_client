@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/record/ranking_tab_member_profile_dialog.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/ranking/ranking_viewmodel.dart';
 
@@ -659,6 +660,7 @@ class RankingList extends StatelessWidget {
 class MemberRankingCard extends StatelessWidget {
   final RankingProfileState memberRankingData;
 
+  final int _userId;
   final String _profileImageUrl;
   final String _name;
   final Location _location;
@@ -671,7 +673,8 @@ class MemberRankingCard extends StatelessWidget {
     super.key,
     required this.memberRankingData,
     required int rank,
-  })  : _profileImageUrl =
+  })  : _userId = memberRankingData.userId,
+        _profileImageUrl =
             'assets/profiles/${memberRankingData.profileImg}.svg',
         _name = memberRankingData.username,
         _location = memberRankingData.location,
@@ -682,220 +685,231 @@ class MemberRankingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(
-          bottom: AppSize.of(context).safeBlockHorizontal * 1.389),
-      padding: EdgeInsets.all(0),
-      child: AspectRatio(
-        aspectRatio: 17 / 3,
-        child: Card(
-          margin: EdgeInsets.all(0),
-          elevation: 0,
-          color: Color(0xFFFFFFFF),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(7),
-            side: BorderSide(
-              color: Color(0xFFE0E0E0),
-              width: AppSize.of(context).safeBlockHorizontal * 0.3278,
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (_) => RankingTabMemberProfileDialog(userId: _userId),
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.only(
+            bottom: AppSize.of(context).safeBlockHorizontal * 1.389),
+        padding: EdgeInsets.all(0),
+        child: AspectRatio(
+          aspectRatio: 17 / 3,
+          child: Card(
+            margin: EdgeInsets.all(0),
+            elevation: 0,
+            color: Color(0xFFFFFFFF),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(7),
+              side: BorderSide(
+                color: Color(0xFFE0E0E0),
+                width: AppSize.of(context).safeBlockHorizontal * 0.3278,
+              ),
             ),
+            child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+              final double cardBlockSizeHorizontal =
+                  constraints.maxWidth / 100.0;
+              final double cardBlockSizeVertical =
+                  constraints.maxHeight / 100.0;
+              return Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  /// 프로필 이미지
+                  Positioned(
+                    left: cardBlockSizeHorizontal * 4.118,
+                    child: SizedBox(
+                      width: cardBlockSizeVertical * 81.67,
+                      height: cardBlockSizeVertical * 81.67,
+                      child: FittedBox(
+                        fit: BoxFit.fill,
+                        child: SvgPicture.asset(
+                          _profileImageUrl,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// 프로필
+                  Positioned(
+                    left: cardBlockSizeHorizontal * 21.47,
+                    child: SizedBox(
+                      height: cardBlockSizeVertical * 100.0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: cardBlockSizeVertical * 20,
+                          ),
+
+                          /// 이름, 지점
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(
+                                    right: cardBlockSizeHorizontal * 1.5),
+                                child: Text(
+                                  _name,
+                                  style: TextStyle(
+                                    fontSize: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        3.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF000000),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(
+                                    right: cardBlockSizeHorizontal * 2.647),
+                                padding: EdgeInsets.only(
+                                    bottom: cardBlockSizeVertical * 0.3),
+                                child: Text(
+                                  Location.toName[_location]!,
+                                  style: TextStyle(
+                                    fontSize: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        3.0,
+                                    color: Color(0xFF878787),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: cardBlockSizeVertical * 7),
+
+                          /// 기수, 난이도
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: cardBlockSizeVertical * 32,
+                                width: cardBlockSizeHorizontal * 12,
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.only(
+                                    top: cardBlockSizeVertical * 2),
+                                decoration: ShapeDecoration(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      width: AppSize.of(context)
+                                              .safeBlockHorizontal *
+                                          0.2,
+                                      color: Color(0xFFE0E0E0),
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: Text(
+                                  _generation,
+                                  style: GoogleFonts.roboto(
+                                    fontSize: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        2.5,
+                                    color: Color(0xFF7B7B7B),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: cardBlockSizeHorizontal * 0.8824),
+                              Container(
+                                height: cardBlockSizeVertical * 32,
+                                width: cardBlockSizeHorizontal * 12,
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.only(
+                                    top: cardBlockSizeVertical * 2),
+                                decoration: ShapeDecoration(
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      width: AppSize.of(context)
+                                              .safeBlockHorizontal *
+                                          0.2,
+                                      color: Color(0xFFE0E0E0),
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: Text(
+                                  BoulderLevel.toName[_level] ?? 'No data',
+                                  style: GoogleFonts.roboto(
+                                    fontSize: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        2.5,
+                                    color: Color(0xFF7B7B7B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  /// 총점
+                  Positioned(
+                    left: cardBlockSizeHorizontal * 60,
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: cardBlockSizeHorizontal * 12,
+                      child: Text(
+                        '$_score점',
+                        style: GoogleFonts.roboto(
+                          fontSize: cardBlockSizeHorizontal * 3.5,
+                          color: Color(0xFF7B7B7B),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// 순위
+                  Positioned(
+                    left: cardBlockSizeHorizontal * 80.55,
+                    child: Container(
+                      width: cardBlockSizeHorizontal * 9.0,
+                      alignment: Alignment.center,
+                      child: Text(
+                        '$_rank',
+                        style: GoogleFonts.roboto(
+                          fontSize: cardBlockSizeHorizontal * 3.5,
+                          color: Color(0xFF000000),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  /// 왕관
+                  Positioned(
+                    left: cardBlockSizeHorizontal * 87.0,
+                    child: Container(
+                      padding:
+                          EdgeInsets.only(bottom: cardBlockSizeVertical * 4),
+                      alignment: Alignment.centerLeft,
+                      child: switch (_rank) {
+                        1 => SvgPicture.asset(
+                            'assets/icons/crown_gold.svg',
+                            width: cardBlockSizeHorizontal * 2.8,
+                          ),
+                        2 => SvgPicture.asset(
+                            'assets/icons/crown_silver.svg',
+                            width: cardBlockSizeHorizontal * 2.8,
+                          ),
+                        3 => SvgPicture.asset(
+                            'assets/icons/crown_bronze.svg',
+                            width: cardBlockSizeHorizontal * 2.8,
+                          ),
+                        _ => null,
+                      },
+                    ),
+                  )
+                ],
+              );
+            }),
           ),
-          child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-            final double cardBlockSizeHorizontal = constraints.maxWidth / 100.0;
-            final double cardBlockSizeVertical = constraints.maxHeight / 100.0;
-            return Stack(
-              alignment: Alignment.centerLeft,
-              children: [
-                /// 프로필 이미지
-                Positioned(
-                  left: cardBlockSizeHorizontal * 4.118,
-                  child: SizedBox(
-                    width: cardBlockSizeVertical * 81.67,
-                    height: cardBlockSizeVertical * 81.67,
-                    child: FittedBox(
-                      fit: BoxFit.fill,
-                      child: SvgPicture.asset(
-                        _profileImageUrl,
-                      ),
-                    ),
-                  ),
-                ),
-
-                /// 프로필
-                Positioned(
-                  left: cardBlockSizeHorizontal * 21.47,
-                  child: SizedBox(
-                    height: cardBlockSizeVertical * 100.0,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: cardBlockSizeVertical * 20,
-                        ),
-
-                        /// 이름, 지점
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(
-                                  right: cardBlockSizeHorizontal * 1.5),
-                              child: Text(
-                                _name,
-                                style: TextStyle(
-                                  fontSize:
-                                      AppSize.of(context).safeBlockHorizontal *
-                                          3.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF000000),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(
-                                  right: cardBlockSizeHorizontal * 2.647),
-                              padding: EdgeInsets.only(
-                                  bottom: cardBlockSizeVertical * 0.3),
-                              child: Text(
-                                Location.toName[_location]!,
-                                style: TextStyle(
-                                  fontSize:
-                                      AppSize.of(context).safeBlockHorizontal *
-                                          3.0,
-                                  color: Color(0xFF878787),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: cardBlockSizeVertical * 7),
-
-                        /// 기수, 난이도
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              height: cardBlockSizeVertical * 32,
-                              width: cardBlockSizeHorizontal * 12,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.only(
-                                  top: cardBlockSizeVertical * 2),
-                              decoration: ShapeDecoration(
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    width: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        0.2,
-                                    color: Color(0xFFE0E0E0),
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              child: Text(
-                                _generation,
-                                style: GoogleFonts.roboto(
-                                  fontSize:
-                                      AppSize.of(context).safeBlockHorizontal *
-                                          2.5,
-                                  color: Color(0xFF7B7B7B),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: cardBlockSizeHorizontal * 0.8824),
-                            Container(
-                              height: cardBlockSizeVertical * 32,
-                              width: cardBlockSizeHorizontal * 12,
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.only(
-                                  top: cardBlockSizeVertical * 2),
-                              decoration: ShapeDecoration(
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    width: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        0.2,
-                                    color: Color(0xFFE0E0E0),
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              child: Text(
-                                BoulderLevel.toName[_level] ?? 'No data',
-                                style: GoogleFonts.roboto(
-                                  fontSize:
-                                      AppSize.of(context).safeBlockHorizontal *
-                                          2.5,
-                                  color: Color(0xFF7B7B7B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                /// 총점
-                Positioned(
-                  left: cardBlockSizeHorizontal * 60,
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: cardBlockSizeHorizontal * 12,
-                    child: Text(
-                      '$_score점',
-                      style: GoogleFonts.roboto(
-                        fontSize: cardBlockSizeHorizontal * 3.5,
-                        color: Color(0xFF7B7B7B),
-                      ),
-                    ),
-                  ),
-                ),
-
-                /// 순위
-                Positioned(
-                  left: cardBlockSizeHorizontal * 80.55,
-                  child: Container(
-                    width: cardBlockSizeHorizontal * 9.0,
-                    alignment: Alignment.center,
-                    child: Text(
-                      '$_rank',
-                      style: GoogleFonts.roboto(
-                        fontSize: cardBlockSizeHorizontal * 3.5,
-                        color: Color(0xFF000000),
-                      ),
-                    ),
-                  ),
-                ),
-
-                /// 왕관
-                Positioned(
-                  left: cardBlockSizeHorizontal * 87.0,
-                  child: Container(
-                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 4),
-                    alignment: Alignment.centerLeft,
-                    child: switch (_rank) {
-                      1 => SvgPicture.asset(
-                          'assets/icons/crown_gold.svg',
-                          width: cardBlockSizeHorizontal * 2.8,
-                        ),
-                      2 => SvgPicture.asset(
-                          'assets/icons/crown_silver.svg',
-                          width: cardBlockSizeHorizontal * 2.8,
-                        ),
-                      3 => SvgPicture.asset(
-                          'assets/icons/crown_bronze.svg',
-                          width: cardBlockSizeHorizontal * 2.8,
-                        ),
-                      _ => null,
-                    },
-                  ),
-                )
-              ],
-            );
-          }),
         ),
       ),
     );

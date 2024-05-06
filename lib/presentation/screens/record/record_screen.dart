@@ -1,7 +1,7 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:untitled/presentation/screens/record_screen/ranking_tab.dart';
+import 'package:untitled/presentation/screens/record/ranking_tab.dart';
 import 'package:untitled/widgets/app_custom_bar.dart';
 
 import '../../../constants/size_config.dart';
