@@ -657,7 +657,7 @@ class _ReportButton extends StatelessWidget {
   }
 
   void _updateSize(BuildContext context) {
-    _width = AppSize.of(context).safeBlockHorizontal * 80;
+    _width = AppSize.of(context).safeBlockHorizontal * 90;
     _height = AppSize.of(context).safeBlockHorizontal * 10;
   }
 }
