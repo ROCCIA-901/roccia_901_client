@@ -18,7 +18,9 @@ void exceptionHandlerOnView(
       );
       break;
     default:
-      ToastHelper.showErrorOccurred(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        ToastHelper.showErrorOccurred(context);
+      });
       break;
   }
 }
@@ -30,7 +32,9 @@ void _handleNotificationException(
 }) {
   switch (e.type) {
     case (NotificationType.info):
-      ToastHelper.show(context, e.message);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        ToastHelper.show(context, e.message);
+      });
       break;
 
     case (NotificationType.warning):
@@ -49,7 +53,9 @@ void _handleNotificationException(
           ),
         );
       } else {
-        ToastHelper.show(context, e.message);
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          ToastHelper.show(context, e.message);
+        });
       }
       break;
 
