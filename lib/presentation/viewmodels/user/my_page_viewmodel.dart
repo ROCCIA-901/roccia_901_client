@@ -15,7 +15,7 @@ class MyPageStateModel {
   final UserRole role;
   final Location location;
   final BoulderLevel level;
-  final String profileImageUrl;
+  final int profileImageNumber;
   final String introduction;
 
   // /// Attendance
@@ -32,7 +32,7 @@ class MyPageStateModel {
     required this.role,
     required this.location,
     required this.level,
-    required this.profileImageUrl,
+    required this.profileImageNumber,
     required this.introduction,
     // required this.presentCount,
     // required this.absentCount,
@@ -63,8 +63,7 @@ class MyPageViewmodel extends _$MyPageViewmodel {
       role: myPage.profile.role,
       location: myPage.profile.location,
       level: myPage.profile.level,
-      profileImageUrl:
-          "assets/profiles/profile_${myPage.profile.profileImageNumber}.svg",
+      profileImageNumber: myPage.profile.profileImageNumber,
       introduction: myPage.profile.introduction,
       // presentCount: myPage.attendance.presentCount,
       // absentCount: myPage.attendance.absentCount,
