@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,10 +17,10 @@ import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../utils/app_router.dart';
-import '../../utils/dialog_helper.dart';
-import '../viewmodels/authentication/logout_viewmodel.dart';
-import '../viewmodels/user/my_page_viewmodel.dart';
+import '../../../utils/app_router.dart';
+import '../../../utils/dialog_helper.dart';
+import '../../viewmodels/authentication/logout_viewmodel.dart';
+import '../../viewmodels/user/my_page_viewmodel.dart';
 
 @RoutePage()
 class MyPageScreen extends ConsumerStatefulWidget {
@@ -119,8 +120,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
                   _HorizontalLine(),
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
-                  _GenerationChangeButton(),
-                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
+                  // _GenerationChangeButton(),
+                  // SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
                   Container(
                     width: double.infinity,
                     margin: EdgeInsets.only(
@@ -154,6 +155,29 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                         SizedBox(
                             height:
                                 AppSize.of(context).safeBlockHorizontal * 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.only(
+                                left: AppSize.of(context).safeBlockHorizontal *
+                                    12.5,
+                              ),
+                              child: _LabelText(text: "총 운동 시간"),
+                            ),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: _LabelText(
+                                  text:
+                                      "${userInfoState.totalWorkoutTime ~/ 60}시간 ${userInfoState.totalWorkoutTime % 60}분",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: AppSize.of(context).safeBlockHorizontal * 5.5,
+                        ),
                         // _Panel(
                         //   title: _PanelTitle(label: "내 출석"),
                         //   elements: [
@@ -227,9 +251,9 @@ class _MyPageAppBar extends StatelessWidget {
       elevation: 1,
       shadowColor: Colors.grey,
       toolbarHeight: _appBarHeight,
-      expandedHeight: _appBarExpandedHeight,
+      // expandedHeight: _appBarExpandedHeight,
+      pinned: false,
       floating: false,
-      pinned: true,
       title: Text(
         "마이페이지",
         style: TextStyle(
@@ -240,11 +264,11 @@ class _MyPageAppBar extends StatelessWidget {
       actions: [
         _LogOutButton(),
       ],
-      flexibleSpace: _MyPageAppBarFlexibleSpace(
-        toolbarHeight: _appBarHeight,
-        expandedHeight: _appBarExpandedHeight,
-        userInfo: _userInfo,
-      ),
+      // flexibleSpace: _MyPageAppBarFlexibleSpace(
+      //   toolbarHeight: _appBarHeight,
+      //   expandedHeight: _appBarExpandedHeight,
+      //   userInfo: _userInfo,
+      // ),
     );
   }
 
@@ -378,71 +402,6 @@ class _LogOutPopUp extends ConsumerWidget {
     _buttonHeight = _popUpWidth * 0.1;
   }
 }
-
-/*
-  Container(
-  width: MediaQuery.of(context).size.width * 1,
-  height: MediaQuery.of(context).size.width * (1 / 7),
-  color: Color(0xfff8faed),
-  padding: EdgeInsets.only(
-    left: MediaQuery.of(context).size.width * (1 / 12),
-    right: MediaQuery.of(context).size.width * (1 / 12),
-    top: MediaQuery.of(context).size.width * (1 / 20),
-  ),
-  child: Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Container(
-        child: SvgPicture.asset(
-          'assets/titles/my_page_title.svg',
-          height:
-              MediaQuery.of(context).size.width * (1 / 18),
-        ),
-      ),
-      Container(
-          onTap: () {
-            showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text(
-                      "로그아웃",
-                    ),
-                    content: Text("로그아웃 하시겠습니까?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          '네',
-                          style: TextStyle(
-                              color: Colors.lightBlueAccent),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          '아니오',
-                          style: TextStyle(
-                              color: Colors.lightBlueAccent),
-                        ),
-                      ),
-                    ],
-                  );
-                });
-          },
-        ),
-      )
-    ],
-  ),
-),
-
-   */
 
 class _MyPageAppBarFlexibleSpace extends StatelessWidget {
   final MyPageStateModel _userInfo;

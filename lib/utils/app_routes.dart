@@ -6,9 +6,9 @@ import '../presentation/screens/competition_screen.dart';
 import '../presentation/screens/email_verification_screen.dart';
 import '../presentation/screens/login_screen.dart';
 import '../presentation/screens/member_home_screen.dart';
-import '../presentation/screens/my_page_screen.dart';
+import '../presentation/screens/my_page/my_page_screen.dart';
 import '../presentation/screens/password_reset_screen.dart';
-import '../presentation/screens/record_screen/record_screen.dart';
+import '../presentation/screens/record/record_screen.dart';
 import '../presentation/screens/sign_up_screen.dart';
 
 class AppRoutes {
