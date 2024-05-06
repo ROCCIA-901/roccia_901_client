@@ -12,6 +12,7 @@ import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/app_enum.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/my_page/my_page_header.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
@@ -57,6 +58,11 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
             SliverList(
               delegate: SliverChildListDelegate(
                 [
+                  MyPageHeader(
+                    profileImagePath:
+                        "assets/profiles/profile_${userInfoState.profileImageNumber}.svg",
+                    introduction: userInfoState.introduction,
+                  ),
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
                   _Panel(
                     title: Stack(
@@ -400,147 +406,6 @@ class _LogOutPopUp extends ConsumerWidget {
     _yesButtonWidth = _popUpWidth * 0.2;
     _noButtonWidth = _popUpWidth * 0.3;
     _buttonHeight = _popUpWidth * 0.1;
-  }
-}
-
-class _MyPageAppBarFlexibleSpace extends StatelessWidget {
-  final MyPageStateModel _userInfo;
-  final double _toolbarHeight;
-  final double _expandedHeight;
-
-  // ------------------------------------------------------------------------ //
-  // Size Variables - Must init in build() !                                  //
-  // ------------------------------------------------------------------------ //
-  late double _flexibleSpaceHeight;
-  late double _introductionWidth;
-  late double _introductionHeight;
-  late double _bottomWhiteSpaceHeight;
-  late double _profileImageSize;
-
-  _MyPageAppBarFlexibleSpace({
-    super.key,
-    required double toolbarHeight,
-    required double expandedHeight,
-    required MyPageStateModel userInfo,
-  })  : _toolbarHeight = toolbarHeight,
-        _expandedHeight = expandedHeight,
-        _userInfo = userInfo;
-
-  @override
-  Widget build(BuildContext context) {
-    _updateSize(context);
-    return FlexibleSpaceBar(
-      background: Container(
-        margin: EdgeInsets.only(
-          top: _toolbarHeight,
-        ),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: _flexibleSpaceHeight - _bottomWhiteSpaceHeight,
-                  decoration: BoxDecoration(
-                    color: Color(0xfff8faed),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.greyMediumDark,
-                        width: AppSize.of(context).safeBlockHorizontal * 0.2,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: _bottomWhiteSpaceHeight,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-            Positioned(
-              left: (AppSize.of(context).safeBlockHorizontal * 100 -
-                      _profileImageSize) /
-                  2,
-              child: SvgPicture.asset(
-                "assets/profiles/profile_${_userInfo.profileImageNumber}.svg",
-                width: _profileImageSize,
-                height: _profileImageSize,
-              ),
-            ),
-            Positioned(
-              left: (AppSize.of(context).safeBlockHorizontal * 100 -
-                      _introductionWidth) /
-                  2,
-              bottom:
-                  max(_bottomWhiteSpaceHeight - (_introductionHeight / 2), 0),
-              child: _MyPageAppBarFlexibleSpaceIntroduction(
-                introductionWidth: _introductionWidth,
-                introductionHeight: _introductionHeight,
-                userInfo: _userInfo,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _updateSize(BuildContext context) {
-    _flexibleSpaceHeight = _expandedHeight - _toolbarHeight;
-    _introductionWidth = AppSize.of(context).safeBlockHorizontal * 85;
-    _introductionHeight = _flexibleSpaceHeight * 0.45;
-    _bottomWhiteSpaceHeight = _flexibleSpaceHeight * 0.3;
-    _profileImageSize = _flexibleSpaceHeight * 0.4;
-  }
-}
-
-class _MyPageAppBarFlexibleSpaceIntroduction extends StatelessWidget {
-  final double _introductionWidth;
-  final double _introductionHeight;
-  final MyPageStateModel _userInfo;
-
-  const _MyPageAppBarFlexibleSpaceIntroduction({
-    super.key,
-    required double introductionWidth,
-    required double introductionHeight,
-    required MyPageStateModel userInfo,
-  })  : _introductionWidth = introductionWidth,
-        _introductionHeight = introductionHeight,
-        _userInfo = userInfo;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: _introductionWidth,
-      height: _introductionHeight,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
-        border: Border.all(
-          width: AppSize.of(context).safeBlockHorizontal * 0.5,
-          color: AppColors.greyMedium,
-        ),
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSize.of(context).safeBlockHorizontal * 2,
-        vertical: AppSize.of(context).safeBlockHorizontal * 2,
-      ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Text(
-          _userInfo.introduction,
-          softWrap: true,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 3,
-          style: TextStyle(
-            fontSize: AppSize.of(context).font.content,
-            height: 1.5,
-          ),
-        ),
-      ),
-    );
   }
 }
 

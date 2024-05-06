@@ -17,6 +17,7 @@ class MyPageStateModel {
   final BoulderLevel level;
   final int profileImageNumber;
   final String introduction;
+  final int totalWorkoutTime;
 
   // /// Attendance
   // final int presentCount;
@@ -34,6 +35,7 @@ class MyPageStateModel {
     required this.level,
     required this.profileImageNumber,
     required this.introduction,
+    required this.totalWorkoutTime,
     // required this.presentCount,
     // required this.absentCount,
     // required this.lateCount,
@@ -65,6 +67,7 @@ class MyPageViewmodel extends _$MyPageViewmodel {
       level: myPage.profile.level,
       profileImageNumber: myPage.profile.profileImageNumber,
       introduction: myPage.profile.introduction,
+      totalWorkoutTime: myPage.totalWorkoutTime,
       // presentCount: myPage.attendance.presentCount,
       // absentCount: myPage.attendance.absentCount,
       // lateCount: myPage.attendance.lateCount,
