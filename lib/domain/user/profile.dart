@@ -15,14 +15,13 @@ typedef RecordStatistics = List<({BoulderLevel level, int count})>;
 )
 class MyPageModel {
   final ProfileModel profile;
-  @JsonKey(
-    fromJson: _recordStatisticsFromJson,
-    includeToJson: false,
-  )
+  final int totalWorkoutTime;
+  @JsonKey(fromJson: _recordStatisticsFromJson, includeToJson: false)
   final RecordStatistics records;
 
   const MyPageModel({
     required this.profile,
+    required this.totalWorkoutTime,
     required this.records,
   });
 
