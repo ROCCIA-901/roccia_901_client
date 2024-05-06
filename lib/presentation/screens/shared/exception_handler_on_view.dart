@@ -54,7 +54,9 @@ void _handleNotificationException(
       break;
 
     case (NotificationType.error):
-      ToastHelper.showErrorOccurred(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        ToastHelper.showErrorOccurred(context);
+      });
       break;
   }
 }
