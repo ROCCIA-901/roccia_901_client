@@ -86,6 +86,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
         AppCalendar(
           width: _calendarWidth,
           height: _calendarHeight,
+          focusedDay: _selectedDate,
           selectedDay: _selectedDate,
           onSelected: (date) {
             _onDateSelected(date, recordsState);
@@ -1787,10 +1788,7 @@ class _TimeFormState extends State<_TimeForm> {
       height: widget.height,
       child: GestureDetector(
         onTap: () async {
-          final TimeOfDay? timeOfDay = await showTimePicker(
-            context: context,
-            initialTime: selectedTime,
-          );
+          final TimeOfDay? timeOfDay = await _showTimePicker();
           if (timeOfDay != null) {
             setState(() {
               selectedTime = timeOfDay;
@@ -1817,6 +1815,34 @@ class _TimeFormState extends State<_TimeForm> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<TimeOfDay?> _showTimePicker() async {
+    return await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+      initialEntryMode: TimePickerEntryMode.inputOnly,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryDark,
+              // change the text color
+              onSurface: AppColors.greyDark,
+              background: Colors.white,
+              outline: AppColors.greyDark,
+            ),
+            // button colors
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.light(
+                primary: Colors.teal,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }
