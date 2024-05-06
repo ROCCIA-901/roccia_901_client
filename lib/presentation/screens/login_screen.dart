@@ -88,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
               SizedBox(
                 height: AppSize.of(context).safeBlockHorizontal * 10,
-                child: Text("Ver.0.7.1"),
+                child: Text("Ver.0.7.7"),
               ),
             ],
           ),
