@@ -798,9 +798,10 @@ class _CreateRecordBottomSheet extends StatefulWidget {
 class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
   /// state
   Location? _selectedLocation;
-  TimeOfDay _startTime = TimeOfDay.now();
+  TimeOfDay _startTime =
+      TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(hours: 2)));
   TimeOfDay _endTime =
-      TimeOfDay.fromDateTime(DateTime.now().add(Duration(hours: 1)));
+      TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: 1)));
   late List<({BoulderLevel? level, int? count})> _boulderProblems;
 
   // ------------------------------------------------------------------------ //
