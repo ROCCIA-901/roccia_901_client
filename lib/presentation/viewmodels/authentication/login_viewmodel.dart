@@ -9,9 +9,7 @@ part 'login_viewmodel.g.dart';
 @riverpod
 class LoginController extends _$LoginController {
   @override
-  FutureOr<void> build() {
-    logger.d('Execute LoginController.build');
-  }
+  FutureOr<void> build() {}
 
   Future<void> execute({
     required String email,
