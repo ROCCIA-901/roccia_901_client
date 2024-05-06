@@ -1,13 +1,21 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/presentation/screens/record_screen/ranking_tab.dart';
+import 'package:untitled/widgets/app_custom_bar.dart';
 
 import '../../../constants/size_config.dart';
 import '../../viewmodels/record/record_screen_viewmodel.dart';
 import 'my_record_tab.dart';
 
+@RoutePage()
 class RecordScreen extends ConsumerStatefulWidget {
-  const RecordScreen({Key? key}) : super(key: key);
+  final int? initialIndex;
+
+  const RecordScreen({
+    Key? key,
+    this.initialIndex,
+  }) : super(key: key);
 
   @override
   ConsumerState<RecordScreen> createState() => _RecordScreenState();
@@ -17,19 +25,23 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final List<Widget> _tabs = [
-    const Tab(
-      child: Text("내 기록", style: TextStyle(fontSize: 15)),
-    ),
-    const Tab(
-      child: Text("랭킹", style: TextStyle(fontSize: 15)),
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(
+
+        /// Todo: length magic number 제거
+        length: 2,
+        vsync: this,
+        initialIndex: widget.initialIndex ?? 0);
+  }
+
+  @override
+  void didUpdateWidget(covariant RecordScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialIndex != null) {
+      _tabController.animateTo(widget.initialIndex!);
+    }
   }
 
   @override
@@ -40,28 +52,27 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> tabs = [
+      Tab(
+        height: AppSize.of(context).safeBlockHorizontal * 13,
+        child: Text("내 기록",
+            style: TextStyle(fontSize: AppSize.of(context).font.headline3)),
+      ),
+      Tab(
+        height: AppSize.of(context).safeBlockHorizontal * 13,
+        child: Text("랭킹",
+            style: TextStyle(fontSize: AppSize.of(context).font.headline3)),
+      ),
+    ];
     ref.watch(recordScreenViewmodelProvider);
     return Scaffold(
+      appBar: buildAppCommonBar(context, title: "기록"),
       body: SafeArea(
         bottom: false,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.only(
-                  left: SizeConfig.safeBlockHorizontal * 6,
-                  top: SizeConfig.safeBlockVertical * 1.5),
-              height: SizeConfig.safeBlockVertical * 8,
-              child: Text(
-                '기록',
-                style: TextStyle(
-                  fontSize: SizeConfig.safeBlockHorizontal * 5.4,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
             TabBar(
-              tabs: _tabs,
+              tabs: tabs,
               controller: _tabController,
               //physics: NeverScrollableScrollPhysics(),
               indicatorColor: Color(0xffcae4c1),
@@ -69,9 +80,8 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               onTap: (_) {
-                if (ref
-                    .read(recordScreenViewmodelProvider)
-                    .isBottomSheetOpened) {
+                if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
+                    RecordScreenBottomSheetState.none) {
                   ref
                       .read(recordScreenViewmodelProvider.notifier)
                       .closeBottomSheet();
@@ -86,7 +96,6 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
                 children: [
                   MyRecordTab(),
                   RankingTab(),
-                  // RankingTab(),
                 ],
               ),
             ),

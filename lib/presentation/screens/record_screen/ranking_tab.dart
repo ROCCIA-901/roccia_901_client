@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/ranking/ranking_viewmodel.dart';
 
 import '../../../constants/app_enum.dart';
@@ -30,10 +31,12 @@ class _RankingTabState extends ConsumerState<RankingTab> {
   final int weekPageOffset = 1;
   final int generationPageOffset = 1;
 
+  late final int _currentWeek = AppUtils.currentWeekNumber();
+  late final int _currentGeneration = AppConstants.maxGeneration;
   // 주간 랭킹에서 어느 주간 페이지를 처음 보여줄지
-  late int selectedWeek;
+  late int _selectedWeek;
   // 전체 랭킹에서 어느 주간 페이지를 처음 보여줄지
-  late int selectedGeneration;
+  late int _selectedGeneration;
 
   // 주간, 전체 랭킹 page controller
   late PageController weeklyRankingPageController;
@@ -42,13 +45,13 @@ class _RankingTabState extends ConsumerState<RankingTab> {
   @override
   void initState() {
     super.initState();
-    selectedWeek = AppUtils.currentWeekNumber();
-    selectedGeneration = AppConstants.maxGeneration;
+    _selectedWeek = _currentWeek;
+    _selectedGeneration = _currentGeneration;
     weeklyRankingPageController = PageController(
-      initialPage: selectedWeek - weekPageOffset,
+      initialPage: _selectedWeek - weekPageOffset,
     );
     allRankingPageController = PageController(
-      initialPage: selectedGeneration - generationPageOffset,
+      initialPage: _selectedGeneration - generationPageOffset,
     );
   }
 
@@ -58,22 +61,43 @@ class _RankingTabState extends ConsumerState<RankingTab> {
     var generationRankingsState =
         ref.watch(generationRankingsViewmodelProvider);
 
+    if (weeklyRankingsState is AsyncError) {
+      exceptionHandlerOnView(
+        context,
+        e: weeklyRankingsState.error as Exception,
+        stackTrace: weeklyRankingsState.stackTrace ?? StackTrace.current,
+      );
+    }
+    if (generationRankingsState is AsyncError) {
+      exceptionHandlerOnView(
+        context,
+        e: generationRankingsState.error as Exception,
+        stackTrace: generationRankingsState.stackTrace ?? StackTrace.current,
+      );
+    }
+
     return Column(
       children: [
-        SizedBox(width: double.maxFinite, height: 25),
+        SizedBox(
+          width: double.maxFinite,
+          height: AppSize.of(context).safeBlockHorizontal * 3.5,
+        ),
 
         /// 주간, 전체 랭킹 버튼 그룹
         RankingTypeButtonGroup(
           rankingType: rankingType,
           changeRankingType: changeRankingType,
         ),
-        SizedBox(width: double.maxFinite, height: 15),
+        SizedBox(
+          width: double.maxFinite,
+          height: AppSize.of(context).safeBlockHorizontal * 3.5,
+        ),
 
         /// 주차 및 기수 변경 위젯
         RankingTurnGroup(
           rankingType: rankingType,
-          rankingWeek: selectedWeek,
-          rankingGeneration: selectedGeneration,
+          rankingWeek: _selectedWeek,
+          rankingGeneration: _selectedGeneration,
           weeklyRankingPagecontroller: weeklyRankingPageController,
           allRankingPagecontroller: allRankingPageController,
         ),
@@ -91,14 +115,16 @@ class _RankingTabState extends ConsumerState<RankingTab> {
         switch (rankingType) {
           RankingType.weekly => WeeklyRankingPageView(
               weekOffset: weekPageOffset,
-              selectedWeek: selectedWeek,
+              currentWeek: _currentWeek,
+              selectedWeek: _selectedWeek,
               changeWeek: changeRankingWeek,
               pageController: weeklyRankingPageController,
               weeklyRankingsState: weeklyRankingsState,
             ),
           RankingType.all => AllRankingPageView(
               generationOffset: generationPageOffset,
-              selectedGeneration: selectedGeneration,
+              currentGeneration: _currentGeneration,
+              selectedGeneration: _selectedGeneration,
               changeGeneration: changeRankingGeneration,
               pageController: allRankingPageController,
               generationRankingsState: generationRankingsState,
@@ -130,14 +156,14 @@ class _RankingTabState extends ConsumerState<RankingTab> {
   /// 주차 변환 callback
   void changeRankingWeek(int page) {
     setState(() {
-      selectedWeek = page + weekPageOffset;
+      _selectedWeek = page + weekPageOffset;
     });
   }
 
   /// 기수 변환 callback
   void changeRankingGeneration(int page) {
     setState(() {
-      selectedGeneration = page + generationPageOffset;
+      _selectedGeneration = page + generationPageOffset;
     });
   }
 }
@@ -184,7 +210,7 @@ class RankingTypeBotton extends StatelessWidget {
   final bool active;
   final void Function()? onPressed;
 
-  const RankingTypeBotton({
+  RankingTypeBotton({
     super.key,
     required this.text,
     required this.active,
@@ -195,7 +221,7 @@ class RankingTypeBotton extends StatelessWidget {
   Widget build(BuildContext context) {
     const double widthRatio = 5;
     const double heightRatio = 2;
-    const double buttonScale = 17;
+    final double buttonScale = AppSize.of(context).safeBlockHorizontal * 4.0;
     return SizedBox(
       width: widthRatio * buttonScale,
       height: heightRatio * buttonScale,
@@ -207,7 +233,7 @@ class RankingTypeBotton extends StatelessWidget {
           disabledBackgroundColor: Theme.of(context).colorScheme.primary,
           disabledForegroundColor: Colors.white,
           textStyle: GoogleFonts.inter(
-            fontSize: 15,
+            fontSize: buttonScale * 1.0,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -226,7 +252,7 @@ class RankingTurnGroup extends StatelessWidget {
   final PageController weeklyRankingPagecontroller;
   final PageController allRankingPagecontroller;
 
-  const RankingTurnGroup({
+  RankingTurnGroup({
     super.key,
     required this.rankingType,
     required this.rankingWeek,
@@ -243,11 +269,11 @@ class RankingTurnGroup extends StatelessWidget {
       RankingType.all => '$rankingGeneration기',
     };
     // arrow icon size
-    double arrowIconSize = SizeConfig.safeBlockHorizontal * 4.2;
+    double arrowIconSize = AppSize.of(context).safeBlockHorizontal * 4.2;
 
     return SizedBox(
       width: double.maxFinite,
-      height: SizeConfig.safeBlockVertical * 4,
+      height: AppSize.of(context).safeBlockHorizontal * 8,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -278,11 +304,11 @@ class RankingTurnGroup extends StatelessWidget {
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
             alignment: Alignment.center,
-            width: SizeConfig.safeBlockHorizontal * 55,
+            width: AppSize.of(context).safeBlockHorizontal * 55,
             child: Text(
               nowRanking,
               style: TextStyle(
-                fontSize: SizeConfig.safeBlockHorizontal * 4.5,
+                fontSize: AppSize.of(context).safeBlockHorizontal * 4.5,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF7B7B7B),
               ),
@@ -318,16 +344,16 @@ class RankingTurnGroup extends StatelessWidget {
 
 /// 랭킹 기준 안내 버튼
 class RankingCriteriaButton extends StatelessWidget {
-  const RankingCriteriaButton({super.key});
+  RankingCriteriaButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: SizeConfig.safeBlockVertical * 0.3),
+      margin: EdgeInsets.only(top: AppSize.of(context).safeBlockVertical * 0.3),
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
       alignment: Alignment.centerRight,
       width: double.maxFinite,
-      height: SizeConfig.safeBlockVertical * 3.0,
+      height: AppSize.of(context).safeBlockVertical * 3.0,
       child: TextButton.icon(
         style: TextButton.styleFrom(
           padding: EdgeInsets.zero,
@@ -342,14 +368,14 @@ class RankingCriteriaButton extends StatelessWidget {
         icon: SvgPicture.asset(
           'assets/icons/question_mark_circle.svg',
           color: Color(0xFFE0E0E0),
-          width: SizeConfig.safeBlockHorizontal * 2.75,
+          width: AppSize.of(context).safeBlockHorizontal * 2.75,
         ),
         label: Text(
           '랭킹 기준',
           style: GoogleFonts.inter(
             textStyle: TextStyle(
               color: Color(0xFFE0E0E0),
-              fontSize: SizeConfig.safeBlockHorizontal * 2.75,
+              fontSize: AppSize.of(context).safeBlockHorizontal * 2.75,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -380,7 +406,7 @@ class RankingCriteriaPopup extends StatelessWidget {
 
 /// 랭킹 요소 구분
 class RankingCategoryIndicator extends StatelessWidget {
-  const RankingCategoryIndicator({super.key});
+  RankingCategoryIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -388,12 +414,12 @@ class RankingCategoryIndicator extends StatelessWidget {
       aspectRatio: 10 / 1,
       child: Row(
         children: [
-          SizedBox(width: SizeConfig.safeBlockHorizontal * 24.4),
-          _textBox("프로필", SizeConfig.safeBlockHorizontal * 7.778),
-          SizedBox(width: SizeConfig.safeBlockHorizontal * 30.27),
-          _textBox("총점", SizeConfig.safeBlockHorizontal * 5.278),
-          SizedBox(width: SizeConfig.safeBlockHorizontal * 12.77),
-          _textBox("순위", SizeConfig.safeBlockHorizontal * 5.278),
+          SizedBox(width: AppSize.of(context).safeBlockHorizontal * 24.4),
+          _textBox("프로필", AppSize.of(context).safeBlockHorizontal * 7.778),
+          SizedBox(width: AppSize.of(context).safeBlockHorizontal * 30.27),
+          _textBox("총점", AppSize.of(context).safeBlockHorizontal * 5.278),
+          SizedBox(width: AppSize.of(context).safeBlockHorizontal * 12.77),
+          _textBox("순위", AppSize.of(context).safeBlockHorizontal * 5.278),
         ],
       ),
     );
@@ -416,14 +442,16 @@ class RankingCategoryIndicator extends StatelessWidget {
 /// 주간 랭킹 페이지 뷰
 class WeeklyRankingPageView extends StatelessWidget {
   final int weekOffset;
+  final int currentWeek;
   final int selectedWeek;
   final void Function(int) changeWeek;
   final PageController pageController;
   final AsyncValue<WeeklyRankingsState> weeklyRankingsState;
 
-  const WeeklyRankingPageView({
+  WeeklyRankingPageView({
     super.key,
     required this.weekOffset,
+    required this.currentWeek,
     required this.selectedWeek,
     required this.changeWeek,
     required this.pageController,
@@ -432,14 +460,14 @@ class WeeklyRankingPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (weeklyRankingsState.runtimeType) {
-      case (AsyncLoading):
+    switch (weeklyRankingsState) {
+      case (AsyncLoading()):
         return Expanded(
           child: Center(
             child: const CircularProgressIndicator(),
           ),
         );
-      case (AsyncError):
+      case (AsyncError()):
         return Expanded(
           child: Center(
             child: Text('에러 발생. 운영진에게 제보 바랍니다.'),
@@ -463,21 +491,22 @@ class WeeklyRankingPageView extends StatelessWidget {
         onPageChanged: (int page) {
           changeWeek(page);
         },
-        itemCount: weeklyRankings.last.week,
-        itemBuilder: (context, index) =>
-            _pageItem(_findRankingsByWeek(weeklyRankings, index + weekOffset)),
+        itemCount: currentWeek,
+        itemBuilder: (context, index) => _pageItem(
+            context, _findRankingsByWeek(weeklyRankings, index + weekOffset)),
       ),
     );
   }
 
-  Widget _pageItem(List<RankingProfileState>? rankingData) {
+  Widget _pageItem(
+      BuildContext context, List<RankingProfileState>? rankingData) {
     if (rankingData == null) {
       return Container(
         alignment: Alignment.center,
         child: Text(
           "랭킹이 없어요 😢",
           style: TextStyle(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.5,
+            fontSize: AppSize.of(context).font.headline2,
           ),
         ),
       );
@@ -499,14 +528,16 @@ class WeeklyRankingPageView extends StatelessWidget {
 /// 전체 랭킹 페이지 뷰
 class AllRankingPageView extends StatelessWidget {
   final int generationOffset;
+  final int currentGeneration;
   final int selectedGeneration;
   final void Function(int) changeGeneration;
   final PageController pageController;
   final AsyncValue<GenerationRankingsState> generationRankingsState;
 
-  const AllRankingPageView({
+  AllRankingPageView({
     super.key,
     required this.generationOffset,
+    required this.currentGeneration,
     required this.selectedGeneration,
     required this.changeGeneration,
     required this.pageController,
@@ -546,22 +577,26 @@ class AllRankingPageView extends StatelessWidget {
         onPageChanged: (int page) {
           changeGeneration(page);
         },
-        itemCount: int.parse(generationRankings.last.generation
-            .substring(0, generationRankings.last.generation.length - 1)),
-        itemBuilder: (context, index) => _pageItem(_findRankingsByGeneration(
-            generationRankings, "${index + generationOffset}기")),
+        itemCount: currentGeneration,
+        // itemCount: int.parse(generationRankings.last.generation
+        //     .substring(0, generationRankings.last.generation.length - 1)),
+        itemBuilder: (context, index) => _pageItem(
+            context,
+            _findRankingsByGeneration(
+                generationRankings, "${index + generationOffset}기")),
       ),
     );
   }
 
-  Widget _pageItem(List<RankingProfileState>? rankingData) {
+  Widget _pageItem(
+      BuildContext context, List<RankingProfileState>? rankingData) {
     if (rankingData == null) {
       return Container(
         alignment: Alignment.center,
         child: Text(
           "랭킹이 없어요 😢",
           style: TextStyle(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.5,
+            fontSize: AppSize.of(context).font.headline2,
           ),
         ),
       );
@@ -593,7 +628,7 @@ class RankingList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: EdgeInsets.symmetric(
-        horizontal: SizeConfig.safeBlockHorizontal * 2.778,
+        horizontal: AppSize.of(context).safeBlockHorizontal * 2.778,
       ),
       itemCount: rankings.length,
       itemBuilder: (BuildContext context, int index) =>
@@ -635,7 +670,8 @@ class MemberRankingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockHorizontal * 1.389),
+      margin: EdgeInsets.only(
+          bottom: AppSize.of(context).safeBlockHorizontal * 1.389),
       padding: EdgeInsets.all(0),
       child: AspectRatio(
         aspectRatio: 17 / 3,
@@ -647,7 +683,7 @@ class MemberRankingCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(7),
             side: BorderSide(
               color: Color(0xFFE0E0E0),
-              width: SizeConfig.safeBlockHorizontal * 0.3278,
+              width: AppSize.of(context).safeBlockHorizontal * 0.3278,
             ),
           ),
           child: LayoutBuilder(
@@ -696,7 +732,8 @@ class MemberRankingCard extends StatelessWidget {
                                 _name,
                                 style: TextStyle(
                                   fontSize:
-                                      SizeConfig.safeBlockHorizontal * 3.0,
+                                      AppSize.of(context).safeBlockHorizontal *
+                                          3.0,
                                   color: Color(0xFF000000),
                                 ),
                               ),
@@ -704,7 +741,9 @@ class MemberRankingCard extends StatelessWidget {
                             Text(
                               Location.toName[_location] ?? "No data",
                               style: TextStyle(
-                                fontSize: SizeConfig.safeBlockHorizontal * 2.0,
+                                fontSize:
+                                    AppSize.of(context).safeBlockHorizontal *
+                                        2.0,
                                 color: Color(0xFF878787),
                               ),
                             ),
@@ -723,7 +762,9 @@ class MemberRankingCard extends StatelessWidget {
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
-                                    width: SizeConfig.safeBlockHorizontal * 0.2,
+                                    width: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        0.2,
                                     color: Color(0xFFE0E0E0),
                                   ),
                                   borderRadius: BorderRadius.circular(20),
@@ -733,7 +774,8 @@ class MemberRankingCard extends StatelessWidget {
                                 _generation,
                                 style: GoogleFonts.roboto(
                                   fontSize:
-                                      SizeConfig.safeBlockHorizontal * 2.0,
+                                      AppSize.of(context).safeBlockHorizontal *
+                                          2.0,
                                   color: Color(0xFF7B7B7B),
                                 ),
                               ),
@@ -746,7 +788,9 @@ class MemberRankingCard extends StatelessWidget {
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
-                                    width: SizeConfig.safeBlockHorizontal * 0.2,
+                                    width: AppSize.of(context)
+                                            .safeBlockHorizontal *
+                                        0.2,
                                     color: Color(0xFFE0E0E0),
                                   ),
                                   borderRadius: BorderRadius.circular(20),
@@ -756,7 +800,8 @@ class MemberRankingCard extends StatelessWidget {
                                 BoulderLevel.toName[_level] ?? 'No data',
                                 style: GoogleFonts.roboto(
                                   fontSize:
-                                      SizeConfig.safeBlockHorizontal * 2.0,
+                                      AppSize.of(context).safeBlockHorizontal *
+                                          2.0,
                                   color: Color(0xFF7B7B7B),
                                 ),
                               ),

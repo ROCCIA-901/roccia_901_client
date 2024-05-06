@@ -3,27 +3,75 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'constants/size_config.dart';
-import 'presentation/screens/tmp_all_screen_list_screen.dart';
-import 'utils/app_routes.dart';
+import 'utils/app_router.dart';
 import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko'); // Initialize for default locale
   runApp(
-    ProviderScope(
-      child: MyApp(),
-    ),
+    ProviderScope(child: Builder(
+      builder: (context) {
+        return MyWebApp();
+      },
+    )),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyWebApp extends ConsumerWidget {
+  MyWebApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppRouter appRouter = ref.watch(appRouterProvider);
+    return MaterialApp.router(
+      routerConfig: appRouter!.config(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(1.0),
+          ),
+          child: AppSize(
+            context: context,
+            child: MyAppBox(child: child!),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class MyAppBox extends StatelessWidget {
+  final Widget? child;
+
+  const MyAppBox({super.key, this.child});
 
   @override
   Widget build(BuildContext context) {
-    SizeConfig.init(context);
-    return MaterialApp(
+    return Center(
+      child: ClipRect(
+        child: SizedBox(
+          width: AppSize.of(context).safeBlockHorizontal * 100,
+          // width: SizeConfig(context: context).safeBlockHorizontal * 100,
+          child: child!,
+        ),
+      ),
+    );
+  }
+}
+
+class MyApp extends ConsumerWidget {
+  MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppRouter appRouter = ref.watch(appRouterProvider);
+    return MaterialApp.router(
+      routerConfig: appRouter!.config(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -32,40 +80,6 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      debugShowCheckedModeBanner: false,
-      title: 'bottomNavigationBar',
-      theme: AppTheme.lightTheme,
-      home: TmpAllScreenListScreen(),
-      routes: AppRoutes.routes,
     );
   }
 }
-
-// class Roccia extends StatefulWidget {
-//   @override
-//   _RocciaState createState() => _RocciaState();
-// }
-//
-// class _RocciaState extends State<Roccia> {
-//   int currentIndex = 0;
-//
-//   final screens = [
-//     MemberHomeScreen(),
-//     MyRecordTab(),
-//     CompetitionScreen(),
-//     MyPageScreen(),
-//   ];
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: screens[currentIndex],
-//       bottomNavigationBar: AppNavigationBar(
-//         currentIndex: currentIndex,
-//         onItemSelected: (index) {
-//           setState(() {
-//             currentIndex = index;
-//           });
-//         },
-//       ),
-//     );
-//   }
-// }

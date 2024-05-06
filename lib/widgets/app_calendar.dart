@@ -20,7 +20,6 @@ class AppCalendar extends StatefulWidget {
   final double height;
   final DateTime? selectedDay;
   final void Function(DateTime)? onSelected;
-  late final double dateFontSize;
   late final LinkedHashMap<DateTime, CalendarEvent> events;
 
   AppCalendar({
@@ -31,7 +30,6 @@ class AppCalendar extends StatefulWidget {
     this.onSelected,
     Map<DateTime, CalendarEvent>? eventsSource,
   }) {
-    dateFontSize = SizeConfig.safeBlockHorizontal * 4.0;
     events = _getEvents(eventsSource ?? {});
   }
 
@@ -49,15 +47,9 @@ class AppCalendar extends StatefulWidget {
 class _AppCalendarState extends State<AppCalendar> {
   late final DateTime _today = _toMidnight(DateTime.now());
 
-  late final _dateTextStyle = TextStyle(
-    fontSize: widget.dateFontSize,
-    color: AppColors.grayDark,
-  );
-  late final _todayTextStyle = _dateTextStyle.copyWith(
-    fontSize: widget.dateFontSize * 1.2,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  );
+  late double _dateFontSize;
+  late TextStyle _dateTextStyle;
+  late TextStyle _todayTextStyle;
 
   DateTime? _selectedDay;
 
@@ -77,6 +69,7 @@ class _AppCalendarState extends State<AppCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    _updateSize();
     return SizedBox(
       width: widget.width,
       height: widget.height,
@@ -89,20 +82,46 @@ class _AppCalendarState extends State<AppCalendar> {
         headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
+          titleTextStyle: GoogleFonts.inter().copyWith(
+            fontSize: _dateFontSize * 1.2,
+            color: AppColors.greyDark,
+          ),
+          headerMargin: EdgeInsets.symmetric(
+            vertical: AppSize.of(context).safeBlockHorizontal * 3,
+          ),
+          headerPadding: EdgeInsets.zero,
+          leftChevronMargin: EdgeInsets.only(
+            left: AppSize.of(context).safeBlockHorizontal * 7,
+          ),
+          leftChevronPadding: EdgeInsets.zero,
+          leftChevronIcon: Icon(
+            Icons.chevron_left,
+            size: _dateFontSize * 1.6,
+            color: AppColors.greyDark,
+          ),
+          rightChevronMargin: EdgeInsets.only(
+            right: AppSize.of(context).safeBlockHorizontal * 7,
+          ),
+          rightChevronPadding: EdgeInsets.zero,
+          rightChevronIcon: Icon(
+            Icons.chevron_right,
+            size: _dateFontSize * 1.6,
+            color: AppColors.greyDark,
+          ),
         ),
         daysOfWeekStyle: DaysOfWeekStyle(
           weekdayStyle: GoogleFonts.inter().copyWith(
-            fontSize: widget.dateFontSize,
+            fontSize: _dateFontSize,
             fontWeight: FontWeight.bold,
             color: AppColors.primary,
           ),
           weekendStyle: GoogleFonts.inter().copyWith(
-            fontSize: widget.dateFontSize,
+            fontSize: _dateFontSize,
             fontWeight: FontWeight.bold,
-            color: AppColors.redLight,
+            color: AppColors.greyMediumDark,
           ),
         ),
-        daysOfWeekHeight: SizeConfig.safeBlockHorizontal * 10.0,
+        daysOfWeekHeight: AppSize.of(context).safeBlockHorizontal * 10.0,
         calendarStyle: _calendarStyle(),
         calendarBuilders: _calendarBuilders(),
         onDaySelected: (selectedDay, _) {
@@ -118,8 +137,24 @@ class _AppCalendarState extends State<AppCalendar> {
     );
   }
 
+  void _updateSize() {
+    _dateFontSize = AppSize.of(context).safeBlockHorizontal * 4.0;
+    _dateTextStyle = TextStyle(
+      fontSize: _dateFontSize,
+      color: AppColors.greyDark,
+    );
+    _todayTextStyle = _dateTextStyle.copyWith(
+      fontSize: _dateFontSize * 1.2,
+      fontWeight: FontWeight.bold,
+      color: Colors.black,
+    );
+  }
+
   CalendarStyle _calendarStyle() {
     return CalendarStyle(
+      cellMargin: EdgeInsets.zero,
+      cellPadding: EdgeInsets.zero,
+      cellAlignment: Alignment.center,
       defaultTextStyle: _dateTextStyle,
       weekendTextStyle: _dateTextStyle,
       todayTextStyle: _todayTextStyle,
@@ -136,7 +171,7 @@ class _AppCalendarState extends State<AppCalendar> {
         final date = _toMidnight(dateUtc);
         if (widget.events[date] == null) {
           if (isSameDay(date, _selectedDay)) {
-            return _selectedStyle(AppColors.grayMedium);
+            return _selectedStyle(AppColors.greyMedium);
           }
           return null;
         }
@@ -157,16 +192,16 @@ class _AppCalendarState extends State<AppCalendar> {
     Color dateColor,
   ) {
     if (isSameDay(date, _selectedDay)) {
-      backgroundColor = AppColors.grayMedium;
+      backgroundColor = AppColors.greyMedium;
       dateColor = Colors.white;
     }
-    var textStyle = TextStyle(color: dateColor, fontSize: widget.dateFontSize);
+    var textStyle = TextStyle(color: dateColor, fontSize: _dateFontSize);
     if (isSameDay(date, _today)) {
       textStyle = _todayTextStyle;
     }
     return Container(
       alignment: Alignment.center,
-      width: SizeConfig.safeBlockHorizontal * 8.0,
+      width: AppSize.of(context).safeBlockHorizontal * 8.0,
       decoration: BoxDecoration(
         color: backgroundColor,
         shape: BoxShape.circle,
@@ -183,14 +218,15 @@ class _AppCalendarState extends State<AppCalendar> {
   ) {
     return Container(
       alignment: Alignment.center,
-      margin: EdgeInsets.only(bottom: SizeConfig.safeBlockHorizontal * 1.8),
-      width: SizeConfig.safeBlockHorizontal * 8.0,
+      margin: EdgeInsets.only(
+          bottom: AppSize.of(context).safeBlockHorizontal * 1.8),
+      width: AppSize.of(context).safeBlockHorizontal * 8.0,
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(
           bottom: BorderSide(
             color: backgroundColor,
-            width: SizeConfig.safeBlockHorizontal * 0.5,
+            width: AppSize.of(context).safeBlockHorizontal * 0.5,
           ),
         ),
       ),

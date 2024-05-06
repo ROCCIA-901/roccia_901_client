@@ -5,8 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/record/record_screen_viewmodel.dart';
-import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 import 'package:untitled/utils/time_of_day_utils.dart';
 import 'package:untitled/utils/toast_helper.dart';
@@ -35,12 +35,14 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   late final AnimationController _recordDetailAnimationController;
 
-  // widget size
-  final double _calendarWidth = SizeConfig.safeBlockHorizontal * 90;
-  final double _calendarHeight = SizeConfig.safeBlockVertical * 40;
-  final double _recordDetailHeight = SizeConfig.safeBlockVertical * 42;
-  final double _buttonWidth = SizeConfig.safeBlockHorizontal * 80;
-  final double _buttonHeight = SizeConfig.safeBlockVertical * 6;
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _calendarWidth;
+  late double _calendarHeight;
+  late double _recordDetailHeight;
+  late double _buttonWidth;
+  late double _buttonHeight;
 
   @override
   void initState() {
@@ -53,13 +55,29 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   @override
   Widget build(BuildContext context) {
-    var recordDatesState = ref.watch(recordDatesViewModelProvider);
-    var recordsState = ref.watch(recordsViewModelProvider);
+    _updateSize(context);
+
+    var recordDatesState = ref.watch(recordDatesViewmodelProvider);
+    var recordsState = ref.watch(recordsViewmodelProvider);
 
     _setListeners();
 
     if ((recordDatesState is! AsyncData || recordDatesState.value == null) &&
         (recordsState is! AsyncData || recordsState.value == null)) {
+      if (recordDatesState is AsyncError) {
+        exceptionHandlerOnView(
+          context,
+          e: recordDatesState.error as Exception,
+          stackTrace: recordDatesState.stackTrace ?? StackTrace.current,
+        );
+      }
+      if (recordsState is AsyncError) {
+        exceptionHandlerOnView(
+          context,
+          e: recordsState.error as Exception,
+          stackTrace: recordsState.stackTrace ?? StackTrace.current,
+        );
+      }
       return Center(child: CircularProgressIndicator());
     }
 
@@ -79,14 +97,14 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
         ),
 
         /// 기록 상세 창
-        SizedBox(height: SizeConfig.safeBlockVertical * 2),
         Expanded(child: SizedBox()),
 
         /// 버튼
         Container(
-          margin: EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 5),
+          margin: EdgeInsets.only(
+              bottom: AppSize.of(context).safeBlockVertical * 5),
           alignment: Alignment.center,
-          child: _button(
+          child: _buildRecordButton(
             text: "기록하기",
             width: _buttonWidth,
             height: _buttonHeight,
@@ -97,68 +115,12 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     );
   }
 
-  void _setListeners() {
-    _listenRecordsViewModel();
-    _listenRecordController();
-  }
-
-  void _listenRecordsViewModel() {
-    ref.listen(
-      recordsViewModelProvider,
-      (previous, next) {
-        next.when(
-          data: (_) {},
-          loading: () {},
-          error: (error, stackTrace) {
-            if (error is NotificationException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _listenRecordController() {
-    ref.listen(
-      recordControllerProvider,
-      (previous, next) {
-        next.when(
-          data: (data) {
-            if (previous is! AsyncLoading) {
-              return;
-            }
-            Navigator.pop(context);
-            final message = switch (data) {
-              RecordControllerAction.create => "기록이 생성되었습니다.",
-              RecordControllerAction.update => "기록이 수정되었습니다.",
-              RecordControllerAction.delete => "기록이 삭제되었습니다.",
-              _ => null,
-            };
-            if (message != null) {
-              SnackBarHelper.showTextSnackBar(context, message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
-            }
-          },
-          loading: () {
-            DialogHelper.showLoaderDialog(context);
-          },
-          error: (error, stackTrace) {
-            if (previous is AsyncLoading) {
-              Navigator.pop(context);
-            }
-            if (error is NotificationException) {
-              SnackBarHelper.showTextSnackBar(context, error.message);
-            } else {
-              SnackBarHelper.showErrorSnackBar(context);
-            }
-          },
-        );
-      },
-    );
+  void _updateSize(BuildContext context) {
+    _calendarWidth = AppSize.of(context).safeBlockHorizontal * 90;
+    _calendarHeight = _calendarWidth * 0.8;
+    _recordDetailHeight = AppSize.of(context).safeBlockVertical * 42;
+    _buttonWidth = AppSize.of(context).safeBlockHorizontal * 80;
+    _buttonHeight = _buttonWidth * 0.15;
   }
 
   void _onDateSelected(
@@ -171,9 +133,10 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     if (isSelectDayInRecords) {
       _showRecordDetail(recordsState, date);
       _displayedDate = date;
-    } else if (ref.read(recordScreenViewmodelProvider).isBottomSheetOpened) {
+    } else if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
+        RecordScreenBottomSheetState.none) {
       // 기록 없는 날을 선택할 시,
-      _displayedDate = null;
+      _resetDisplayedDate();
       _closeBottomSheet();
     }
     setState(() {
@@ -181,14 +144,29 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     });
   }
 
-  void _onBackOnRedordDetail(DateTime selectedDate) {
-    ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
-    if (_displayedDate != null && isSameDay(_displayedDate!, selectedDate)) {
-      setState(() {
-        _selectedDate = null;
-        _displayedDate = null;
-      });
+  void _onBackAtRecordDetail(DateTime prevDisplayedDate) {
+    if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
+        RecordScreenBottomSheetState.detail) {
+      return;
     }
+    if (_displayedDate != null &&
+        isSameDay(_displayedDate!, prevDisplayedDate)) {
+      ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+      _resetSelectedDate();
+      _resetDisplayedDate();
+    }
+  }
+
+  void _resetSelectedDate() {
+    setState(() {
+      _selectedDate = null;
+    });
+  }
+
+  void _resetDisplayedDate() {
+    setState(() {
+      _displayedDate = null;
+    });
   }
 
   bool _isDayInRecords(DateTime date, List<RecordState> records) {
@@ -200,7 +178,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     return false;
   }
 
-  Widget _button({
+  Widget _buildRecordButton({
     required String text,
     required double width,
     required double height,
@@ -208,7 +186,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   }) {
     Color backgroundColor = AppColors.primary;
     if (_selectedDate == null) {
-      backgroundColor = AppColors.grayLight;
+      backgroundColor = AppColors.greyLight;
       onPressed = () {
         SnackBarHelper.showTextSnackBar(context, "날짜를 선택해주세요.");
       };
@@ -220,13 +198,13 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
         text: Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
         ),
         backgroundColor: backgroundColor,
-        cornerRadius: 10,
+        cornerRadius: AppSize.of(context).safeBlockHorizontal * 3,
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: onPressed ?? () {},
@@ -239,9 +217,14 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
       _selectedDate = _selectedDate ?? DateTime.now();
     });
     _openBottomSheet(
+      bottomSheetState: RecordScreenBottomSheetState.create,
       showBottomSheet: () {
         showModalBottomSheet(
           context: context,
+          constraints: BoxConstraints(
+            maxHeight: _recordDetailHeight,
+            maxWidth: double.infinity,
+          ),
           builder: (context) {
             return _CreateRecordBottomSheet(
               selectedDate: _selectedDate!,
@@ -249,7 +232,12 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
             );
           },
         ).whenComplete(() {
-          ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+          if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
+              RecordScreenBottomSheetState.create) {
+            ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+            _resetSelectedDate();
+            _resetDisplayedDate();
+          }
         });
       },
     );
@@ -260,9 +248,14 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     final DateTime selectedDate,
   ) async {
     _openBottomSheet(
+      bottomSheetState: RecordScreenBottomSheetState.detail,
       showBottomSheet: () {
         final recordDetailController = showBottomSheet(
           context: context,
+          constraints: BoxConstraints(
+            maxHeight: _recordDetailHeight,
+            maxWidth: double.infinity,
+          ),
           builder: (context) {
             return _RecordDetailWidget(
               height: _recordDetailHeight,
@@ -277,7 +270,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           transitionAnimationController: _recordDetailAnimationController,
         );
         recordDetailController.closed.then((value) {
-          _onBackOnRedordDetail(selectedDate);
+          _onBackAtRecordDetail(selectedDate);
         });
       },
     );
@@ -285,9 +278,14 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _showUpdateRecordForm(RecordState recordState) {
     _openBottomSheet(
+      bottomSheetState: RecordScreenBottomSheetState.edit,
       showBottomSheet: () {
         showModalBottomSheet(
           context: context,
+          constraints: BoxConstraints(
+            maxHeight: _recordDetailHeight,
+            maxWidth: double.infinity,
+          ),
           builder: (context) {
             return _UpdateRecordBottomSheet(
               recordState: recordState,
@@ -295,29 +293,42 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
             );
           },
         ).whenComplete(() {
-          ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+          if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
+              RecordScreenBottomSheetState.edit) {
+            ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
+            _resetSelectedDate();
+            _resetDisplayedDate();
+          }
         });
       },
     );
   }
 
   void _openBottomSheet({
+    required RecordScreenBottomSheetState bottomSheetState,
     required VoidCallback showBottomSheet,
   }) {
-    // if (_isBottomSheetOpen) {
-    //   Navigator.of(context).pop();
-    // }
-    ref.read(recordScreenViewmodelProvider.notifier).openBottomSheet();
+    bool isDetailToDetail =
+        ref.read(recordScreenViewmodelProvider).bottomSheetState ==
+                RecordScreenBottomSheetState.detail &&
+            bottomSheetState == RecordScreenBottomSheetState.detail;
+    if (!isDetailToDetail) {
+      _closeBottomSheet();
+      ref
+          .read(recordScreenViewmodelProvider.notifier)
+          .openBottomSheet(bottomSheetState);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       showBottomSheet();
     });
   }
 
   void _closeBottomSheet() {
-    if (ref.read(recordScreenViewmodelProvider).isBottomSheetOpened) {
+    if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
+        RecordScreenBottomSheetState.none) {
       Navigator.of(context).pop();
+      ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
     }
-    ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
   }
 
   void _createRecord(RecordState recordState) {
@@ -349,6 +360,69 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   void _deleteRecord(int id) {
     _closeBottomSheet();
     ref.read(recordControllerProvider.notifier).deleteRecord(id: id);
+  }
+
+  // ------------------------------------------------------------------------ //
+  // Notification Listeners                                                   //
+  // ------------------------------------------------------------------------ //
+  void _setListeners() {
+    _listenRecordsViewModel();
+    _listenRecordController();
+  }
+
+  void _listenRecordsViewModel() {
+    ref.listen(
+      recordsViewmodelProvider,
+      (previous, next) {
+        next.when(
+          data: (_) {},
+          loading: () {},
+          error: (error, stackTrace) {
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _listenRecordController() {
+    ref.listen(
+      recordControllerProvider,
+      (previous, next) {
+        next.when(
+          data: (data) {
+            if (previous is! AsyncLoading) {
+              return;
+            }
+            Navigator.pop(context);
+            final message = switch (data) {
+              RecordControllerAction.create => "기록이 생성되었습니다.",
+              RecordControllerAction.update => "기록이 수정되었습니다.",
+              RecordControllerAction.delete => "기록이 삭제되었습니다.",
+              _ => null,
+            };
+            if (message != null) {
+              ToastHelper.show(context, message);
+            } else {
+              ToastHelper.showErrorOccurred(context);
+            }
+          },
+          loading: () {
+            DialogHelper.showLoaderDialog(context);
+          },
+          error: (error, stackTrace) {
+            if (previous is AsyncLoading) {
+              Navigator.pop(context);
+            }
+            if (error is Exception) {
+              exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
+            }
+          },
+        );
+      },
+    );
   }
 }
 
@@ -382,25 +456,29 @@ class _RecordDetailWidget extends StatelessWidget {
     }
   }
 
-  final double _labelWidth = SizeConfig.safeBlockHorizontal * 40;
-  final double _labelHeight = SizeConfig.safeBlockVertical * 6;
-  final double _contentWidth = SizeConfig.safeBlockHorizontal * 60;
-  final double _contentHeight = SizeConfig.safeBlockVertical * 4.5;
-  final double _levelContentWidth = SizeConfig.safeBlockHorizontal * 20;
-  final double _countContentWidth = SizeConfig.safeBlockHorizontal * 40;
-  final double _buttonHeight = SizeConfig.safeBlockVertical * 6;
-  final double _buttonWidth = SizeConfig.safeBlockHorizontal * 37;
-  final double _buttonBottomMargin = SizeConfig.safeBlockVertical * 5;
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _labelWidth;
+  late double _labelHeight;
+  late double _contentWidth;
+  late double _contentHeight;
+  late double _levelContentWidth;
+  late double _countContentWidth;
+  late double _buttonHeight;
+  late double _buttonWidth;
+  late double _buttonBottomMargin;
 
   @override
   Widget build(BuildContext context) {
+    _updateSize(context);
     if (recordsState is AsyncLoading || recordsState is AsyncError) {
       return Center(child: CircularProgressIndicator());
     }
     if (_record == null) {
       return Align(
         alignment: Alignment.topCenter,
-        child: Container(height: 1.5, color: AppColors.grayLight),
+        child: Container(height: 1.5, color: AppColors.greyLight),
       );
     }
     final String location = Location.toName[_record!.location]!;
@@ -409,6 +487,10 @@ class _RecordDetailWidget extends StatelessWidget {
     final List<({BoulderLevel level, int count})> boulderProblems =
         _record!.boulderProblems;
     return BottomSheet(
+        constraints: BoxConstraints(
+          maxHeight: _height,
+          maxWidth: double.infinity,
+        ),
         onClosing: () {},
         builder: (context) => Container(
               height: _height,
@@ -417,27 +499,56 @@ class _RecordDetailWidget extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Container(height: 1.5, color: AppColors.grayLight),
+                  /// 가로선
+                  Container(height: 1.5, color: AppColors.greyLight),
+
+                  /// 닫기 버튼
+                  Container(
+                    width: double.infinity,
+                    alignment: Alignment.bottomRight,
+                    padding: EdgeInsets.only(
+                        top: AppSize.of(context).safeBlockHorizontal * 2,
+                        right: AppSize.of(context).safeBlockHorizontal * 3),
+                    child: IconButton(
+                      constraints: BoxConstraints(
+                        minHeight: AppSize.of(context).safeBlockHorizontal * 7,
+                        maxHeight: AppSize.of(context).safeBlockHorizontal * 7,
+                      ),
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: Icon(Icons.close_rounded,
+                          size: AppSize.of(context).safeBlockHorizontal * 7,
+                          color: AppColors.greyMedium),
+                    ),
+                  ),
 
                   /// 기록 상세
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(height: SizeConfig.safeBlockVertical * 1.5),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [_label("지점"), _content(location)],
+                            children: [
+                              _buildLabel(context, "지점"),
+                              _buildContent(context, location)
+                            ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [_label("시간"), _content(timeDuration)],
+                            children: [
+                              _buildLabel(context, "시간"),
+                              _buildContent(context, timeDuration)
+                            ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _label("완등한 문제"),
+                              _buildLabel(context, "완등한 문제"),
                               Column(
                                 children: List<Row>.generate(
                                   boulderProblems.length,
@@ -446,12 +557,14 @@ class _RecordDetailWidget extends StatelessWidget {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        _content(
+                                        _buildContent(
+                                          context,
                                           BoulderLevel.toName[
                                               boulderProblems[index].level]!,
                                           width: _levelContentWidth,
                                         ),
-                                        _content(
+                                        _buildContent(
+                                          context,
                                           "${boulderProblems[index].count.toString()}개",
                                           width: _countContentWidth,
                                         ),
@@ -466,13 +579,25 @@ class _RecordDetailWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: SizeConfig.safeBlockVertical * 1.5),
+                  SizedBox(height: AppSize.of(context).safeBlockVertical * 1.5),
 
                   /// 버튼
-                  _buttons(context),
+                  _buildButtons(context),
                 ],
               ),
             ));
+  }
+
+  void _updateSize(BuildContext context) {
+    _labelWidth = AppSize.of(context).safeBlockHorizontal * 40;
+    _labelHeight = AppSize.of(context).safeBlockHorizontal * 10;
+    _contentWidth = AppSize.of(context).safeBlockHorizontal * 60;
+    _contentHeight = AppSize.of(context).safeBlockHorizontal * 8;
+    _levelContentWidth = AppSize.of(context).safeBlockHorizontal * 25;
+    _countContentWidth = AppSize.of(context).safeBlockHorizontal * 35;
+    _buttonHeight = AppSize.of(context).safeBlockHorizontal * 12;
+    _buttonWidth = AppSize.of(context).safeBlockHorizontal * 37;
+    _buttonBottomMargin = AppSize.of(context).safeBlockVertical * 5;
   }
 
   RecordState? _findRecord(List<RecordState> records, DateTime date) {
@@ -484,7 +609,7 @@ class _RecordDetailWidget extends StatelessWidget {
     return null;
   }
 
-  Container _label(String label) {
+  Container _buildLabel(BuildContext context, String label) {
     final double labelWidth = _labelWidth;
     final double labelHeight = _labelHeight;
     return Container(
@@ -492,11 +617,12 @@ class _RecordDetailWidget extends StatelessWidget {
       height: labelHeight,
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: EdgeInsets.only(left: SizeConfig.safeBlockHorizontal * 13),
+        padding:
+            EdgeInsets.only(left: AppSize.of(context).safeBlockHorizontal * 13),
         child: Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             fontWeight: FontWeight.bold,
           ).copyWith(color: Colors.black),
         ),
@@ -504,7 +630,8 @@ class _RecordDetailWidget extends StatelessWidget {
     );
   }
 
-  Container _content(String content, {double? width}) {
+  Container _buildContent(BuildContext context, String content,
+      {double? width}) {
     final double contentWidth = width ?? _contentWidth;
     final double contentHeight = _contentHeight;
     return Container(
@@ -512,25 +639,27 @@ class _RecordDetailWidget extends StatelessWidget {
       height: contentHeight,
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: EdgeInsets.only(left: SizeConfig.safeBlockHorizontal * 10),
+        padding:
+            EdgeInsets.only(left: AppSize.of(context).safeBlockHorizontal * 10),
         child: Text(
           content,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             fontWeight: FontWeight.normal,
-          ).copyWith(color: AppColors.grayDark),
+          ).copyWith(color: AppColors.greyDark),
         ),
       ),
     );
   }
 
-  Widget _buttons(BuildContext context) {
+  Widget _buildButtons(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: _buttonBottomMargin),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _button(
+          _buildButton(
+            context: context,
             text: "삭제하기",
             width: _buttonWidth,
             height: _buttonHeight,
@@ -539,7 +668,8 @@ class _RecordDetailWidget extends StatelessWidget {
               _onPressedDelete(context, id: _record!.id!);
             },
           ),
-          _button(
+          _buildButton(
+            context: context,
             text: "수정하기",
             width: _buttonWidth,
             height: _buttonHeight,
@@ -553,7 +683,8 @@ class _RecordDetailWidget extends StatelessWidget {
     );
   }
 
-  Widget _button({
+  Widget _buildButton({
+    required BuildContext context,
     required String text,
     required double width,
     required double height,
@@ -567,13 +698,13 @@ class _RecordDetailWidget extends StatelessWidget {
         text: Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
         ),
         backgroundColor: backgroundColor,
-        cornerRadius: 10,
+        cornerRadius: AppSize.of(context).safeBlockHorizontal * 3,
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: onPressed ?? () {},
@@ -588,36 +719,36 @@ class _RecordDetailWidget extends StatelessWidget {
     final wantDelete = await showDialog(
       context: context,
       builder: (_) => ConfirmPopup(
-        width: SizeConfig.safeBlockHorizontal * 70,
-        height: SizeConfig.safeBlockVertical * 14,
+        width: AppSize.of(context).safeBlockHorizontal * 70,
+        height: AppSize.of(context).safeBlockVertical * 14,
         content: Text(
           "정말로 기록을 삭제하실 건가요?",
           style: TextStyle(
-            fontSize: SizeConfig.safeBlockHorizontal * 4,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4,
           ),
         ),
         actions: [
           ConfirmPopupButton(
-            width: SizeConfig.safeBlockHorizontal * 25,
+            width: AppSize.of(context).safeBlockHorizontal * 25,
             content: Text(
               "아니오",
               style: TextStyle(
-                color: AppColors.grayDark,
-                fontSize: SizeConfig.safeBlockHorizontal * 3.0,
+                color: AppColors.greyDark,
+                fontSize: AppSize.of(context).safeBlockHorizontal * 3.0,
               ),
             ),
-            backgroundColor: AppColors.grayLight,
+            backgroundColor: AppColors.greyLight,
             onPressed: () {
               Navigator.of(context).pop(false);
             },
           ),
           ConfirmPopupButton(
-            width: SizeConfig.safeBlockHorizontal * 25,
+            width: AppSize.of(context).safeBlockHorizontal * 25,
             content: Text(
               "예",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: SizeConfig.safeBlockHorizontal * 3.0,
+                fontSize: AppSize.of(context).safeBlockHorizontal * 3.0,
               ),
             ),
             backgroundColor: AppColors.redMedium,
@@ -655,22 +786,24 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
       TimeOfDay.fromDateTime(DateTime.now().add(Duration(hours: 1)));
   late List<({BoulderLevel? level, int? count})> _boulderProblems;
 
-  /// widget size
-  final double _width = SizeConfig.safeBlockHorizontal * 100;
-  final double _height = SizeConfig.safeBlockVertical * 50;
-  final double _borderRadius = 20;
-  final double _formHeight = SizeConfig.safeBlockVertical * 30;
-  final double _labelWidth = SizeConfig.safeBlockHorizontal * 40;
-  final double _labelHeight = SizeConfig.safeBlockVertical * 6;
-  final double _contentWidth = SizeConfig.safeBlockHorizontal * 60;
-  final double _contentHeight = SizeConfig.safeBlockVertical * 4.2;
-  final double _timeFormWidth = SizeConfig.safeBlockHorizontal * 20;
-  final double _timeFormDistance = SizeConfig.safeBlockHorizontal * 10;
-  final double _levelContentWidth = SizeConfig.safeBlockHorizontal * 23;
-  final double _countContentWidth = SizeConfig.safeBlockHorizontal * 18;
-  final double _circleButtonSize = SizeConfig.safeBlockHorizontal * 5;
-  final double _buttonWidth = SizeConfig.safeBlockHorizontal * 80;
-  final double _buttonHeight = SizeConfig.safeBlockVertical * 6;
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _width;
+  late double _height;
+  late double _borderRadius;
+  late double _formHeight;
+  late double _labelWidth;
+  late double _labelHeight;
+  late double _contentWidth;
+  late double _contentHeight;
+  late double _timeFormWidth;
+  late double _timeFormDistance;
+  late double _levelContentWidth;
+  late double _countContentWidth;
+  late double _circleButtonSize;
+  late double _buttonWidth;
+  late double _buttonHeight;
 
   @override
   void initState() {
@@ -680,7 +813,12 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    _updateSize(context);
     return BottomSheet(
+      constraints: BoxConstraints(
+        maxHeight: _height,
+        maxWidth: double.infinity,
+      ),
       builder: (context) {
         return Container(
             width: _width,
@@ -696,14 +834,14 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
               children: [
                 /// 드래그 핸들바 & 닫기 버튼
                 SizedBox(
-                  width: SizeConfig.safeBlockHorizontal * 100,
-                  height: SizeConfig.safeBlockVertical * 6,
+                  width: AppSize.of(context).safeBlockHorizontal * 100,
+                  height: AppSize.of(context).safeBlockVertical * 6,
                   child: Stack(
                     children: [
                       /// 드래그 핸들바
                       Align(
                         alignment: Alignment.center,
-                        child: _dragHandle(),
+                        child: _buildDragHandle(),
                       ),
 
                       /// 닫기 버튼
@@ -713,9 +851,11 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          icon: Icon(Icons.close_rounded,
-                              size: SizeConfig.safeBlockHorizontal * 7,
-                              color: AppColors.grayMedium),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            size: AppSize.of(context).safeBlockHorizontal * 7,
+                            color: AppColors.greyMedium,
+                          ),
                         ),
                       ),
                     ],
@@ -723,18 +863,15 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                 ),
 
                 /// 기록 입력 폼
-                SizedBox(
-                  height: _formHeight,
-                  child: _createRecordForm(),
-                ),
-                Expanded(child: SizedBox()),
+                Expanded(child: _buildCreateRecordForm()),
 
                 /// 버튼
                 Container(
-                  margin:
-                      EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 5),
+                  margin: EdgeInsets.only(
+                      top: AppSize.of(context).safeBlockHorizontal * 2,
+                      bottom: AppSize.of(context).safeBlockHorizontal * 5),
                   alignment: Alignment.center,
-                  child: _button(
+                  child: _buildButton(
                     text: "저장하기",
                     width: _buttonWidth,
                     height: _buttonHeight,
@@ -747,18 +884,37 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
     );
   }
 
-  Container _dragHandle() {
+  void _updateSize(BuildContext context) {
+    _width = AppSize.of(context).safeBlockHorizontal * 100;
+    _height = AppSize.of(context).safeBlockVertical * 50;
+    _borderRadius = AppSize.of(context).safeBlockHorizontal * 6;
+    _formHeight = AppSize.of(context).safeBlockVertical * 30;
+    _labelWidth = AppSize.of(context).safeBlockHorizontal * 40;
+    _labelHeight = AppSize.of(context).safeBlockVertical * 6;
+    _contentWidth = AppSize.of(context).safeBlockHorizontal * 60;
+    _contentHeight = AppSize.of(context).safeBlockVertical * 4.2;
+    _timeFormWidth = AppSize.of(context).safeBlockHorizontal * 20;
+    _timeFormDistance = AppSize.of(context).safeBlockHorizontal * 10;
+    _levelContentWidth = AppSize.of(context).safeBlockHorizontal * 23;
+    _countContentWidth = AppSize.of(context).safeBlockHorizontal * 18;
+    _circleButtonSize = AppSize.of(context).safeBlockHorizontal * 5;
+    _buttonWidth = AppSize.of(context).safeBlockHorizontal * 80;
+    _buttonHeight = AppSize.of(context).safeBlockHorizontal * 12;
+  }
+
+  Container _buildDragHandle() {
     return Container(
-      width: SizeConfig.safeBlockHorizontal * 13,
-      height: SizeConfig.safeBlockVertical * 0.5,
+      width: AppSize.of(context).safeBlockHorizontal * 13,
+      height: AppSize.of(context).safeBlockVertical * 0.5,
       decoration: BoxDecoration(
-        color: AppColors.grayMedium,
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.greyMedium,
+        borderRadius:
+            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
       ),
     );
   }
 
-  Container _label(String label) {
+  Container _buildLabel(String label) {
     final double labelWidth = _labelWidth;
     final double labelHeight = _labelHeight;
     return Container(
@@ -766,11 +922,12 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
       height: labelHeight,
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: EdgeInsets.only(left: SizeConfig.safeBlockHorizontal * 13),
+        padding:
+            EdgeInsets.only(left: AppSize.of(context).safeBlockHorizontal * 13),
         child: Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             fontWeight: FontWeight.bold,
           ).copyWith(color: Colors.black),
         ),
@@ -778,15 +935,16 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
     );
   }
 
-  Widget _createRecordForm() {
-    final double contentLeftPadding = SizeConfig.safeBlockHorizontal * 10;
+  Widget _buildCreateRecordForm() {
+    final double contentLeftPadding =
+        AppSize.of(context).safeBlockHorizontal * 10;
     return SingleChildScrollView(
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _label("지점"),
+              _buildLabel("지점"),
               Container(
                 width: _contentWidth,
                 height: _contentHeight,
@@ -806,7 +964,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _label("시간"),
+              _buildLabel("시간"),
               _TimeForm(
                 width: _timeFormWidth,
                 height: _contentHeight,
@@ -817,7 +975,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
               SizedBox(
@@ -826,8 +984,8 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                     child: Text(
                   "~",
                   style: GoogleFonts.roboto().copyWith(
-                    fontSize: SizeConfig.safeBlockHorizontal * 4.5,
-                    color: AppColors.grayMedium,
+                    fontSize: AppSize.of(context).safeBlockHorizontal * 4.5,
+                    color: AppColors.greyMedium,
                   ),
                 )),
               ),
@@ -841,7 +999,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
             ],
@@ -850,7 +1008,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _label("완등한 문제"),
+              _buildLabel("완등한 문제"),
               Column(
                 children: _buildBoulderProblemFormList(),
               ),
@@ -868,7 +1026,8 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
   }
 
   List<Widget> _buildBoulderProblemFormList() {
-    final double contentLeftPadding = SizeConfig.safeBlockHorizontal * 10;
+    final double contentLeftPadding =
+        AppSize.of(context).safeBlockHorizontal * 10;
     return List.generate(
       _boulderProblems.length,
       (index) {
@@ -969,7 +1128,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
     );
   }
 
-  Widget _button({
+  Widget _buildButton({
     required String text,
     required double width,
     required double height,
@@ -981,13 +1140,13 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
         text: Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        cornerRadius: 10,
+        cornerRadius: AppSize.of(context).safeBlockHorizontal * 3,
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: _onPressedCreateRecord,
@@ -1068,22 +1227,24 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
   late TimeOfDay _endTime;
   late List<({BoulderLevel? level, int? count})> _boulderProblems;
 
-  /// widget size
-  final double _width = SizeConfig.safeBlockHorizontal * 100;
-  final double _height = SizeConfig.safeBlockVertical * 50;
-  final double _borderRadius = 20;
-  final double _formHeight = SizeConfig.safeBlockVertical * 30;
-  final double _labelWidth = SizeConfig.safeBlockHorizontal * 40;
-  final double _labelHeight = SizeConfig.safeBlockVertical * 6;
-  final double _contentWidth = SizeConfig.safeBlockHorizontal * 60;
-  final double _contentHeight = SizeConfig.safeBlockVertical * 4.2;
-  final double _timeFormWidth = SizeConfig.safeBlockHorizontal * 20;
-  final double _timeFormDistance = SizeConfig.safeBlockHorizontal * 10;
-  final double _levelContentWidth = SizeConfig.safeBlockHorizontal * 23;
-  final double _countContentWidth = SizeConfig.safeBlockHorizontal * 18;
-  final double _circleButtonSize = SizeConfig.safeBlockHorizontal * 5;
-  final double _buttonWidth = SizeConfig.safeBlockHorizontal * 80;
-  final double _buttonHeight = SizeConfig.safeBlockVertical * 6;
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _width;
+  late double _height;
+  late double _borderRadius;
+  late double _formHeight;
+  late double _labelWidth;
+  late double _labelHeight;
+  late double _contentWidth;
+  late double _contentHeight;
+  late double _timeFormWidth;
+  late double _timeFormDistance;
+  late double _levelContentWidth;
+  late double _countContentWidth;
+  late double _circleButtonSize;
+  late double _buttonWidth;
+  late double _buttonHeight;
 
   @override
   void initState() {
@@ -1097,7 +1258,12 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    _updateSize(context);
     return BottomSheet(
+      constraints: BoxConstraints(
+        maxHeight: _height,
+        maxWidth: double.infinity,
+      ),
       builder: (context) {
         return Container(
             width: _width,
@@ -1113,14 +1279,14 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
               children: [
                 /// 드래그 핸들바 & 닫기 버튼
                 SizedBox(
-                  width: SizeConfig.safeBlockHorizontal * 100,
-                  height: SizeConfig.safeBlockVertical * 6,
+                  width: AppSize.of(context).safeBlockHorizontal * 100,
+                  height: AppSize.of(context).safeBlockVertical * 6,
                   child: Stack(
                     children: [
                       /// 드래그 핸들바
                       Align(
                         alignment: Alignment.center,
-                        child: _dragHandle(),
+                        child: _buildDragHandle(),
                       ),
 
                       /// 닫기 버튼
@@ -1131,8 +1297,8 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                             Navigator.of(context).pop();
                           },
                           icon: Icon(Icons.close_rounded,
-                              size: SizeConfig.safeBlockHorizontal * 7,
-                              color: AppColors.grayMedium),
+                              size: AppSize.of(context).safeBlockHorizontal * 7,
+                              color: AppColors.greyMedium),
                         ),
                       ),
                     ],
@@ -1140,18 +1306,16 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                 ),
 
                 /// 기록 입력 폼
-                SizedBox(
-                  height: _formHeight,
-                  child: _createRecordForm(),
-                ),
-                Expanded(child: SizedBox()),
+                Expanded(child: _buildCreateRecordForm()),
 
                 /// 버튼
                 Container(
-                  margin:
-                      EdgeInsets.only(bottom: SizeConfig.safeBlockVertical * 5),
+                  margin: EdgeInsets.only(
+                    top: AppSize.of(context).safeBlockHorizontal * 2,
+                    bottom: AppSize.of(context).safeBlockHorizontal * 5,
+                  ),
                   alignment: Alignment.center,
-                  child: _button(
+                  child: _buildButton(
                     text: "저장하기",
                     width: _buttonWidth,
                     height: _buttonHeight,
@@ -1164,18 +1328,37 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
     );
   }
 
-  Container _dragHandle() {
+  void _updateSize(BuildContext context) {
+    _width = AppSize.of(context).safeBlockHorizontal * 100;
+    _height = AppSize.of(context).safeBlockVertical * 50;
+    _borderRadius = AppSize.of(context).safeBlockHorizontal * 6;
+    _formHeight = AppSize.of(context).safeBlockVertical * 30;
+    _labelWidth = AppSize.of(context).safeBlockHorizontal * 40;
+    _labelHeight = AppSize.of(context).safeBlockVertical * 6;
+    _contentWidth = AppSize.of(context).safeBlockHorizontal * 60;
+    _contentHeight = AppSize.of(context).safeBlockVertical * 4.2;
+    _timeFormWidth = AppSize.of(context).safeBlockHorizontal * 20;
+    _timeFormDistance = AppSize.of(context).safeBlockHorizontal * 10;
+    _levelContentWidth = AppSize.of(context).safeBlockHorizontal * 23;
+    _countContentWidth = AppSize.of(context).safeBlockHorizontal * 18;
+    _circleButtonSize = AppSize.of(context).safeBlockHorizontal * 5;
+    _buttonWidth = AppSize.of(context).safeBlockHorizontal * 80;
+    _buttonHeight = AppSize.of(context).safeBlockHorizontal * 12;
+  }
+
+  Container _buildDragHandle() {
     return Container(
-      width: SizeConfig.safeBlockHorizontal * 13,
-      height: SizeConfig.safeBlockVertical * 0.5,
+      width: AppSize.of(context).safeBlockHorizontal * 13,
+      height: AppSize.of(context).safeBlockVertical * 0.5,
       decoration: BoxDecoration(
-        color: AppColors.grayMedium,
-        borderRadius: BorderRadius.circular(10),
+        color: AppColors.greyMedium,
+        borderRadius:
+            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
       ),
     );
   }
 
-  Container _label(String label) {
+  Container _buildLabel(String label) {
     final double labelWidth = _labelWidth;
     final double labelHeight = _labelHeight;
     return Container(
@@ -1183,11 +1366,12 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
       height: labelHeight,
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: EdgeInsets.only(left: SizeConfig.safeBlockHorizontal * 13),
+        padding:
+            EdgeInsets.only(left: AppSize.of(context).safeBlockHorizontal * 13),
         child: Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             fontWeight: FontWeight.bold,
           ).copyWith(color: Colors.black),
         ),
@@ -1195,15 +1379,16 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
     );
   }
 
-  Widget _createRecordForm() {
-    final double contentLeftPadding = SizeConfig.safeBlockHorizontal * 10;
+  Widget _buildCreateRecordForm() {
+    final double contentLeftPadding =
+        AppSize.of(context).safeBlockHorizontal * 10;
     return SingleChildScrollView(
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _label("지점"),
+              _buildLabel("지점"),
               Container(
                 width: _contentWidth,
                 height: _contentHeight,
@@ -1223,7 +1408,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _label("시간"),
+              _buildLabel("시간"),
               _TimeForm(
                 width: _timeFormWidth,
                 height: _contentHeight,
@@ -1234,7 +1419,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
               SizedBox(
@@ -1243,8 +1428,8 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                     child: Text(
                   "~",
                   style: GoogleFonts.roboto().copyWith(
-                    fontSize: SizeConfig.safeBlockHorizontal * 4.5,
-                    color: AppColors.grayMedium,
+                    fontSize: AppSize.of(context).safeBlockHorizontal * 4.5,
+                    color: AppColors.greyMedium,
                   ),
                 )),
               ),
@@ -1258,7 +1443,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
                   });
                 },
                 borderColor: _endTime.compareTo(_startTime) > 0
-                    ? AppColors.grayBorder
+                    ? AppColors.greyMediumDark
                     : AppColors.redMedium,
               ),
             ],
@@ -1267,7 +1452,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _label("완등한 문제"),
+              _buildLabel("완등한 문제"),
               Column(
                 children: _buildBoulderProblemFormList(),
               ),
@@ -1285,7 +1470,8 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
   }
 
   List<Widget> _buildBoulderProblemFormList() {
-    final double contentLeftPadding = SizeConfig.safeBlockHorizontal * 10;
+    final double contentLeftPadding =
+        AppSize.of(context).safeBlockHorizontal * 10;
     return List.generate(
       _boulderProblems.length,
       (index) {
@@ -1386,7 +1572,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
     );
   }
 
-  Widget _button({
+  Widget _buildButton({
     required String text,
     required double width,
     required double height,
@@ -1398,21 +1584,21 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
         text: Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: SizeConfig.safeBlockHorizontal * 4.0,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFFFFFFFF),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        cornerRadius: 10,
+        cornerRadius: AppSize.of(context).safeBlockHorizontal * 3,
         width: double.maxFinite,
         height: double.maxFinite,
-        onPressed: _onPressedCreateRecord,
+        onPressed: _onPressedUpdateRecord,
       ),
     );
   }
 
-  void _onPressedCreateRecord() {
+  void _onPressedUpdateRecord() {
     if (_hasEmptyField()) {
       ToastHelper.show(context, "모든 항목을 입력해주세요.");
       return;
@@ -1490,7 +1676,7 @@ class _GenericDropdown<T extends Enum> extends StatelessWidget {
           hint: Text(
             hintText,
             style: GoogleFonts.roboto(
-              fontSize: (SizeConfig.safeBlockHorizontal * 3.0),
+              fontSize: (AppSize.of(context).safeBlockHorizontal * 3.0),
               color: Color(0xFFD1D3D9),
             ),
             overflow: TextOverflow.ellipsis,
@@ -1502,7 +1688,7 @@ class _GenericDropdown<T extends Enum> extends StatelessWidget {
               child: Text(
                 toName[value] ?? "error42",
                 style: GoogleFonts.roboto(
-                  fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                  fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                   color: Color(0xFF4E5055),
                 ),
               ),
@@ -1512,29 +1698,31 @@ class _GenericDropdown<T extends Enum> extends StatelessWidget {
           onChanged: onChanged,
           buttonStyleData: ButtonStyleData(
             width: double.maxFinite,
-            height: SizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.symmetric(
               vertical: 0,
-              horizontal: SizeConfig.safeBlockHorizontal * 3,
+              horizontal: AppSize.of(context).safeBlockHorizontal * 3,
             ),
             decoration: BoxDecoration(
               border: Border.all(
                 color: Color(0xFFD1D3D9),
               ),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(
+                  AppSize.of(context).safeBlockHorizontal * 2),
             ),
           ),
           iconStyleData: IconStyleData(
             icon: Icon(Icons.keyboard_arrow_down_rounded),
-            iconSize: SizeConfig.safeBlockHorizontal * 5,
+            iconSize: AppSize.of(context).safeBlockHorizontal * 5,
             iconEnabledColor: Color(0xFFD1D3D9),
           ),
           dropdownStyleData: DropdownStyleData(
-            maxHeight: SizeConfig.safeBlockVertical * 25,
-            width: SizeConfig.safeBlockHorizontal * 86,
+            maxHeight: AppSize.of(context).safeBlockVertical * 25,
+            width: AppSize.of(context).safeBlockHorizontal * 86,
             elevation: 3,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(
+                  AppSize.of(context).safeBlockHorizontal * 3),
               color: Color(0xFFFFFFFF),
             ),
             offset: const Offset(0, 0),
@@ -1545,9 +1733,9 @@ class _GenericDropdown<T extends Enum> extends StatelessWidget {
             ),
           ),
           menuItemStyleData: MenuItemStyleData(
-            height: SizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.only(
-              left: SizeConfig.safeBlockHorizontal * 3,
+              left: AppSize.of(context).safeBlockHorizontal * 3,
             ),
           ),
         ),
@@ -1616,12 +1804,14 @@ class _TimeFormState extends State<_TimeForm> {
             border: Border.all(
               color: borderColor,
             ),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(
+              AppSize.of(context).safeBlockHorizontal * 2,
+            ),
           ),
           child: Text(
             "${selectedTime.hour}:${selectedTime.minute < 10 ? "0" : ""}${selectedTime.minute}",
             style: GoogleFonts.roboto(
-              fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+              fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
               color: Color(0xFF4E5055),
             ),
           ),
@@ -1634,7 +1824,7 @@ class _TimeFormState extends State<_TimeForm> {
 class _CountDropdown extends StatelessWidget {
   final int? selectedValue;
   final void Function(int?) onChanged;
-  const _CountDropdown({
+  _CountDropdown({
     required this.selectedValue,
     required this.onChanged,
   });
@@ -1649,7 +1839,7 @@ class _CountDropdown extends StatelessWidget {
           hint: Text(
             "개수",
             style: GoogleFonts.roboto(
-              fontSize: SizeConfig.safeBlockHorizontal * 3.0,
+              fontSize: AppSize.of(context).safeBlockHorizontal * 3.0,
               color: Color(0xFFD1D3D9),
             ),
             overflow: TextOverflow.ellipsis,
@@ -1662,7 +1852,7 @@ class _CountDropdown extends StatelessWidget {
               child: Text(
                 "${index + 1}",
                 style: GoogleFonts.roboto(
-                  fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+                  fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                   color: Color(0xFF4E5055),
                 ),
               ),
@@ -1671,34 +1861,38 @@ class _CountDropdown extends StatelessWidget {
           value: selectedValue,
           onChanged: onChanged,
           style: GoogleFonts.roboto(
-            fontSize: SizeConfig.safeBlockHorizontal * 3.5,
+            fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
             color: Colors.black,
           ),
           buttonStyleData: ButtonStyleData(
             width: double.maxFinite,
-            height: SizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.symmetric(
               vertical: 0,
-              horizontal: SizeConfig.safeBlockHorizontal * 3,
+              horizontal: AppSize.of(context).safeBlockHorizontal * 3,
             ),
             decoration: BoxDecoration(
               border: Border.all(
                 color: Color(0xFFD1D3D9),
               ),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(
+                AppSize.of(context).safeBlockHorizontal * 2,
+              ),
             ),
           ),
           iconStyleData: IconStyleData(
             icon: Icon(Icons.keyboard_arrow_down_rounded),
-            iconSize: SizeConfig.safeBlockHorizontal * 5,
+            iconSize: AppSize.of(context).safeBlockHorizontal * 5,
             iconEnabledColor: Color(0xFFD1D3D9),
           ),
           dropdownStyleData: DropdownStyleData(
-            maxHeight: SizeConfig.safeBlockVertical * 25,
-            width: SizeConfig.safeBlockHorizontal * 86,
+            maxHeight: AppSize.of(context).safeBlockVertical * 25,
+            width: AppSize.of(context).safeBlockHorizontal * 86,
             elevation: 3,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(
+                AppSize.of(context).safeBlockHorizontal * 3,
+              ),
               color: Color(0xFFFFFFFF),
             ),
             offset: const Offset(0, 0),
@@ -1709,9 +1903,9 @@ class _CountDropdown extends StatelessWidget {
             ),
           ),
           menuItemStyleData: MenuItemStyleData(
-            height: SizeConfig.safeBlockHorizontal * 11.01,
+            height: AppSize.of(context).safeBlockHorizontal * 11.01,
             padding: EdgeInsets.only(
-              left: SizeConfig.safeBlockHorizontal * 3,
+              left: AppSize.of(context).safeBlockHorizontal * 3,
             ),
           ),
         ),

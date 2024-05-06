@@ -237,20 +237,27 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
   Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
-      if (isRefreshing == null) {
-        isRefreshing = _refreshToken();
-      } else {
-        await isRefreshing?.whenComplete(() {
-          isRefreshing = null;
-        });
-      }
+      await refreshTokenMutualExclusion();
       return true;
     }
     return false;
   }
 
+  Future<void> refreshTokenMutualExclusion() async {
+    if (isRefreshing == null) {
+      isRefreshing = _refreshToken();
+    } else {
+      await isRefreshing?.whenComplete(() {
+        isRefreshing = null;
+      });
+    }
+  }
+
   Future<void> _refreshToken() async {
     final refreshToken = await _tokenRepo.refreshToken;
+    if (refreshToken == null) {
+      throw ApiRefreshTokenExpiredException();
+    }
     final uri = _api.auth.refreshToken();
     final requestBody =
         _api.auth.refreshTokenRequestBody(refreshToken: refreshToken);
@@ -263,27 +270,38 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     );
     logger.i('Roccia Api Request: ${uri.toString()}');
     logger.d('Roccia Api Request Body: $requestBody');
-    if (response.statusCode != HttpStatus.ok &&
-        response.statusCode != HttpStatus.badRequest &&
-        response.statusCode != HttpStatus.unauthorized) {
+    late final Map<String, dynamic> body;
+    try {
+      body =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    } catch (e, stackTrace) {
       throw ApiUnkownException();
     }
-    final body =
-        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
-    if (response.statusCode != HttpStatus.ok) {
-      throw ApiException(
-        statusCode: response.statusCode,
-        message: body["detail"],
-      );
+    switch (response.statusCode) {
+      case HttpStatus.ok:
+        final accessToken = body["data"]["token"]["access"];
+        if (accessToken == null) {
+          logger.e("Access token is null");
+          throw ApiUnkownException();
+        }
+        await _tokenRepo.saveAccessToken(accessToken);
+        break;
+
+      case HttpStatus.badRequest:
+
+        /// Todo: Api 문서와 맞지 않음
+        throw ApiRefreshTokenExpiredException();
+      // throw ApiException(
+      //   statusCode: response.statusCode,
+      //   message: body["detail"],
+      // );
+
+      case HttpStatus.unauthorized:
+        throw ApiRefreshTokenExpiredException();
+
+      default:
+        throw ApiUnkownException();
     }
-    final accessToken = body["data"]["token"]["access"];
-    if (accessToken == null) {
-      throw ApiException(
-        statusCode: response.statusCode,
-        message: "Access Token is null",
-      );
-    }
-    await _tokenRepo.saveAccessToken(accessToken);
     logger.i(body["detail"]);
   }
 }

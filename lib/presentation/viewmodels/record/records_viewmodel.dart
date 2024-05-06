@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:untitled/data/shared/api_exception.dart';
 import 'package:untitled/presentation/viewmodels/record/record_dates_viewmodel.dart';
-import 'package:untitled/presentation/viewmodels/shared/notification_exception.dart';
 
 import '../../../application/record/record_use_case.dart';
 import '../../../constants/app_enum.dart';
 import '../../../domain/record/boulder_problem.dart';
 import '../../../domain/record/record.dart';
 import '../../../utils/app_logger.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'records_viewmodel.g.dart';
 
@@ -30,12 +29,16 @@ class RecordState {
 }
 
 @riverpod
-class RecordsViewModel extends _$RecordsViewModel {
+class RecordsViewmodel extends _$RecordsViewmodel {
   @override
   Future<List<RecordState>> build() async {
     logger.d('Execute RecordViewModel');
-    final List<RecordModel> records =
-        await ref.refresh(getRecordsUseCaseProvider.future);
+    late final List<RecordModel> records;
+    try {
+      records = await ref.refresh(getRecordsUseCaseProvider.future);
+    } catch (e, stackTrace) {
+      exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
+    }
     return records.map(_fromRecordModel).toList();
   }
 
@@ -82,17 +85,15 @@ class RecordController extends _$RecordController {
               _toRecordModel(recordState),
             ).future,
           );
-        } on ApiException catch (e) {
-          throw NotificationException(e.message);
         } catch (e, stackTrace) {
-          logger.e('Create Record Error', error: e, stackTrace: stackTrace);
-          rethrow;
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
         }
         return RecordControllerAction.create;
       },
     );
-    ref.invalidate(recordsViewModelProvider);
-    ref.invalidate(recordDatesViewModelProvider);
+    ref.invalidate(recordsViewmodelProvider);
+    ref.invalidate(recordDatesViewmodelProvider);
   }
 
   Future<void> updateRecord({
@@ -108,17 +109,15 @@ class RecordController extends _$RecordController {
               _toRecordModel(recordState),
             ).future,
           );
-        } on ApiException catch (e) {
-          throw NotificationException(e.message);
         } catch (e, stackTrace) {
-          logger.e('Update Record Error', error: e, stackTrace: stackTrace);
-          rethrow;
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
         }
         return RecordControllerAction.update;
       },
     );
-    ref.invalidate(recordsViewModelProvider);
-    ref.invalidate(recordDatesViewModelProvider);
+    ref.invalidate(recordsViewmodelProvider);
+    ref.invalidate(recordDatesViewmodelProvider);
   }
 
   Future<void> deleteRecord({
@@ -132,17 +131,15 @@ class RecordController extends _$RecordController {
           await ref.refresh(
             deleteRecordUseCaseProvider(id).future,
           );
-        } on ApiException catch (e) {
-          throw NotificationException(e.message);
         } catch (e, stackTrace) {
-          logger.e('Delete Record Error', error: e, stackTrace: stackTrace);
-          rethrow;
+          exceptionHandlerOnViewmodel(
+              e: e as Exception, stackTrace: stackTrace);
         }
         return RecordControllerAction.delete;
       },
     );
-    ref.invalidate(recordsViewModelProvider);
-    ref.invalidate(recordDatesViewModelProvider);
+    ref.invalidate(recordsViewmodelProvider);
+    ref.invalidate(recordDatesViewmodelProvider);
   }
 
   RecordModel _toRecordModel(RecordState recordState) {

@@ -1,4 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:untitled/data/authentication/token_repository.dart';
 import '../../data/authentication/auth_repository.dart';
 import '../../domain/authenticatioin/register_form.dart';
 import '../../utils/app_logger.dart';
@@ -80,4 +83,17 @@ Future<void> updatePasswordUseCase(
     password: password,
     passwordConfirmation: passwordConfirm,
   );
+}
+
+@riverpod
+Future<bool> hasAuthUseCase(
+  HasAuthUseCaseRef ref,
+) async {
+  logger.d('Execute hasAuthUseCase');
+  final tokenRepo = ref.read(tokenRepositoryProvider);
+  final String? refreshToken = await tokenRepo.refreshToken;
+  if (refreshToken == null || JwtDecoder.isExpired(refreshToken)) {
+    return false;
+  }
+  return true;
 }
