@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,7 +16,9 @@ import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../utils/app_router.dart';
 import '../../utils/dialog_helper.dart';
+import '../viewmodels/authentication/logout_viewmodel.dart';
 import '../viewmodels/user/my_page_viewmodel.dart';
 
 @RoutePage()
@@ -218,6 +221,14 @@ class _MyPageAppBar extends StatelessWidget {
     _updateSize(context);
     return SliverAppBar(
       automaticallyImplyLeading: false,
+      backgroundColor: AppColors.primaryLight,
+      surfaceTintColor: AppColors.primaryLight,
+      elevation: 1,
+      shadowColor: Colors.grey,
+      toolbarHeight: _appBarHeight,
+      expandedHeight: _appBarExpandedHeight,
+      floating: false,
+      pinned: true,
       title: Text(
         "마이페이지",
         style: TextStyle(
@@ -225,25 +236,145 @@ class _MyPageAppBar extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      backgroundColor: AppColors.primaryLight,
-      surfaceTintColor: AppColors.primaryLight,
-      elevation: 1,
-      shadowColor: Colors.grey,
-      toolbarHeight: _appBarHeight,
-      expandedHeight: _appBarExpandedHeight,
+      actions: [
+        _LogOutButton(),
+      ],
       flexibleSpace: _MyPageAppBarFlexibleSpace(
         toolbarHeight: _appBarHeight,
         expandedHeight: _appBarExpandedHeight,
         userInfo: _userInfo,
       ),
-      floating: false,
-      pinned: true,
     );
   }
 
   void _updateSize(BuildContext context) {
     _appBarHeight = AppSize.of(context).safeBlockHorizontal * 12;
     _appBarExpandedHeight = AppSize.of(context).safeBlockHorizontal * 60;
+  }
+}
+
+class _LogOutButton extends StatelessWidget {
+  const _LogOutButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+        right: AppSize.of(context).safeBlockHorizontal * 3.5,
+      ),
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (_) {
+              return _LogOutPopUp();
+            },
+          );
+        },
+        child: SvgPicture.asset(
+          'assets/icons/my_page_logout.svg',
+          height: AppSize.of(context).safeBlockHorizontal * 5,
+          color: AppColors.greyMediumDark,
+        ),
+      ),
+    );
+  }
+}
+
+class _LogOutPopUp extends ConsumerWidget {
+  _LogOutPopUp({super.key});
+
+  // ------------------------------------------------------------------------ //
+  // Size Variables - Must init in build() !                                  //
+  // ------------------------------------------------------------------------ //
+  late double _popUpWidth;
+  late double _popUpHeight;
+  late double _yesButtonWidth;
+  late double _noButtonWidth;
+  late double _buttonHeight;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    _updateSize(context);
+    return Dialog(
+      child: Container(
+        width: _popUpWidth,
+        height: _popUpHeight,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSize.of(context).safeBlockHorizontal * 5,
+          vertical: AppSize.of(context).safeBlockHorizontal * 5,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            AppSize.of(context).safeBlockHorizontal * 5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: _popUpWidth * 0.05),
+            Text(
+              "로그아웃 하시겠습니까?",
+              style: TextStyle(
+                fontSize: AppSize.of(context).font.headline2,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: _popUpWidth * 0.05),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: _noButtonWidth,
+                  height: _buttonHeight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      '아니오',
+                      style: TextStyle(
+                        color: AppColors.primaryDark,
+                        fontSize: AppSize.of(context).font.headline2,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: _yesButtonWidth,
+                  height: _buttonHeight,
+                  child: TextButton(
+                    onPressed: () {
+                      ref.read(logOutControllerProvider.notifier).execute();
+                      AutoRouter.of(context).popUntilRoot();
+                      AutoRouter.of(context).replace(LoginRoute());
+                    },
+                    child: Text(
+                      '네',
+                      style: TextStyle(
+                        color: AppColors.primaryDark,
+                        fontSize: AppSize.of(context).font.headline2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _updateSize(BuildContext context) {
+    _popUpWidth = AppSize.of(context).safeBlockHorizontal * 85;
+    _popUpHeight = AppSize.of(context).safeBlockHorizontal * 35;
+    _yesButtonWidth = _popUpWidth * 0.2;
+    _noButtonWidth = _popUpWidth * 0.3;
+    _buttonHeight = _popUpWidth * 0.1;
   }
 }
 
@@ -269,12 +400,6 @@ class _MyPageAppBar extends StatelessWidget {
         ),
       ),
       Container(
-        child: InkWell(
-          child: SvgPicture.asset(
-            'assets/icons/my_page_logout.svg',
-            height:
-                MediaQuery.of(context).size.width * (1 / 18),
-          ),
           onTap: () {
             showDialog(
                 context: context,

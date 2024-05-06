@@ -46,4 +46,10 @@ class TokenRepository {
     await saveAccessToken(accessToken);
     await saveRefreshToken(refreshToken);
   }
+
+  Future<void> clearTokens() async {
+    await _appStorage.delete(key: _accessTokenKey);
+    await _appStorage.delete(key: _refreshTokenKey);
+    logger.d('Token cleared');
+  }
 }
