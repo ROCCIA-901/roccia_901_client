@@ -53,18 +53,9 @@ class AuthRepository {
   Future<void> register({required RegisterForm form}) async {
     try {
       final uri = _api.auth.register();
-      final body = await _apiClient.post(
+      await _apiClient.post(
         uri,
         body: form.toJson(),
-      );
-      final token = Token.fromJson(body);
-      if (token.refresh == null) {
-        const message = 'Refresh Token is null';
-        throw Exception(message);
-      }
-      await _tokenRepo.saveTokens(
-        accessToken: token.access,
-        refreshToken: token.refresh!,
       );
     } catch (e, stackTrace) {
       _errorHandler(e, stackTrace);
