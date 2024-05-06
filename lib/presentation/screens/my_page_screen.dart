@@ -204,7 +204,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 }
 
 class _MyPageAppBar extends StatelessWidget {
-  final MyPageState _userInfo;
+  final MyPageStateModel _userInfo;
   // ------------------------------------------------------------------------ //
   // Size Variables - Must init in build() !                                  //
   // ------------------------------------------------------------------------ //
@@ -213,7 +213,7 @@ class _MyPageAppBar extends StatelessWidget {
 
   _MyPageAppBar({
     super.key,
-    required MyPageState userInfo,
+    required MyPageStateModel userInfo,
   }) : _userInfo = userInfo;
 
   @override
@@ -444,7 +444,7 @@ class _LogOutPopUp extends ConsumerWidget {
    */
 
 class _MyPageAppBarFlexibleSpace extends StatelessWidget {
-  final MyPageState _userInfo;
+  final MyPageStateModel _userInfo;
   final double _toolbarHeight;
   final double _expandedHeight;
 
@@ -461,7 +461,7 @@ class _MyPageAppBarFlexibleSpace extends StatelessWidget {
     super.key,
     required double toolbarHeight,
     required double expandedHeight,
-    required MyPageState userInfo,
+    required MyPageStateModel userInfo,
   })  : _toolbarHeight = toolbarHeight,
         _expandedHeight = expandedHeight,
         _userInfo = userInfo;
@@ -538,13 +538,13 @@ class _MyPageAppBarFlexibleSpace extends StatelessWidget {
 class _MyPageAppBarFlexibleSpaceIntroduction extends StatelessWidget {
   final double _introductionWidth;
   final double _introductionHeight;
-  final MyPageState _userInfo;
+  final MyPageStateModel _userInfo;
 
   const _MyPageAppBarFlexibleSpaceIntroduction({
     super.key,
     required double introductionWidth,
     required double introductionHeight,
-    required MyPageState userInfo,
+    required MyPageStateModel userInfo,
   })  : _introductionWidth = introductionWidth,
         _introductionHeight = introductionHeight,
         _userInfo = userInfo;

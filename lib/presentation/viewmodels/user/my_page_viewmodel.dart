@@ -8,7 +8,7 @@ import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'my_page_viewmodel.g.dart';
 
-class MyPageState {
+class MyPageStateModel {
   /// Profile
   final String name;
   final String generation;
@@ -26,7 +26,7 @@ class MyPageState {
   /// Record
   final List<({BoulderLevel level, int count})> boulderProblems;
 
-  const MyPageState({
+  const MyPageStateModel({
     required this.name,
     required this.generation,
     required this.role,
@@ -44,7 +44,7 @@ class MyPageState {
 @riverpod
 class MyPageViewmodel extends _$MyPageViewmodel {
   @override
-  Future<MyPageState> build() async {
+  Future<MyPageStateModel> build() async {
     logger.d('Execute MyPageViewModel');
     late final MyPageModel myPage;
     try {
@@ -55,9 +55,9 @@ class MyPageViewmodel extends _$MyPageViewmodel {
     return _fromMyPageModel(myPage);
   }
 
-  MyPageState _fromMyPageModel(MyPageModel myPage) {
+  MyPageStateModel _fromMyPageModel(MyPageModel myPage) {
     myPage.records.sort((a, b) => a.level.index.compareTo(b.level.index));
-    return MyPageState(
+    return MyPageStateModel(
       name: myPage.profile.name,
       generation: myPage.profile.generation,
       role: myPage.profile.role,
