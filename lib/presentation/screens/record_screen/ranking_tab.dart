@@ -727,10 +727,11 @@ class MemberRankingCard extends StatelessWidget {
                   child: SizedBox(
                     height: cardBlockSizeVertical * 100.0,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          height: cardBlockSizeVertical * 18.33,
+                          height: cardBlockSizeVertical * 20,
                         ),
 
                         /// 이름, 지점
@@ -740,38 +741,47 @@ class MemberRankingCard extends StatelessWidget {
                           children: [
                             Container(
                               margin: EdgeInsets.only(
-                                  right: cardBlockSizeHorizontal * 2.647),
+                                  right: cardBlockSizeHorizontal * 1.5),
                               child: Text(
                                 _name,
                                 style: TextStyle(
                                   fontSize:
                                       AppSize.of(context).safeBlockHorizontal *
-                                          3.0,
+                                          3.5,
+                                  fontWeight: FontWeight.bold,
                                   color: Color(0xFF000000),
                                 ),
                               ),
                             ),
-                            Text(
-                              Location.toName[_location] ?? "No data",
-                              style: TextStyle(
-                                fontSize:
-                                    AppSize.of(context).safeBlockHorizontal *
-                                        2.0,
-                                color: Color(0xFF878787),
+                            Container(
+                              margin: EdgeInsets.only(
+                                  right: cardBlockSizeHorizontal * 2.647),
+                              padding: EdgeInsets.only(
+                                  bottom: cardBlockSizeVertical * 0.3),
+                              child: Text(
+                                Location.toName[_location]!,
+                                style: TextStyle(
+                                  fontSize:
+                                      AppSize.of(context).safeBlockHorizontal *
+                                          3.0,
+                                  color: Color(0xFF878787),
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: cardBlockSizeVertical * 10),
+                        SizedBox(height: cardBlockSizeVertical * 7),
 
                         /// 기수, 난이도
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
-                              height: cardBlockSizeVertical * 26.67,
-                              width: cardBlockSizeHorizontal * 8.824,
+                              height: cardBlockSizeVertical * 32,
+                              width: cardBlockSizeHorizontal * 12,
                               alignment: Alignment.center,
+                              padding: EdgeInsets.only(
+                                  top: cardBlockSizeVertical * 2),
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
@@ -788,16 +798,18 @@ class MemberRankingCard extends StatelessWidget {
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       AppSize.of(context).safeBlockHorizontal *
-                                          2.0,
+                                          2.5,
                                   color: Color(0xFF7B7B7B),
                                 ),
                               ),
                             ),
                             SizedBox(width: cardBlockSizeHorizontal * 0.8824),
                             Container(
-                              height: cardBlockSizeVertical * 26.67,
-                              width: cardBlockSizeHorizontal * 10.29,
+                              height: cardBlockSizeVertical * 32,
+                              width: cardBlockSizeHorizontal * 12,
                               alignment: Alignment.center,
+                              padding: EdgeInsets.only(
+                                  top: cardBlockSizeVertical * 2),
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                   side: BorderSide(
@@ -814,7 +826,7 @@ class MemberRankingCard extends StatelessWidget {
                                 style: GoogleFonts.roboto(
                                   fontSize:
                                       AppSize.of(context).safeBlockHorizontal *
-                                          2.0,
+                                          2.5,
                                   color: Color(0xFF7B7B7B),
                                 ),
                               ),
@@ -835,7 +847,7 @@ class MemberRankingCard extends StatelessWidget {
                     child: Text(
                       '$_score점',
                       style: GoogleFonts.roboto(
-                        fontSize: cardBlockSizeHorizontal * 3.0,
+                        fontSize: cardBlockSizeHorizontal * 3.5,
                         color: Color(0xFF7B7B7B),
                       ),
                     ),
@@ -851,7 +863,7 @@ class MemberRankingCard extends StatelessWidget {
                     child: Text(
                       '$_rank',
                       style: GoogleFonts.roboto(
-                        fontSize: cardBlockSizeHorizontal * 3,
+                        fontSize: cardBlockSizeHorizontal * 3.5,
                         color: Color(0xFF000000),
                       ),
                     ),
@@ -862,20 +874,20 @@ class MemberRankingCard extends StatelessWidget {
                 Positioned(
                   left: cardBlockSizeHorizontal * 87.0,
                   child: Container(
-                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 1),
+                    padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 4),
                     alignment: Alignment.centerLeft,
                     child: switch (_rank) {
                       1 => SvgPicture.asset(
                           'assets/icons/crown_gold.svg',
-                          width: cardBlockSizeHorizontal * 2.4,
+                          width: cardBlockSizeHorizontal * 2.8,
                         ),
                       2 => SvgPicture.asset(
                           'assets/icons/crown_silver.svg',
-                          width: cardBlockSizeHorizontal * 2.4,
+                          width: cardBlockSizeHorizontal * 2.8,
                         ),
                       3 => SvgPicture.asset(
                           'assets/icons/crown_bronze.svg',
-                          width: cardBlockSizeHorizontal * 2.4,
+                          width: cardBlockSizeHorizontal * 2.8,
                         ),
                       _ => null,
                     },
