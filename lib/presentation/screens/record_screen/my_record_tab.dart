@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/record/record_screen_viewmodel.dart';
-import 'package:untitled/utils/app_logger.dart';
 import 'package:untitled/utils/snack_bar_helper.dart';
 import 'package:untitled/utils/time_of_day_utils.dart';
 import 'package:untitled/utils/toast_helper.dart';
@@ -87,6 +86,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
         AppCalendar(
           width: _calendarWidth,
           height: _calendarHeight,
+          focusedDay: _selectedDate,
           selectedDay: _selectedDate,
           onSelected: (date) {
             _onDateSelected(date, recordsState);
@@ -346,12 +346,10 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   }
 
   void _updateRecord(RecordState recordState) {
-    logger.wtf('updateRecord');
     ref
         .read(recordControllerProvider.notifier)
         .updateRecord(recordState: recordState)
         .whenComplete(() {
-      logger.wtf("updateRecord complete");
       _closeBottomSheet();
       _showRecordDetail(
         AsyncValue.data([recordState]),
@@ -1790,10 +1788,7 @@ class _TimeFormState extends State<_TimeForm> {
       height: widget.height,
       child: GestureDetector(
         onTap: () async {
-          final TimeOfDay? timeOfDay = await showTimePicker(
-            context: context,
-            initialTime: selectedTime,
-          );
+          final TimeOfDay? timeOfDay = await _showTimePicker();
           if (timeOfDay != null) {
             setState(() {
               selectedTime = timeOfDay;
@@ -1820,6 +1815,34 @@ class _TimeFormState extends State<_TimeForm> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<TimeOfDay?> _showTimePicker() async {
+    return await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+      initialEntryMode: TimePickerEntryMode.inputOnly,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryDark,
+              // change the text color
+              onSurface: AppColors.greyDark,
+              background: Colors.white,
+              outline: AppColors.greyDark,
+            ),
+            // button colors
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.light(
+                primary: Colors.teal,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }

@@ -1,7 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../utils/app_logger.dart';
-
 part 'record_screen_viewmodel.g.dart';
 
 enum RecordScreenBottomSheetState {
@@ -29,16 +27,12 @@ class RecordScreenViewmodel extends _$RecordScreenViewmodel {
   }
 
   void closeBottomSheet() {
-    logger.wtf('vm: closeBottomSheet',
-        error: Exception(), stackTrace: StackTrace.current);
     state = RecordScreenState(
       bottomSheetState: RecordScreenBottomSheetState.none,
     );
   }
 
   void openBottomSheet(RecordScreenBottomSheetState bottomSheetState) {
-    logger.wtf('vm: openBottomSheet',
-        error: Exception(), stackTrace: StackTrace.current);
     state = RecordScreenState(
       bottomSheetState: bottomSheetState,
     );

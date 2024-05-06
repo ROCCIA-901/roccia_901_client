@@ -903,7 +903,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     void onSuccess() {
       SnackBarHelper.showTextSnackBar(context, "회원가입이 완료되었습니다.");
       AutoRouter.of(context).popUntilRoot();
-      AutoRouter.of(context).replace(MemberHomeRoute());
+      AutoRouter.of(context).replace(LoginRoute());
     }
 
     ref.listen(
