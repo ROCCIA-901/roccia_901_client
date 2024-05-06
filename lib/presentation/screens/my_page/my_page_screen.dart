@@ -223,7 +223,24 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     ),
                   ),
                   _ReportButton(),
-                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
+                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 2),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.only(
+                      left: AppSize.of(context).safeBlockHorizontal * 5,
+                      right: AppSize.of(context).safeBlockHorizontal * 5,
+                    ),
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      "Ver ${AppConstants.version}",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: AppSize.of(context).font.headline3,
+                        color: AppColors.greyMediumDark,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
                 ],
               ),
             ),
