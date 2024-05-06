@@ -1185,7 +1185,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
       ToastHelper.show(context, "종료 시간이 시작 시간보다 빨라요.\n당신은 시간의 마술사?");
       return;
     }
-    if (_endTimeIsBeforeCurrentTime()) {
+    if (_endTimeIsAfterCurrentTime()) {
       ToastHelper.show(context, "종료 시간이 현재 시간보다 빨라요.\n당신은 시간의 마술사?");
       return;
     }
@@ -1228,9 +1228,19 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
     return _endTime.compareTo(_startTime) <= 0;
   }
 
-  bool _endTimeIsBeforeCurrentTime() {
+  bool _endTimeIsAfterCurrentTime() {
+    final DateTime currentDate = DateTime.now();
     final TimeOfDay currentTime = TimeOfDay.now();
-    return _endTime.compareTo(currentTime) >= 0;
+    if (widget.selectedDate.year != currentDate.year) {
+      return widget.selectedDate.year > currentDate.year;
+    }
+    if (widget.selectedDate.month != currentDate.month) {
+      return widget.selectedDate.month > currentDate.month;
+    }
+    if (widget.selectedDate.day != currentDate.day) {
+      return widget.selectedDate.day > currentDate.day;
+    }
+    return _endTime.compareTo(currentTime) > 0;
   }
 }
 
@@ -1638,7 +1648,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
       ToastHelper.show(context, "종료 시간이 시작 시간보다 빨라요.\n당신은 시간의 마술사?");
       return;
     }
-    if (_endTimeIsBeforeCurrentTime()) {
+    if (_endTimeIsAfterCurrentTime()) {
       ToastHelper.show(context, "종료 시간이 현재 시간보다 빨라요.\n당신은 시간의 마술사?");
       return;
     }
@@ -1679,9 +1689,19 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
     return _endTime.compareTo(_startTime) <= 0;
   }
 
-  bool _endTimeIsBeforeCurrentTime() {
+  bool _endTimeIsAfterCurrentTime() {
+    final DateTime currentDate = DateTime.now();
     final TimeOfDay currentTime = TimeOfDay.now();
-    return _endTime.compareTo(currentTime) >= 0;
+    if (widget.recordState.endTime.year != currentDate.year) {
+      return widget.recordState.endTime.year > currentDate.year;
+    }
+    if (widget.recordState.endTime.month != currentDate.month) {
+      return widget.recordState.endTime.month > currentDate.month;
+    }
+    if (widget.recordState.endTime.day != currentDate.day) {
+      return widget.recordState.endTime.day > currentDate.day;
+    }
+    return _endTime.compareTo(currentTime) > 0;
   }
 }
 
