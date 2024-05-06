@@ -149,7 +149,7 @@ class _AppCalendarState extends State<AppCalendar> {
       color: AppColors.greyDark,
     );
     _todayTextStyle = _dateTextStyle.copyWith(
-      fontSize: _dateFontSize * 1.2,
+      fontSize: _dateFontSize,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     );

@@ -1186,7 +1186,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
       return;
     }
     if (_endTimeIsAfterCurrentTime()) {
-      ToastHelper.show(context, "종료 시간이 현재 시간보다 빨라요.\n당신은 시간의 마술사?");
+      ToastHelper.show(context, "종료 시간이 현재 시간보다 늦어요.\n당신은 시간의 마술사?");
       return;
     }
     widget.createRecord(
@@ -1649,7 +1649,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
       return;
     }
     if (_endTimeIsAfterCurrentTime()) {
-      ToastHelper.show(context, "종료 시간이 현재 시간보다 빨라요.\n당신은 시간의 마술사?");
+      ToastHelper.show(context, "종료 시간이 현재 시간보다 늦어요.\n당신은 시간의 마술사?");
       return;
     }
     widget.updateRecord(

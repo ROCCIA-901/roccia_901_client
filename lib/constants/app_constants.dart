@@ -37,4 +37,6 @@ class AppConstants {
 
   static const String reportUrl =
       "https://docs.google.com/forms/d/1Fg3Nk0H3nAoAYAq5elkzUyn69latA9Nv6tJGgD-aENU/edit";
+
+  static const String version = "1.0.0";
 }
