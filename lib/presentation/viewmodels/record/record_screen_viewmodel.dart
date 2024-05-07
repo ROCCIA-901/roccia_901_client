@@ -2,17 +2,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'record_screen_viewmodel.g.dart';
 
-enum RecordScreenBottomSheetState {
+enum RecordScreenBottomSheetType {
   detail,
   create,
   edit,
   none,
 }
 
-class RecordScreenState {
-  final RecordScreenBottomSheetState bottomSheetState;
+class RecordScreenStateModel {
+  final RecordScreenBottomSheetType bottomSheetState;
 
-  const RecordScreenState({
+  const RecordScreenStateModel({
     required this.bottomSheetState,
   });
 }
@@ -20,20 +20,20 @@ class RecordScreenState {
 @riverpod
 class RecordScreenViewmodel extends _$RecordScreenViewmodel {
   @override
-  RecordScreenState build() {
-    return RecordScreenState(
-      bottomSheetState: RecordScreenBottomSheetState.none,
+  RecordScreenStateModel build() {
+    return RecordScreenStateModel(
+      bottomSheetState: RecordScreenBottomSheetType.none,
     );
   }
 
   void closeBottomSheet() {
-    state = RecordScreenState(
-      bottomSheetState: RecordScreenBottomSheetState.none,
+    state = RecordScreenStateModel(
+      bottomSheetState: RecordScreenBottomSheetType.none,
     );
   }
 
-  void openBottomSheet(RecordScreenBottomSheetState bottomSheetState) {
-    state = RecordScreenState(
+  void openBottomSheet(RecordScreenBottomSheetType bottomSheetState) {
+    state = RecordScreenStateModel(
       bottomSheetState: bottomSheetState,
     );
   }

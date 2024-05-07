@@ -225,7 +225,7 @@ class _AppCalendarState extends State<AppCalendar> {
       alignment: Alignment.center,
       margin: EdgeInsets.only(
           bottom: AppSize.of(context).safeBlockHorizontal * 1.8),
-      width: AppSize.of(context).safeBlockHorizontal * 8.0,
+      width: AppSize.of(context).safeBlockHorizontal * 5.0,
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(
