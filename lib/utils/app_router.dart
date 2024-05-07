@@ -47,6 +47,7 @@ class AppRouter extends _$AppRouter {
             AutoRoute(
               path: "home",
               page: MemberHomeRoute.page,
+              maintainState: false,
               initial: true,
               guards: [AuthGuard(ref)],
             ),
@@ -55,6 +56,7 @@ class AppRouter extends _$AppRouter {
             AutoRoute(
               path: "record",
               page: RecordRoute.page,
+              maintainState: false,
               guards: [AuthGuard(ref)],
             ),
 
@@ -62,6 +64,7 @@ class AppRouter extends _$AppRouter {
             AutoRoute(
               path: "my-page",
               page: MyPageRoute.page,
+              maintainState: false,
               guards: [AuthGuard(ref)],
             ),
           ],
