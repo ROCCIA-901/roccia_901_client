@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +8,7 @@ import 'package:untitled/presentation/screens/shared/exception_handler_on_view.d
 import 'package:untitled/utils/snack_bar_helper.dart';
 
 import '../../constants/size_config.dart';
+import '../../utils/app_router.dart';
 import '../../utils/dialog_helper.dart';
 import '../../widgets/app_common_text_button.dart';
 import '../viewmodels/authentication/password_update_viewmodel.dart';
@@ -239,6 +241,12 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
   }
 
   void _listenUpdatePassword(BuildContext context, WidgetRef ref) {
+    void onSucess() {
+      SnackBarHelper.showTextSnackBar(context, "비밀번호가 변경되었습니다.");
+      AutoRouter.of(context).popUntilRoot();
+      AutoRouter.of(context).replace(LoginRoute());
+    }
+
     ref.listen(
       updatePasswordControllerProvider,
       (previous, next) {
@@ -246,7 +254,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
           data: (data) {
             if (previous is AsyncLoading) {
               Navigator.pop(context);
-              SnackBarHelper.showTextSnackBar(context, "비밀번호가 변경되었습니다.");
+              onSucess();
             }
           },
           loading: () {
