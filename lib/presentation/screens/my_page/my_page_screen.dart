@@ -2,9 +2,7 @@ import 'dart:math';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,6 +16,7 @@ import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../utils/app_logger.dart';
 import '../../../utils/app_router.dart';
 import '../../../utils/dialog_helper.dart';
 import '../../viewmodels/authentication/logout_viewmodel.dart';
@@ -34,6 +33,7 @@ class MyPageScreen extends ConsumerStatefulWidget {
 class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   @override
   Widget build(BuildContext context) {
+    logger.wtf("MyPageScreen build()");
     var userInfoAsyncState = ref.watch(myPageViewmodelProvider);
 
     if (userInfoAsyncState is! AsyncData || userInfoAsyncState.value == null) {
