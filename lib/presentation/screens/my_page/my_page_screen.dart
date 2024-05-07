@@ -33,7 +33,6 @@ class MyPageScreen extends ConsumerStatefulWidget {
 class _MyPageScreenState extends ConsumerState<MyPageScreen> {
   @override
   Widget build(BuildContext context) {
-    logger.wtf("MyPageScreen build()");
     var userInfoAsyncState = ref.watch(myPageViewmodelProvider);
 
     if (userInfoAsyncState is! AsyncData || userInfoAsyncState.value == null) {
