@@ -138,7 +138,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
       _showRecordDetail(recordsState, date);
       _displayedDate = date;
     } else if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-        RecordScreenBottomSheetState.none) {
+        RecordScreenBottomSheetType.none) {
       // 기록 없는 날을 선택할 시,
       _resetDisplayedDate();
       _closeBottomSheet();
@@ -150,9 +150,9 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _onBackAtRecordDetail(DateTime prevDisplayedDate) {
     if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-        RecordScreenBottomSheetState.detail) {
+        RecordScreenBottomSheetType.detail) {
       if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-          RecordScreenBottomSheetState.none) {
+          RecordScreenBottomSheetType.none) {
         _resetSelectedDate();
         _resetDisplayedDate();
       }
@@ -226,7 +226,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
       _selectedDate = _selectedDate ?? DateTime.now();
     });
     _openBottomSheet(
-      bottomSheetState: RecordScreenBottomSheetState.create,
+      bottomSheetState: RecordScreenBottomSheetType.create,
       showBottomSheet: () {
         showModalBottomSheet(
           context: context,
@@ -244,7 +244,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           },
         ).whenComplete(() {
           if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-              RecordScreenBottomSheetState.create) {
+              RecordScreenBottomSheetType.create) {
             ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
             _resetSelectedDate();
             _resetDisplayedDate();
@@ -259,7 +259,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     final DateTime selectedDate,
   ) async {
     _openBottomSheet(
-      bottomSheetState: RecordScreenBottomSheetState.detail,
+      bottomSheetState: RecordScreenBottomSheetType.detail,
       showBottomSheet: () {
         final recordDetailController = showBottomSheet(
           context: context,
@@ -290,7 +290,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _showUpdateRecordForm(RecordState recordState) {
     _openBottomSheet(
-      bottomSheetState: RecordScreenBottomSheetState.edit,
+      bottomSheetState: RecordScreenBottomSheetType.edit,
       showBottomSheet: () {
         showModalBottomSheet(
           context: context,
@@ -308,7 +308,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           },
         ).whenComplete(() {
           if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-              RecordScreenBottomSheetState.edit) {
+              RecordScreenBottomSheetType.edit) {
             ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
             _resetSelectedDate();
             _resetDisplayedDate();
@@ -319,13 +319,13 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   }
 
   void _openBottomSheet({
-    required RecordScreenBottomSheetState bottomSheetState,
+    required RecordScreenBottomSheetType bottomSheetState,
     required VoidCallback showBottomSheet,
   }) {
     bool isDetailToDetail =
         ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-                RecordScreenBottomSheetState.detail &&
-            bottomSheetState == RecordScreenBottomSheetState.detail;
+                RecordScreenBottomSheetType.detail &&
+            bottomSheetState == RecordScreenBottomSheetType.detail;
     if (!isDetailToDetail) {
       _closeBottomSheet();
       ref
@@ -339,7 +339,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _closeBottomSheet() {
     if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-        RecordScreenBottomSheetState.none) {
+        RecordScreenBottomSheetType.none) {
       Navigator.of(context).pop();
       ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
     }
