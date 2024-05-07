@@ -200,7 +200,9 @@ class RocciaApiLoggerInterceptor extends InterceptorContract {
         final body =
             jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         logger.i(
-            'Roccia Api Response: ${response.request?.url ?? ""} ${response.statusCode}: ${body["detail"] ?? ''}');
+          'Roccia Api Response: ${response.request?.url ?? ""} ${response.statusCode}: ${body["detail"] ?? ''}',
+        );
+        // logger.wtf('Response data: ${body["data"]}');
       }
     } on FormatException catch (e, stackTrace) {
       logger.w('On Roccia API Client: Body is not JSON format',
