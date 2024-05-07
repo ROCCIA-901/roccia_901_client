@@ -640,19 +640,28 @@ class RankingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int rank = 0;
+    double? prevScore;
+    int numOfSamePrevScore = 1;
     return ListView.builder(
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSize.of(context).safeBlockHorizontal * 2.778,
-      ),
-      itemCount: rankings.length,
-      itemBuilder: (BuildContext context, int index) =>
-          listItem(context, index),
-    );
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSize.of(context).safeBlockHorizontal * 2.778,
+        ),
+        itemCount: rankings.length,
+        itemBuilder: (BuildContext context, int index) {
+          if (prevScore != rankings[index].score) {
+            rank += numOfSamePrevScore;
+            numOfSamePrevScore = 1;
+            prevScore = rankings[index].score;
+          } else {
+            numOfSamePrevScore++;
+          }
+          return listItem(context, index, rank);
+        });
   }
 
-  Widget listItem(BuildContext context, int index) {
-    return MemberRankingCard(
-        memberRankingData: rankings[index], rank: index + 1);
+  Widget listItem(BuildContext context, int index, int rank) {
+    return MemberRankingCard(memberRankingData: rankings[index], rank: rank);
   }
 }
 

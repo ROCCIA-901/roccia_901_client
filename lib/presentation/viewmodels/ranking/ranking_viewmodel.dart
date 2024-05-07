@@ -20,7 +20,6 @@ class RankingProfileState {
   final BoulderLevel level;
   final Location location;
   final String profileImg;
-  // final int rank;
   final double score;
 
   RankingProfileState({
@@ -30,7 +29,6 @@ class RankingProfileState {
     required this.level,
     required this.location,
     required this.profileImg,
-    // required this.rank,
     required this.score,
   });
 }
@@ -70,9 +68,9 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
         },
       ),
     );
-    // for (var weekly in ret) {
-    //   weekly.rankings.sort((a, b) => a.rank.compareTo(b.rank));
-    // }
+    for (var weekly in ret) {
+      weekly.rankings.sort((b, a) => a.score.compareTo(b.score));
+    }
     ret.sort((a, b) => a.week.compareTo(b.week));
     return ret;
   }
@@ -113,9 +111,9 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
         },
       ),
     );
-    // for (var generation in ret) {
-    //   generation.rankings.sort((a, b) => a.rank.compareTo(b.rank));
-    // }
+    for (var generation in ret) {
+      generation.rankings.sort((b, a) => a.score.compareTo(b.score));
+    }
     ret.sort((a, b) => a.generation.compareTo(b.generation));
     return ret;
   }
