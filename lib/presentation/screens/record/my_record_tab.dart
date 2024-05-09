@@ -32,6 +32,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     with SingleTickerProviderStateMixin {
   DateTime? _selectedDate;
   DateTime? _displayedDate;
+  DateTime? _focusedDate;
 
   late final AnimationController _recordDetailAnimationController;
 
@@ -81,11 +82,14 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
       return Center(child: CircularProgressIndicator());
     }
 
+    _focusedDate = _selectedDate ?? _focusedDate;
     return Column(
       children: [
+        SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
         AppCalendar(
           width: _calendarWidth,
           height: _calendarHeight,
+          focusedDay: _focusedDate,
           selectedDay: _selectedDate,
           onSelected: (date) {
             _onDateSelected(date, recordsState);
@@ -134,7 +138,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
       _showRecordDetail(recordsState, date);
       _displayedDate = date;
     } else if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-        RecordScreenBottomSheetState.none) {
+        RecordScreenBottomSheetType.none) {
       // 기록 없는 날을 선택할 시,
       _resetDisplayedDate();
       _closeBottomSheet();
@@ -146,7 +150,12 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _onBackAtRecordDetail(DateTime prevDisplayedDate) {
     if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-        RecordScreenBottomSheetState.detail) {
+        RecordScreenBottomSheetType.detail) {
+      if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
+          RecordScreenBottomSheetType.none) {
+        _resetSelectedDate();
+        _resetDisplayedDate();
+      }
       return;
     }
     if (_displayedDate != null &&
@@ -217,7 +226,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
       _selectedDate = _selectedDate ?? DateTime.now();
     });
     _openBottomSheet(
-      bottomSheetState: RecordScreenBottomSheetState.create,
+      bottomSheetState: RecordScreenBottomSheetType.create,
       showBottomSheet: () {
         showModalBottomSheet(
           context: context,
@@ -225,6 +234,8 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
             maxHeight: _recordDetailHeight,
             maxWidth: double.infinity,
           ),
+          enableDrag: false,
+          showDragHandle: false,
           builder: (context) {
             return _CreateRecordBottomSheet(
               selectedDate: _selectedDate!,
@@ -233,7 +244,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           },
         ).whenComplete(() {
           if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-              RecordScreenBottomSheetState.create) {
+              RecordScreenBottomSheetType.create) {
             ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
             _resetSelectedDate();
             _resetDisplayedDate();
@@ -248,7 +259,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
     final DateTime selectedDate,
   ) async {
     _openBottomSheet(
-      bottomSheetState: RecordScreenBottomSheetState.detail,
+      bottomSheetState: RecordScreenBottomSheetType.detail,
       showBottomSheet: () {
         final recordDetailController = showBottomSheet(
           context: context,
@@ -263,6 +274,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
               selectedDate: selectedDate,
               deleteRecord: _deleteRecord,
               showUpdateRecordForm: _showUpdateRecordForm,
+              closeBottomSheet: _closeBottomSheet,
             );
           },
           elevation: 0,
@@ -278,7 +290,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _showUpdateRecordForm(RecordState recordState) {
     _openBottomSheet(
-      bottomSheetState: RecordScreenBottomSheetState.edit,
+      bottomSheetState: RecordScreenBottomSheetType.edit,
       showBottomSheet: () {
         showModalBottomSheet(
           context: context,
@@ -286,6 +298,8 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
             maxHeight: _recordDetailHeight,
             maxWidth: double.infinity,
           ),
+          enableDrag: false,
+          showDragHandle: false,
           builder: (context) {
             return _UpdateRecordBottomSheet(
               recordState: recordState,
@@ -294,7 +308,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
           },
         ).whenComplete(() {
           if (ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-              RecordScreenBottomSheetState.edit) {
+              RecordScreenBottomSheetType.edit) {
             ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
             _resetSelectedDate();
             _resetDisplayedDate();
@@ -305,13 +319,13 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
   }
 
   void _openBottomSheet({
-    required RecordScreenBottomSheetState bottomSheetState,
+    required RecordScreenBottomSheetType bottomSheetState,
     required VoidCallback showBottomSheet,
   }) {
     bool isDetailToDetail =
         ref.read(recordScreenViewmodelProvider).bottomSheetState ==
-                RecordScreenBottomSheetState.detail &&
-            bottomSheetState == RecordScreenBottomSheetState.detail;
+                RecordScreenBottomSheetType.detail &&
+            bottomSheetState == RecordScreenBottomSheetType.detail;
     if (!isDetailToDetail) {
       _closeBottomSheet();
       ref
@@ -325,7 +339,7 @@ class _MyRecordTabState extends ConsumerState<MyRecordTab>
 
   void _closeBottomSheet() {
     if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-        RecordScreenBottomSheetState.none) {
+        RecordScreenBottomSheetType.none) {
       Navigator.of(context).pop();
       ref.read(recordScreenViewmodelProvider.notifier).closeBottomSheet();
     }
@@ -433,6 +447,7 @@ class _RecordDetailWidget extends StatelessWidget {
   late final RecordState? _record;
   final void Function(RecordState recordState) _showUpdateRecordForm;
   final void Function(int id) _deleteRecord;
+  final void Function() _closeBottomSheet;
 
   _RecordDetailWidget({
     Key? key,
@@ -441,10 +456,12 @@ class _RecordDetailWidget extends StatelessWidget {
     required DateTime selectedDate,
     required void Function(RecordState recordState) showUpdateRecordForm,
     required void Function(int id) deleteRecord,
+    required void Function() closeBottomSheet,
   })  : _selectedDate = selectedDate,
         _height = height,
         _showUpdateRecordForm = showUpdateRecordForm,
         _deleteRecord = deleteRecord,
+        _closeBottomSheet = closeBottomSheet,
         super(key: key) {
     switch (recordsState) {
       case (AsyncData(:final value)):
@@ -516,7 +533,7 @@ class _RecordDetailWidget extends StatelessWidget {
                       ),
                       padding: EdgeInsets.zero,
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        _closeBottomSheet();
                       },
                       icon: Icon(Icons.close_rounded,
                           size: AppSize.of(context).safeBlockHorizontal * 7,
@@ -781,9 +798,10 @@ class _CreateRecordBottomSheet extends StatefulWidget {
 class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
   /// state
   Location? _selectedLocation;
-  TimeOfDay _startTime = TimeOfDay.now();
+  TimeOfDay _startTime =
+      TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(hours: 2)));
   TimeOfDay _endTime =
-      TimeOfDay.fromDateTime(DateTime.now().add(Duration(hours: 1)));
+      TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: 1)));
   late List<({BoulderLevel? level, int? count})> _boulderProblems;
 
   // ------------------------------------------------------------------------ //
@@ -1167,6 +1185,10 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
       ToastHelper.show(context, "종료 시간이 시작 시간보다 빨라요.\n당신은 시간의 마술사?");
       return;
     }
+    if (_endTimeIsAfterCurrentTime()) {
+      ToastHelper.show(context, "종료 시간이 현재 시간보다 늦어요.\n당신은 시간의 마술사?");
+      return;
+    }
     widget.createRecord(
       RecordState(
         location: _selectedLocation!,
@@ -1204,6 +1226,21 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
 
   bool _endTimeIsBeforeStartTime() {
     return _endTime.compareTo(_startTime) <= 0;
+  }
+
+  bool _endTimeIsAfterCurrentTime() {
+    final DateTime currentDate = DateTime.now();
+    final TimeOfDay currentTime = TimeOfDay.now();
+    if (widget.selectedDate.year != currentDate.year) {
+      return widget.selectedDate.year > currentDate.year;
+    }
+    if (widget.selectedDate.month != currentDate.month) {
+      return widget.selectedDate.month > currentDate.month;
+    }
+    if (widget.selectedDate.day != currentDate.day) {
+      return widget.selectedDate.day > currentDate.day;
+    }
+    return _endTime.compareTo(currentTime) > 0;
   }
 }
 
@@ -1611,6 +1648,10 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
       ToastHelper.show(context, "종료 시간이 시작 시간보다 빨라요.\n당신은 시간의 마술사?");
       return;
     }
+    if (_endTimeIsAfterCurrentTime()) {
+      ToastHelper.show(context, "종료 시간이 현재 시간보다 늦어요.\n당신은 시간의 마술사?");
+      return;
+    }
     widget.updateRecord(
       RecordState(
         id: widget.recordState.id,
@@ -1646,6 +1687,21 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
 
   bool _endTimeIsBeforeStartTime() {
     return _endTime.compareTo(_startTime) <= 0;
+  }
+
+  bool _endTimeIsAfterCurrentTime() {
+    final DateTime currentDate = DateTime.now();
+    final TimeOfDay currentTime = TimeOfDay.now();
+    if (widget.recordState.endTime.year != currentDate.year) {
+      return widget.recordState.endTime.year > currentDate.year;
+    }
+    if (widget.recordState.endTime.month != currentDate.month) {
+      return widget.recordState.endTime.month > currentDate.month;
+    }
+    if (widget.recordState.endTime.day != currentDate.day) {
+      return widget.recordState.endTime.day > currentDate.day;
+    }
+    return _endTime.compareTo(currentTime) > 0;
   }
 }
 
@@ -1787,10 +1843,7 @@ class _TimeFormState extends State<_TimeForm> {
       height: widget.height,
       child: GestureDetector(
         onTap: () async {
-          final TimeOfDay? timeOfDay = await showTimePicker(
-            context: context,
-            initialTime: selectedTime,
-          );
+          final TimeOfDay? timeOfDay = await _showTimePicker();
           if (timeOfDay != null) {
             setState(() {
               selectedTime = timeOfDay;
@@ -1817,6 +1870,34 @@ class _TimeFormState extends State<_TimeForm> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<TimeOfDay?> _showTimePicker() async {
+    return await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+      initialEntryMode: TimePickerEntryMode.inputOnly,
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.primaryDark,
+              // change the text color
+              onSurface: AppColors.greyDark,
+              background: Colors.white,
+              outline: AppColors.greyDark,
+            ),
+            // button colors
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.light(
+                primary: Colors.teal,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
   }
 }

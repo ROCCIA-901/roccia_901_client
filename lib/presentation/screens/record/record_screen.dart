@@ -1,7 +1,7 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:untitled/presentation/screens/record_screen/ranking_tab.dart';
+import 'package:untitled/presentation/screens/record/ranking_tab.dart';
 import 'package:untitled/widgets/app_custom_bar.dart';
 
 import '../../../constants/size_config.dart';
@@ -54,12 +54,12 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
   Widget build(BuildContext context) {
     final List<Widget> tabs = [
       Tab(
-        height: AppSize.of(context).safeBlockHorizontal * 13,
+        height: AppSize.of(context).safeBlockHorizontal * 10,
         child: Text("내 기록",
             style: TextStyle(fontSize: AppSize.of(context).font.headline3)),
       ),
       Tab(
-        height: AppSize.of(context).safeBlockHorizontal * 13,
+        height: AppSize.of(context).safeBlockHorizontal * 10,
         child: Text("랭킹",
             style: TextStyle(fontSize: AppSize.of(context).font.headline3)),
       ),
@@ -71,24 +71,26 @@ class _RecordScreenState extends ConsumerState<RecordScreen>
         bottom: false,
         child: Column(
           children: [
-            TabBar(
-              tabs: tabs,
-              controller: _tabController,
-              //physics: NeverScrollableScrollPhysics(),
-              indicatorColor: Color(0xffcae4c1),
-              indicatorWeight: 3,
-              labelColor: Colors.black,
-              unselectedLabelColor: Colors.grey,
-              onTap: (_) {
-                if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
-                    RecordScreenBottomSheetState.none) {
-                  ref
-                      .read(recordScreenViewmodelProvider.notifier)
-                      .closeBottomSheet();
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
+            // TabBar(
+            //   tabs: tabs,
+            //   controller: _tabController,
+            //   isScrollable: false,
+            //   //physics: NeverScrollableScrollPhysics(),
+            //   indicatorColor: Color(0xffcae4c1),
+            //   indicatorWeight: 3,
+            //   labelColor: Colors.black,
+            //   unselectedLabelColor: Colors.grey,
+            //
+            //   onTap: (_) {
+            //     if (ref.read(recordScreenViewmodelProvider).bottomSheetState !=
+            //         RecordScreenBottomSheetState.none) {
+            //       ref
+            //           .read(recordScreenViewmodelProvider.notifier)
+            //           .closeBottomSheet();
+            //       Navigator.of(context).pop();
+            //     }
+            //   },
+            // ),
             Expanded(
               child: TabBarView(
                 physics: const NeverScrollableScrollPhysics(),

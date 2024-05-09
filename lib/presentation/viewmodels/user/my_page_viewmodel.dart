@@ -8,15 +8,16 @@ import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'my_page_viewmodel.g.dart';
 
-class MyPageState {
+class MyPageStateModel {
   /// Profile
   final String name;
   final String generation;
   final UserRole role;
   final Location location;
   final BoulderLevel level;
-  final String profileImageUrl;
+  final int profileImageNumber;
   final String introduction;
+  final int totalWorkoutTime;
 
   // /// Attendance
   // final int presentCount;
@@ -26,14 +27,15 @@ class MyPageState {
   /// Record
   final List<({BoulderLevel level, int count})> boulderProblems;
 
-  const MyPageState({
+  const MyPageStateModel({
     required this.name,
     required this.generation,
     required this.role,
     required this.location,
     required this.level,
-    required this.profileImageUrl,
+    required this.profileImageNumber,
     required this.introduction,
+    required this.totalWorkoutTime,
     // required this.presentCount,
     // required this.absentCount,
     // required this.lateCount,
@@ -44,7 +46,7 @@ class MyPageState {
 @riverpod
 class MyPageViewmodel extends _$MyPageViewmodel {
   @override
-  Future<MyPageState> build() async {
+  Future<MyPageStateModel> build() async {
     logger.d('Execute MyPageViewModel');
     late final MyPageModel myPage;
     try {
@@ -55,17 +57,17 @@ class MyPageViewmodel extends _$MyPageViewmodel {
     return _fromMyPageModel(myPage);
   }
 
-  MyPageState _fromMyPageModel(MyPageModel myPage) {
+  MyPageStateModel _fromMyPageModel(MyPageModel myPage) {
     myPage.records.sort((a, b) => a.level.index.compareTo(b.level.index));
-    return MyPageState(
+    return MyPageStateModel(
       name: myPage.profile.name,
       generation: myPage.profile.generation,
       role: myPage.profile.role,
       location: myPage.profile.location,
       level: myPage.profile.level,
-      profileImageUrl:
-          "assets/profiles/profile_${myPage.profile.profileImageNumber}.svg",
+      profileImageNumber: myPage.profile.profileImageNumber,
       introduction: myPage.profile.introduction,
+      totalWorkoutTime: myPage.totalWorkoutTime,
       // presentCount: myPage.attendance.presentCount,
       // absentCount: myPage.attendance.absentCount,
       // lateCount: myPage.attendance.lateCount,

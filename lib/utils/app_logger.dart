@@ -6,8 +6,7 @@ class Log extends Logger {
   // 기본 생성자가 생성 되는 것을 방지
   Log._()
       : super(
-          // Use the default LogFilter (-> only log in debug mode)
-          filter: null,
+          filter: DevelopmentFilter(),
           // Use the PrettyPrinter to format and print log
           printer: PrettyPrinter(
             methodCount: 2, // Number of method calls to be displayed

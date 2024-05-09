@@ -20,6 +20,20 @@ Future<void> loginUseCase(
 }
 
 @riverpod
+Future<void> logoutUseCase(LogoutUseCaseRef ref) async {
+  logger.d('Execute logoutUseCase');
+  try {
+    final authRepo = ref.watch(authRepositoryProvider);
+    await authRepo.logout();
+  } catch (_) {
+    // ignore
+  }
+
+  final tokenRepo = ref.read(tokenRepositoryProvider);
+  await tokenRepo.clearTokens();
+}
+
+@riverpod
 Future<void> registerUseCase(RegisterUseCaseRef ref,
     {required RegisterForm form}) async {
   logger.d('Execute registerUseCase');

@@ -19,6 +19,7 @@ class AppCalendar extends StatefulWidget {
   final double width;
   final double height;
   final DateTime? selectedDay;
+  final DateTime? focusedDay;
   final void Function(DateTime)? onSelected;
   late final LinkedHashMap<DateTime, CalendarEvent> events;
 
@@ -27,6 +28,7 @@ class AppCalendar extends StatefulWidget {
     required this.width,
     required this.height,
     this.selectedDay,
+    this.focusedDay,
     this.onSelected,
     Map<DateTime, CalendarEvent>? eventsSource,
   }) {
@@ -52,12 +54,14 @@ class _AppCalendarState extends State<AppCalendar> {
   late TextStyle _todayTextStyle;
 
   DateTime? _selectedDay;
+  DateTime? _focusedDay;
 
   @override
   void initState() {
     super.initState();
 
     _selectedDay = widget.selectedDay;
+    _focusedDay = widget.focusedDay ?? _today;
   }
 
   @override
@@ -65,6 +69,7 @@ class _AppCalendarState extends State<AppCalendar> {
     super.didUpdateWidget(oldWidget);
 
     _selectedDay = widget.selectedDay;
+    _focusedDay = widget.focusedDay ?? _today;
   }
 
   @override
@@ -74,7 +79,7 @@ class _AppCalendarState extends State<AppCalendar> {
       width: widget.width,
       height: widget.height,
       child: TableCalendar(
-        focusedDay: _today,
+        focusedDay: _focusedDay ?? _today,
         shouldFillViewport: true,
         firstDay: DateTime(2015),
         lastDay: DateTime(2050),
@@ -144,7 +149,7 @@ class _AppCalendarState extends State<AppCalendar> {
       color: AppColors.greyDark,
     );
     _todayTextStyle = _dateTextStyle.copyWith(
-      fontSize: _dateFontSize * 1.2,
+      fontSize: _dateFontSize,
       fontWeight: FontWeight.bold,
       color: Colors.black,
     );
@@ -220,7 +225,7 @@ class _AppCalendarState extends State<AppCalendar> {
       alignment: Alignment.center,
       margin: EdgeInsets.only(
           bottom: AppSize.of(context).safeBlockHorizontal * 1.8),
-      width: AppSize.of(context).safeBlockHorizontal * 8.0,
+      width: AppSize.of(context).safeBlockHorizontal * 5.0,
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border(

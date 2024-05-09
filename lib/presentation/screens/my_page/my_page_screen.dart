@@ -10,13 +10,17 @@ import 'package:untitled/constants/app_colors.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/app_enum.dart';
 import 'package:untitled/constants/size_config.dart';
+import 'package:untitled/presentation/screens/my_page/my_page_header.dart';
 import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_common_text_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../utils/dialog_helper.dart';
-import '../viewmodels/user/my_page_viewmodel.dart';
+import '../../../utils/app_logger.dart';
+import '../../../utils/app_router.dart';
+import '../../../utils/dialog_helper.dart';
+import '../../viewmodels/authentication/logout_viewmodel.dart';
+import '../../viewmodels/user/my_page_viewmodel.dart';
 
 @RoutePage()
 class MyPageScreen extends ConsumerStatefulWidget {
@@ -53,6 +57,11 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
             SliverList(
               delegate: SliverChildListDelegate(
                 [
+                  MyPageHeader(
+                    profileImagePath:
+                        "assets/profiles/profile_${userInfoState.profileImageNumber}.svg",
+                    introduction: userInfoState.introduction,
+                  ),
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
                   _Panel(
                     title: Stack(
@@ -79,7 +88,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                                         initialProfile: ProfileUpdateState(
                                           location: userInfoState.location,
                                           level: userInfoState.level,
-                                          profileImageNumber: 1,
+                                          profileImageNumber:
+                                              userInfoState.profileImageNumber,
                                           introduction:
                                               userInfoState.introduction,
                                         ),
@@ -115,8 +125,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
                   _HorizontalLine(),
                   SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
-                  _GenerationChangeButton(),
-                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
+                  // _GenerationChangeButton(),
+                  // SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
                   Container(
                     width: double.infinity,
                     margin: EdgeInsets.only(
@@ -150,6 +160,29 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                         SizedBox(
                             height:
                                 AppSize.of(context).safeBlockHorizontal * 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.only(
+                                left: AppSize.of(context).safeBlockHorizontal *
+                                    12.5,
+                              ),
+                              child: _LabelText(text: "총 운동 시간"),
+                            ),
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: _LabelText(
+                                  text:
+                                      "${userInfoState.totalWorkoutTime ~/ 60}시간 ${userInfoState.totalWorkoutTime % 60}분",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: AppSize.of(context).safeBlockHorizontal * 5.5,
+                        ),
                         // _Panel(
                         //   title: _PanelTitle(label: "내 출석"),
                         //   elements: [
@@ -189,7 +222,24 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     ),
                   ),
                   _ReportButton(),
-                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
+                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 2),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.only(
+                      left: AppSize.of(context).safeBlockHorizontal * 5,
+                      right: AppSize.of(context).safeBlockHorizontal * 5,
+                    ),
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      "Ver ${AppConstants.version}",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: AppSize.of(context).font.headline3,
+                        color: AppColors.greyMediumDark,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: AppSize.of(context).safeBlockHorizontal * 3),
                 ],
               ),
             ),
@@ -201,7 +251,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
 }
 
 class _MyPageAppBar extends StatelessWidget {
-  final MyPageState _userInfo;
+  final MyPageStateModel _userInfo;
   // ------------------------------------------------------------------------ //
   // Size Variables - Must init in build() !                                  //
   // ------------------------------------------------------------------------ //
@@ -210,7 +260,7 @@ class _MyPageAppBar extends StatelessWidget {
 
   _MyPageAppBar({
     super.key,
-    required MyPageState userInfo,
+    required MyPageStateModel userInfo,
   }) : _userInfo = userInfo;
 
   @override
@@ -218,6 +268,14 @@ class _MyPageAppBar extends StatelessWidget {
     _updateSize(context);
     return SliverAppBar(
       automaticallyImplyLeading: false,
+      backgroundColor: AppColors.primaryLight,
+      surfaceTintColor: AppColors.primaryLight,
+      elevation: 1,
+      shadowColor: Colors.grey,
+      toolbarHeight: _appBarHeight,
+      // expandedHeight: _appBarExpandedHeight,
+      pinned: false,
+      floating: false,
       title: Text(
         "마이페이지",
         style: TextStyle(
@@ -225,19 +283,14 @@ class _MyPageAppBar extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      backgroundColor: AppColors.primaryLight,
-      surfaceTintColor: AppColors.primaryLight,
-      elevation: 1,
-      shadowColor: Colors.grey,
-      toolbarHeight: _appBarHeight,
-      expandedHeight: _appBarExpandedHeight,
-      flexibleSpace: _MyPageAppBarFlexibleSpace(
-        toolbarHeight: _appBarHeight,
-        expandedHeight: _appBarExpandedHeight,
-        userInfo: _userInfo,
-      ),
-      floating: false,
-      pinned: true,
+      actions: [
+        _LogOutButton(),
+      ],
+      // flexibleSpace: _MyPageAppBarFlexibleSpace(
+      //   toolbarHeight: _appBarHeight,
+      //   expandedHeight: _appBarExpandedHeight,
+      //   userInfo: _userInfo,
+      // ),
     );
   }
 
@@ -247,153 +300,115 @@ class _MyPageAppBar extends StatelessWidget {
   }
 }
 
-/*
-  Container(
-  width: MediaQuery.of(context).size.width * 1,
-  height: MediaQuery.of(context).size.width * (1 / 7),
-  color: Color(0xfff8faed),
-  padding: EdgeInsets.only(
-    left: MediaQuery.of(context).size.width * (1 / 12),
-    right: MediaQuery.of(context).size.width * (1 / 12),
-    top: MediaQuery.of(context).size.width * (1 / 20),
-  ),
-  child: Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Container(
+class _LogOutButton extends StatelessWidget {
+  const _LogOutButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(
+        right: AppSize.of(context).safeBlockHorizontal * 3.5,
+      ),
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (_) {
+              return _LogOutPopUp();
+            },
+          );
+        },
         child: SvgPicture.asset(
-          'assets/titles/my_page_title.svg',
-          height:
-              MediaQuery.of(context).size.width * (1 / 18),
+          'assets/icons/my_page_logout.svg',
+          height: AppSize.of(context).safeBlockHorizontal * 5,
+          color: AppColors.greyMediumDark,
         ),
       ),
-      Container(
-        child: InkWell(
-          child: SvgPicture.asset(
-            'assets/icons/my_page_logout.svg',
-            height:
-                MediaQuery.of(context).size.width * (1 / 18),
-          ),
-          onTap: () {
-            showDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text(
-                      "로그아웃",
-                    ),
-                    content: Text("로그아웃 하시겠습니까?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          '네',
-                          style: TextStyle(
-                              color: Colors.lightBlueAccent),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          '아니오',
-                          style: TextStyle(
-                              color: Colors.lightBlueAccent),
-                        ),
-                      ),
-                    ],
-                  );
-                });
-          },
-        ),
-      )
-    ],
-  ),
-),
+    );
+  }
+}
 
-   */
-
-class _MyPageAppBarFlexibleSpace extends StatelessWidget {
-  final MyPageState _userInfo;
-  final double _toolbarHeight;
-  final double _expandedHeight;
+class _LogOutPopUp extends ConsumerWidget {
+  _LogOutPopUp({super.key});
 
   // ------------------------------------------------------------------------ //
   // Size Variables - Must init in build() !                                  //
   // ------------------------------------------------------------------------ //
-  late double _flexibleSpaceHeight;
-  late double _introductionWidth;
-  late double _introductionHeight;
-  late double _bottomWhiteSpaceHeight;
-  late double _profileImageSize;
-
-  _MyPageAppBarFlexibleSpace({
-    super.key,
-    required double toolbarHeight,
-    required double expandedHeight,
-    required MyPageState userInfo,
-  })  : _toolbarHeight = toolbarHeight,
-        _expandedHeight = expandedHeight,
-        _userInfo = userInfo;
+  late double _popUpWidth;
+  late double _popUpHeight;
+  late double _yesButtonWidth;
+  late double _noButtonWidth;
+  late double _buttonHeight;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     _updateSize(context);
-    return FlexibleSpaceBar(
-      background: Container(
-        margin: EdgeInsets.only(
-          top: _toolbarHeight,
+    return Dialog(
+      child: Container(
+        width: _popUpWidth,
+        height: _popUpHeight,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSize.of(context).safeBlockHorizontal * 5,
+          vertical: AppSize.of(context).safeBlockHorizontal * 5,
         ),
-        child: Stack(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            AppSize.of(context).safeBlockHorizontal * 5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
+            SizedBox(height: _popUpWidth * 0.05),
+            Text(
+              "로그아웃 하시겠습니까?",
+              style: TextStyle(
+                fontSize: AppSize.of(context).font.headline2,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(height: _popUpWidth * 0.05),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: double.infinity,
-                  height: _flexibleSpaceHeight - _bottomWhiteSpaceHeight,
-                  decoration: BoxDecoration(
-                    color: Color(0xfff8faed),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColors.greyMediumDark,
-                        width: AppSize.of(context).safeBlockHorizontal * 0.2,
+                SizedBox(
+                  width: _noButtonWidth,
+                  height: _buttonHeight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      '아니오',
+                      style: TextStyle(
+                        color: AppColors.primaryDark,
+                        fontSize: AppSize.of(context).font.headline2,
                       ),
                     ),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  height: _bottomWhiteSpaceHeight,
-                  color: Colors.white,
+                SizedBox(
+                  width: _yesButtonWidth,
+                  height: _buttonHeight,
+                  child: TextButton(
+                    onPressed: () {
+                      ref.read(logOutControllerProvider.notifier).execute();
+                      AutoRouter.of(context).popUntilRoot();
+                      AutoRouter.of(context).replace(LoginRoute());
+                    },
+                    child: Text(
+                      '네',
+                      style: TextStyle(
+                        color: AppColors.primaryDark,
+                        fontSize: AppSize.of(context).font.headline2,
+                      ),
+                    ),
+                  ),
                 ),
               ],
-            ),
-            Positioned(
-              left: (AppSize.of(context).safeBlockHorizontal * 100 -
-                      _profileImageSize) /
-                  2,
-              child: SvgPicture.asset(
-                _userInfo.profileImageUrl,
-                width: _profileImageSize,
-                height: _profileImageSize,
-              ),
-            ),
-            Positioned(
-              left: (AppSize.of(context).safeBlockHorizontal * 100 -
-                      _introductionWidth) /
-                  2,
-              bottom:
-                  max(_bottomWhiteSpaceHeight - (_introductionHeight / 2), 0),
-              child: _MyPageAppBarFlexibleSpaceIntroduction(
-                introductionWidth: _introductionWidth,
-                introductionHeight: _introductionHeight,
-                userInfo: _userInfo,
-              ),
             ),
           ],
         ),
@@ -402,60 +417,11 @@ class _MyPageAppBarFlexibleSpace extends StatelessWidget {
   }
 
   void _updateSize(BuildContext context) {
-    _flexibleSpaceHeight = _expandedHeight - _toolbarHeight;
-    _introductionWidth = AppSize.of(context).safeBlockHorizontal * 85;
-    _introductionHeight = _flexibleSpaceHeight * 0.45;
-    _bottomWhiteSpaceHeight = _flexibleSpaceHeight * 0.3;
-    _profileImageSize = _flexibleSpaceHeight * 0.4;
-  }
-}
-
-class _MyPageAppBarFlexibleSpaceIntroduction extends StatelessWidget {
-  final double _introductionWidth;
-  final double _introductionHeight;
-  final MyPageState _userInfo;
-
-  const _MyPageAppBarFlexibleSpaceIntroduction({
-    super.key,
-    required double introductionWidth,
-    required double introductionHeight,
-    required MyPageState userInfo,
-  })  : _introductionWidth = introductionWidth,
-        _introductionHeight = introductionHeight,
-        _userInfo = userInfo;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: _introductionWidth,
-      height: _introductionHeight,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
-        border: Border.all(
-          width: AppSize.of(context).safeBlockHorizontal * 0.5,
-          color: AppColors.greyMedium,
-        ),
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSize.of(context).safeBlockHorizontal * 2,
-        vertical: AppSize.of(context).safeBlockHorizontal * 2,
-      ),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Text(
-          _userInfo.introduction,
-          softWrap: true,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 3,
-          style: TextStyle(
-            fontSize: AppSize.of(context).font.content,
-            height: 1.5,
-          ),
-        ),
-      ),
-    );
+    _popUpWidth = AppSize.of(context).safeBlockHorizontal * 85;
+    _popUpHeight = AppSize.of(context).safeBlockHorizontal * 35;
+    _yesButtonWidth = _popUpWidth * 0.2;
+    _noButtonWidth = _popUpWidth * 0.3;
+    _buttonHeight = _popUpWidth * 0.1;
   }
 }
 
@@ -707,7 +673,7 @@ class _ReportButton extends StatelessWidget {
   }
 
   void _updateSize(BuildContext context) {
-    _width = AppSize.of(context).safeBlockHorizontal * 80;
+    _width = AppSize.of(context).safeBlockHorizontal * 90;
     _height = AppSize.of(context).safeBlockHorizontal * 10;
   }
 }

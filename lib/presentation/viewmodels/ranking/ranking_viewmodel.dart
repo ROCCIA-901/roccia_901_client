@@ -14,21 +14,21 @@ typedef GenerationRankingsState
     = List<({String generation, List<RankingProfileState> rankings})>;
 
 class RankingProfileState {
+  final int userId;
   final String username;
   final String generation;
   final BoulderLevel level;
   final Location location;
   final String profileImg;
-  // final int rank;
   final double score;
 
   RankingProfileState({
+    required this.userId,
     required this.username,
     required this.generation,
     required this.level,
     required this.location,
     required this.profileImg,
-    // required this.rank,
     required this.score,
   });
 }
@@ -54,6 +54,7 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
             week: weekly.week,
             rankings: weekly.rankings.map((ranking) {
               return RankingProfileState(
+                userId: ranking.userId,
                 username: ranking.username,
                 generation: ranking.generation,
                 level: ranking.level,
@@ -67,9 +68,9 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
         },
       ),
     );
-    // for (var weekly in ret) {
-    //   weekly.rankings.sort((a, b) => a.rank.compareTo(b.rank));
-    // }
+    for (var weekly in ret) {
+      weekly.rankings.sort((b, a) => a.score.compareTo(b.score));
+    }
     ret.sort((a, b) => a.week.compareTo(b.week));
     return ret;
   }
@@ -96,6 +97,7 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
             generation: generation.generation,
             rankings: generation.rankings.map((ranking) {
               return RankingProfileState(
+                userId: ranking.userId,
                 username: ranking.username,
                 generation: ranking.generation,
                 level: ranking.level,
@@ -109,9 +111,9 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
         },
       ),
     );
-    // for (var generation in ret) {
-    //   generation.rankings.sort((a, b) => a.rank.compareTo(b.rank));
-    // }
+    for (var generation in ret) {
+      generation.rankings.sort((b, a) => a.score.compareTo(b.score));
+    }
     ret.sort((a, b) => a.generation.compareTo(b.generation));
     return ret;
   }

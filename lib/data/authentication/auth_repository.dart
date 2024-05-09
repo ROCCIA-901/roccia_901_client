@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'token_repository.dart';
@@ -44,6 +46,22 @@ class AuthRepository {
       await _tokenRepo.saveTokens(
         accessToken: token.access,
         refreshToken: token.refresh!,
+      );
+    } catch (e, stackTrace) {
+      _errorHandler(e, stackTrace);
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      final uri = _api.auth.logout();
+      await _apiClient.post(
+        uri,
+        headers: {
+          HttpHeaders.authorizationHeader:
+              "Bearer ${await _tokenRepo.accessToken}",
+        },
+        body: {"refresh": await _tokenRepo.refreshToken},
       );
     } catch (e, stackTrace) {
       _errorHandler(e, stackTrace);
