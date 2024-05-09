@@ -25,6 +25,7 @@ class MyWebApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppRouter appRouter = ref.watch(appRouterProvider);
     return MaterialApp.router(
+      title: "ROCCIA 901",
       routerConfig: appRouter!.config(),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
