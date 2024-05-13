@@ -1061,9 +1061,7 @@ class _CreateRecordBottomSheetState extends State<_CreateRecordBottomSheet> {
             children: [
               _buildBoulderProblemDropdown(index),
               _buildCountDropdown(index),
-              index == (_boulderProblems.length - 1)
-                  ? _buildPlusButton()
-                  : _buildMinusButton(index),
+              index == 0 ? _buildPlusButton() : _buildMinusButton(index),
             ],
           ),
         );
@@ -1524,9 +1522,7 @@ class _UpdateRecordBottomSheetState extends State<_UpdateRecordBottomSheet> {
             children: [
               _buildBoulderProblemDropdown(index),
               _buildCountDropdown(index),
-              index == (_boulderProblems.length - 1)
-                  ? _buildPlusButton()
-                  : _buildMinusButton(index),
+              index == 0 ? _buildPlusButton() : _buildMinusButton(index),
             ],
           ),
         );
