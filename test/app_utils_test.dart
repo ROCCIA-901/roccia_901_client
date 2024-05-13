@@ -15,10 +15,17 @@ void main() {
       (DateTime(2024, 5, 13), 20),
       (DateTime(2024, 12, 31), 53),
       (DateTime(2025, 1, 1), 1),
+      (DateTime(2025, 1, 5), 1),
+      (DateTime(2025, 1, 6), 2),
     ];
 
     for (final correctResult in correctResults) {
-      expect(AppUtils.weekNumber(correctResult.$1), correctResult.$2);
+      expect(
+        AppUtils.weekNumber(correctResult.$1),
+        correctResult.$2,
+        reason: "  Date: ${correctResult.$1}",
+      );
     }
+    print("weekNumber Test Passed");
   });
 }
