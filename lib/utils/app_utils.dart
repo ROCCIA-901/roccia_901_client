@@ -15,7 +15,9 @@ class AppUtils {
   static int weekNumber(final DateTime date) {
     final now = DateTime(date.year, date.month, date.day);
     final firstJan = DateTime(date.year, 1, 1);
-    final weekNumber = weeksBetween(firstJan, now) + 1;
+    final firstMonday =
+        firstJan.subtract(Duration(days: (firstJan.weekday - 1)));
+    final weekNumber = weeksBetween(firstMonday, now) + 1;
     return weekNumber;
   }
 
