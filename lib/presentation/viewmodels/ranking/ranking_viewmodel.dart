@@ -21,6 +21,7 @@ class RankingProfileState {
   final Location location;
   final String profileImg;
   final double score;
+  final int rank;
 
   RankingProfileState({
     required this.userId,
@@ -30,6 +31,7 @@ class RankingProfileState {
     required this.location,
     required this.profileImg,
     required this.score,
+    required this.rank,
   });
 }
 
@@ -50,9 +52,19 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
     WeeklyRankingsState ret = WeeklyRankingsState.from(
       weeklyRankings.map(
         (weekly) {
+          int rank = 0;
+          double? prevScore;
+          int numOfSamePrevScore = 1;
           return (
             week: weekly.week,
             rankings: weekly.rankings.map((ranking) {
+              if (prevScore != ranking.score) {
+                rank += numOfSamePrevScore;
+                numOfSamePrevScore = 1;
+                prevScore = ranking.score;
+              } else {
+                numOfSamePrevScore++;
+              }
               return RankingProfileState(
                 userId: ranking.userId,
                 username: ranking.username,
@@ -62,6 +74,7 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
                 profileImg: "profile_${ranking.profileImg}",
                 // rank: ranking.rank,
                 score: ranking.score,
+                rank: rank,
               );
             }).toList(),
           );
@@ -93,9 +106,19 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
     GenerationRankingsState ret = GenerationRankingsState.from(
       generationRankings.map(
         (generation) {
+          int rank = 0;
+          double? prevScore;
+          int numOfSamePrevScore = 1;
           return (
             generation: generation.generation,
             rankings: generation.rankings.map((ranking) {
+              if (prevScore != ranking.score) {
+                rank += numOfSamePrevScore;
+                numOfSamePrevScore = 1;
+                prevScore = ranking.score;
+              } else {
+                numOfSamePrevScore++;
+              }
               return RankingProfileState(
                 userId: ranking.userId,
                 username: ranking.username,
@@ -105,6 +128,7 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
                 profileImg: "profile_${ranking.profileImg}",
                 // rank: ranking.rank,
                 score: ranking.score,
+                rank: rank,
               );
             }).toList(),
           );
