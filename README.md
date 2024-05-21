@@ -55,26 +55,25 @@ See: https://github.com/othneildrew/Best-README-Template/pull/73
 
 
 <!-- TABLE OF CONTENTS -->
-<details>
-  <summary style="font-size:120%">Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#개요">개요</a>
-      <ul>
-        <li><a href="#기술-스택">기술 스택</a></li>
-      </ul>
-    </li>
-    <li><a href="#화면-구성">화면 구성</a></li>
-    <li><a href="#라이센스">라이센스</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-</details>
+<h5>목차</h5>
+<ol>
+<li>
+  <a href="#개요">개요</a>
+  <ul>
+    <li><a href="#기술-스택">기술 스택</a></li>
+  </ul>
+</li>
+<li><a href="#화면-구성">화면 구성</a></li>
+<li><a href="#라이센스">라이센스</a></li>
+<li><a href="#contact">Contact</a></li>
+</ol>
+<br>
 
 
 
 <!-- ABOUT THE PROJECT -->
 ## 개요
-<div style="text-align : center;">
+<div align="center">
     <img
     src="readme_assets/roccia_901_intro.png" alt="Project Intro"
     width="600" height="400"
