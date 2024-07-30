@@ -616,6 +616,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  mvvm_riverpod:
+    dependency: "direct main"
+    description:
+      name: mvvm_riverpod
+      sha256: "9fa7c56c80979d7eba1997bad71f1ee39d590b84e8095476237afb752a65c0cf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   node_preamble:
     dependency: transitive
     description:
