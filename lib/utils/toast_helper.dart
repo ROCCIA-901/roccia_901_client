@@ -17,7 +17,7 @@ class ToastHelper {
           vertical: AppSize.of(context).safeBlockHorizontal * 2.5,
         ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 2),
           color: Colors.black.withOpacity(0.8),
         ),
         alignment: Alignment.centerLeft,
