@@ -1,8 +1,10 @@
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mvvm_riverpod/viewmodel_provider.dart';
+import 'package:mvvm_riverpod/viewmodel_widget.dart';
 import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/utils/toast_helper.dart';
 import 'package:untitled/widgets/app_calendar.dart';
@@ -10,18 +12,25 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart' as path_package;
 
 import '../../constants/size_config.dart';
+import '../../utils/app_router.dart';
 import '../../widgets/app_custom_bar.dart';
-import '../viewmodels/attendance/attendance_dates_viewmodel.dart';
+import '../viewmodels/user/member_home_view_model.dart';
 
 @RoutePage()
-class MemberHomeScreen extends ConsumerStatefulWidget {
-  const MemberHomeScreen({Key? key}) : super(key: key);
+class MemberHomeScreen extends ViewModelWidget<MemberHomeViewModel, MemberHomeEvent> {
+  MemberHomeScreen({super.key});
 
   @override
-  ConsumerState createState() => _MemberHomeState();
-}
+  ViewModelProvider<MemberHomeViewModel> get provider => memberHomeViewModelProvider;
 
-class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
+  @override
+  void onEventEmitted(BuildContext context, MemberHomeViewModel model, MemberHomeEvent event) {
+    switch (event) {
+      case MemberHomeEvent.showSnackbar:
+        ToastHelper.show(context, model.snackbarMessage ?? "");
+    }
+  }
+
   DateTime today = DateTime.now();
 
   // ------------------------------------------------------------------------ //
@@ -31,16 +40,8 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
   late double _calendarHeight;
 
   @override
-  void initState() {
-    super.initState();
-
-    ref.read(attendanceDatesViewmodelProvider);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildWidget(BuildContext context, MemberHomeViewModel model) {
     _updateSize(context);
-    var state = ref.watch(attendanceDatesViewmodelProvider);
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -57,7 +58,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildBannerSlider(),
+                    _buildBannerSlider(context),
                     Container(
                       padding: EdgeInsets.only(
                         top: AppSize.of(context).safeBlockVertical * 4,
@@ -71,7 +72,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
                         ),
                       ),
                     ),
-                    _buildAttendanceButtons(),
+                    _buildAttendanceButtons(context),
                     Container(
                       padding: EdgeInsets.only(
                         top: AppSize.of(context).safeBlockVertical * 4,
@@ -87,10 +88,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
                     AppCalendar(
                       width: _calendarWidth,
                       height: _calendarHeight,
-                      // eventsSource: switch (state) {
-                      //   AsyncData(:final value) => value.eventsSource,
-                      //   _ => {},
-                      // },
+                      eventsSource: model.attendanceDates,
                     ),
                     SizedBox(
                       height: AppSize.of(context).safeBlockVertical * 5,
@@ -110,7 +108,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
     _calendarHeight = _calendarWidth * 0.85;
   }
 
-  Widget _buildBannerSlider() {
+  Widget _buildBannerSlider(BuildContext context) {
     return CarouselSlider(
       options: CarouselOptions(
         autoPlay: true,
@@ -140,7 +138,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
     );
   }
 
-  Widget _buildAttendanceButtons() {
+  Widget _buildAttendanceButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -154,7 +152,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
               width: AppSize.of(context).safeBlockHorizontal * 41,
             ),
             onTap: () {
-              ToastHelper.showUnimplemented(context);
+              AutoRouter.of(context).push(const AttendanceRequestRoute());
             },
           ),
         ),
@@ -164,7 +162,7 @@ class _MemberHomeState extends ConsumerState<MemberHomeScreen> {
             width: AppSize.of(context).safeBlockHorizontal * 41,
           ),
           onTap: () {
-            ToastHelper.showUnimplemented(context);
+            AutoRouter.of(context).push(const AttendanceHistoryRoute());
           },
         )
       ],
