@@ -45,4 +45,5 @@ app.*.map.json
 
 # Our custom ignore
 lib/constants/roccia_api.dart
+*.env
 
