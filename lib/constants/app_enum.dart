@@ -41,7 +41,9 @@ enum Location {
   @JsonValue("더클라임 신사")
   theclimbSinsa,
   @JsonValue("더클라임 논현")
-  theclimbNonhyeon;
+  theclimbNonhyeon,
+  @JsonValue("더클라임 문래")
+  theclimbMullae;
 
   static final Map<String, Location> fromName = {
     "더클라임 일산": Location.theclimbIlsan,
@@ -55,6 +57,7 @@ enum Location {
     "더클라임 사당": Location.theclimbSadang,
     "더클라임 신사": Location.theclimbSinsa,
     "더클라임 논현": Location.theclimbNonhyeon,
+    "더클라임 문래": Location.theclimbMullae,
   };
 
   static final Map<Location, String> toName = {
@@ -69,6 +72,7 @@ enum Location {
     Location.theclimbSadang: "더클라임 사당",
     Location.theclimbSinsa: "더클라임 신사",
     Location.theclimbNonhyeon: "더클라임 논현",
+    Location.theclimbMullae: "더클라임 문래",
   };
 }
 
