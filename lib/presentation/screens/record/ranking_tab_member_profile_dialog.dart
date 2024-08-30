@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:untitled/constants/app_enum.dart';
 import 'package:untitled/presentation/viewmodels/user/member_profile_viewmodel.dart';
 
@@ -18,11 +19,9 @@ class RankingTabMemberProfileDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var memberProfileStateAsync =
-        ref.watch(memberProfileViewmodelProvider(_userId));
+    var memberProfileStateAsync = ref.watch(memberProfileViewmodelProvider(_userId));
 
-    if (memberProfileStateAsync is! AsyncData ||
-        memberProfileStateAsync.value == null) {
+    if (memberProfileStateAsync is! AsyncData || memberProfileStateAsync.value == null) {
       if (memberProfileStateAsync is AsyncError) {
         exceptionHandlerOnView(
           context,
@@ -30,7 +29,12 @@ class RankingTabMemberProfileDialog extends ConsumerWidget {
           stackTrace: memberProfileStateAsync.stackTrace ?? StackTrace.current,
         );
       }
-      return Center(child: CircularProgressIndicator());
+      return Center(
+        child: LoadingAnimationWidget.threeRotatingDots(
+          color: AppColors.primary,
+          size: AppSize.of(context).safeBlockHorizontal * 10,
+        ),
+      );
     }
     var memberProfileState = memberProfileStateAsync.value!;
 
@@ -56,8 +60,7 @@ class RankingTabMemberProfileDialog extends ConsumerWidget {
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      _buildProfileDetailWidgets(context, memberProfileState),
+                  children: _buildProfileDetailWidgets(context, memberProfileState),
                 ),
               ),
             ),
@@ -72,13 +75,11 @@ class RankingTabMemberProfileDialog extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildProfileDetailWidgets(
-      BuildContext context, MemberProfileStateModel profile) {
+  List<Widget> _buildProfileDetailWidgets(BuildContext context, MemberProfileStateModel profile) {
     final double separatorHeight = AppSize.of(context).safeBlockHorizontal * 3;
     return [
       _Header(
-        profileImagePath:
-            "assets/profiles/profile_${profile.profileImageNumber}.svg",
+        profileImagePath: "assets/profiles/profile_${profile.profileImageNumber}.svg",
         introduction: profile.introduction,
       ),
       SizedBox(height: separatorHeight),
@@ -208,8 +209,7 @@ class _HeaderState extends State<_Header> {
 
   void _setIntroductionBoxHeight() {
     void callback() {
-      final RenderBox introductionBoxRenderBox =
-          _introductionBoxKey.currentContext!.findRenderObject() as RenderBox;
+      final RenderBox introductionBoxRenderBox = _introductionBoxKey.currentContext!.findRenderObject() as RenderBox;
       setState(() {
         _introductionBoxHeight = introductionBoxRenderBox.size.height;
       });
@@ -292,7 +292,7 @@ class _ProfileImage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: AppSize.of(context).safeBlockHorizontal * 3,
+        top: AppSize.of(context).safeBlockHorizontal * 4,
         bottom: AppSize.of(context).safeBlockHorizontal * 1,
       ),
       alignment: Alignment.center,
@@ -300,8 +300,7 @@ class _ProfileImage extends StatelessWidget {
         color: AppColors.primaryLight,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(AppSize.of(context).safeBlockHorizontal * 5),
-          topRight:
-              Radius.circular(AppSize.of(context).safeBlockHorizontal * 5),
+          topRight: Radius.circular(AppSize.of(context).safeBlockHorizontal * 5),
         ),
       ),
       child: SvgPicture.asset(
@@ -330,8 +329,7 @@ class _IntroductionBox extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
+        borderRadius: BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
         border: Border.all(
           width: AppSize.of(context).safeBlockHorizontal * 0.5,
           color: AppColors.greyMedium,
