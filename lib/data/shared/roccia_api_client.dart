@@ -125,14 +125,19 @@ class RocciaApiClient {
   /// Otherwise, it throws an ApiException.
   Map<String, dynamic> _processResponse(Response response) {
     final int statusCode = response.statusCode;
-    final body =
-        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
 
     if (statusCode < 200 || statusCode >= 300) {
       throw ApiException(
         statusCode: statusCode,
         message: body["detail"],
       );
+    }
+    if (body["data"] is List<dynamic>) {
+      final Map<String, dynamic> data = {
+        "X_LIST": body["data"],
+      };
+      return data;
     }
 
     final Map<String, dynamic> data = body["data"] ?? {};
@@ -147,8 +152,7 @@ class RocciaApiClient {
   }
 
   void _errorHandler(e, StackTrace stackTrace) {
-    logger.w("On Rccia API Client: ${e.toString()}",
-        stackTrace: stackTrace, error: e);
+    logger.w("On Rccia API Client: ${e.toString()}", stackTrace: stackTrace, error: e);
     try {
       throw e;
     } on TimeoutException catch (_) {
@@ -166,8 +170,7 @@ class RocciaApiAuthInterceptor extends InterceptorContract {
   Future<BaseRequest> interceptRequest({
     required BaseRequest request,
   }) async {
-    request.headers[HttpHeaders.authorizationHeader] =
-        "Bearer ${await _tokenRepo.accessToken}";
+    request.headers[HttpHeaders.authorizationHeader] = "Bearer ${await _tokenRepo.accessToken}";
     return request;
   }
 
@@ -197,21 +200,16 @@ class RocciaApiLoggerInterceptor extends InterceptorContract {
   }) async {
     try {
       if (response is Response) {
-        final body =
-            jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
         logger.i(
           'Roccia Api Response: ${response.request?.url ?? ""} ${response.statusCode}: ${body["detail"] ?? ''}',
         );
-        // logger.wtf('Response data: ${body["data"]}');
       }
     } on FormatException catch (e, stackTrace) {
-      logger.w('On Roccia API Client: Body is not JSON format',
-          stackTrace: stackTrace);
-      throw ApiException(
-          statusCode: response.statusCode, message: "에러 발생. 운영진에게 문의바랍니다.");
+      logger.w('On Roccia API Client: Body is not JSON format', stackTrace: stackTrace);
+      throw ApiException(statusCode: response.statusCode, message: "에러 발생. 운영진에게 문의바랍니다.");
     } catch (e, stackTrace) {
-      logger.w('On Roccia API Client:: Error',
-          stackTrace: stackTrace, error: e);
+      logger.w('On Roccia API Client:: Error', stackTrace: stackTrace, error: e);
       rethrow;
     }
 
@@ -231,8 +229,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   int get maxRetryAttempts => 2;
 
   @override
-  Future<bool> shouldAttemptRetryOnException(
-      Exception reason, BaseRequest request) async {
+  Future<bool> shouldAttemptRetryOnException(Exception reason, BaseRequest request) async {
     return false;
   }
 
@@ -261,8 +258,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
       throw ApiRefreshTokenExpiredException();
     }
     final uri = _api.auth.refreshToken();
-    final requestBody =
-        _api.auth.refreshTokenRequestBody(refreshToken: refreshToken);
+    final requestBody = _api.auth.refreshTokenRequestBody(refreshToken: refreshToken);
     // Pure dart http
     final response = await http.post(
       uri,
@@ -274,8 +270,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     logger.d('Roccia Api Request Body: $requestBody');
     late final Map<String, dynamic> body;
     try {
-      body =
-          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     } catch (e, stackTrace) {
       throw ApiUnkownException();
     }
