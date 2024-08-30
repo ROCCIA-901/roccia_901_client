@@ -9,6 +9,7 @@ part 'boulder_problem.g.dart';
   checked: true,
   includeIfNull: false,
   fieldRename: FieldRename.snake,
+  explicitToJson: true,
 )
 class BoulderProblem {
   @JsonKey(name: "workout_level")
