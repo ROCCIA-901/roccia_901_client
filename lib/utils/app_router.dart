@@ -5,11 +5,15 @@ import 'package:untitled/application/authentication/auth_use_case.dart';
 import 'package:untitled/presentation/screens/login_screen.dart';
 
 import '../presentation/screens/email_verification_screen.dart';
-import '../presentation/screens/member_home_screen.dart';
+import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/my_page/my_page_screen.dart';
 import '../presentation/screens/record/record_screen.dart';
 import '../presentation/screens/root_navigator_screen.dart';
 import '../presentation/screens/sign_up_screen.dart';
+import '../presentation/screens/attendance_request_screen.dart';
+import '../presentation/screens/attendance_history_screen.dart';
+import '../presentation/screens/attendance_approval_screen.dart';
+import '../presentation/screens/attendance_management_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -46,7 +50,7 @@ class AppRouter extends _$AppRouter {
             // Home Tab
             AutoRoute(
               path: "home",
-              page: MemberHomeRoute.page,
+              page: HomeRoute.page,
               maintainState: false,
               initial: true,
               guards: [AuthGuard(ref)],
@@ -69,6 +73,31 @@ class AppRouter extends _$AppRouter {
             ),
           ],
         ),
+
+        AutoRoute(
+          path: "/attendance-request",
+          page: AttendanceRequestRoute.page,
+          maintainState: false,
+          guards: [AuthGuard(ref)],
+        ),
+        AutoRoute(
+          path: "/attendance-history",
+          page: AttendanceHistoryRoute.page,
+          maintainState: false,
+          guards: [AuthGuard(ref)],
+        ),
+        AutoRoute(
+          path: "/attendance-approval",
+          page: AttendanceApprovalRoute.page,
+          maintainState: false,
+          guards: [AuthGuard(ref)],
+        ),
+        AutoRoute(
+          path: "/attendance-management",
+          page: AttendanceManagementRoute.page,
+          maintainState: false,
+          guards: [AuthGuard(ref)],
+        ),
       ];
 }
 
@@ -78,8 +107,7 @@ class AuthGuard extends AutoRouteGuard {
   AuthGuard(this.ref);
 
   @override
-  Future<void> onNavigation(
-      NavigationResolver resolver, StackRouter router) async {
+  Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
     // the navigation is paused until resolver.next() is called with either
     // true to resume/continue navigation or false to abort navigation
     bool authenticated = await ref.read(hasAuthUseCaseProvider.future);
