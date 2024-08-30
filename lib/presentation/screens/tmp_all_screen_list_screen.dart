@@ -2,12 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled/data/shared/app_storage.dart';
 import 'package:untitled/utils/app_logger.dart';
-import 'package:untitled/utils/app_routes.dart';
+
+import 'attendance_request_screen.dart';
+import 'attendance_history_screen.dart';
+import 'attendance_approval_screen.dart';
+
+class _DevAppRoutes {
+  static Map<String, Widget> routes = {
+    "/attendanceApprovalScreen": AttendanceApprovalScreen(),
+    "/attendance-history-screen": AttendanceHistoryScreen(),
+    // "attendanceManagementScreen": AttendanceManagementScreen(),
+    "/attendance-request": AttendanceRequestScreen(),
+    // competitionScreen: CompetitionScreen(),
+    // emailVerificationScreen: EmailVerificationScreen(),
+    // loginScreen: LoginScreen(),
+    // memberHomeScreen: MemberHomeScreen(),
+    // myPageScreen: MyPageScreen(),
+    // recordScreen: RecordScreen(),
+    // passwordResetScreen: PasswordResetScreen(email: "aaa@aaa.aaa"),
+    // signUpScreen: SignUpScreen(),
+    // splashScreen: SplashScreen(),
+  };
+}
 
 class TmpAllScreenListScreen extends ConsumerWidget {
   TmpAllScreenListScreen({super.key});
 
-  final List routeNames = AppRoutes.routes.keys.toList();
+  final List routeNames = _DevAppRoutes.routes.keys.toList();
 
   Future<void> tmpLog(ref) async {
     final appStorage = ref.watch(appStorageProvider);
@@ -18,7 +39,7 @@ class TmpAllScreenListScreen extends ConsumerWidget {
   Widget listItem(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pushNamed(routeNames[index]);
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => _DevAppRoutes.routes[routeNames[index]]!));
       },
       child: Container(
         height: 45,
@@ -57,9 +78,8 @@ class TmpAllScreenListScreen extends ConsumerWidget {
           radius: Radius.circular(10),
           child: ListView.builder(
             padding: EdgeInsets.all(16),
-            itemCount: AppRoutes.routes.length,
-            itemBuilder: (BuildContext context, int index) =>
-                listItem(context, index),
+            itemCount: _DevAppRoutes.routes.length,
+            itemBuilder: (BuildContext context, int index) => listItem(context, index),
           ),
         ),
       ),
