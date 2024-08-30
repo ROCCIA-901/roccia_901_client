@@ -92,8 +92,7 @@ class RecordRepository {
     } on ApiException catch (_) {
       rethrow;
     } catch (e) {
-      logger.w('On Record Repo: ${e.toString()}',
-          stackTrace: stackTrace, error: e);
+      logger.w('On Record Repo: ${e.toString()}', stackTrace: stackTrace, error: e);
       rethrow;
     }
   }
