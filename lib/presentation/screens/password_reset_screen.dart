@@ -8,8 +8,8 @@ import 'package:untitled/presentation/screens/shared/exception_handler_on_view.d
 import 'package:untitled/utils/snack_bar_helper.dart';
 
 import '../../constants/size_config.dart';
+import '../../utils/app_loading_overlay.dart';
 import '../../utils/app_router.dart';
-import '../../utils/dialog_helper.dart';
 import '../../widgets/app_common_text_button.dart';
 import '../viewmodels/authentication/password_update_viewmodel.dart';
 
@@ -27,6 +27,12 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
 
   late String _password;
   late String _passwordConfirm;
+
+  @override
+  void dispose() {
+    AppLoadingOverlay.hide();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +74,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                       decoration: InputDecoration(
                         labelText: '영문, 숫자, 특수문자를 포함하여 7자 이상 입력해 주세요.',
                         labelStyle: GoogleFonts.roboto(
-                          fontSize:
-                              AppSize.of(context).safeBlockHorizontal * 3.2,
+                          fontSize: AppSize.of(context).safeBlockHorizontal * 3.2,
                           color: Color(0xFFD1D3D9),
                         ),
                         errorStyle: TextStyle(
@@ -77,8 +82,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                           color: Colors.transparent,
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal:
-                              AppSize.of(context).safeBlockHorizontal * 3,
+                          horizontal: AppSize.of(context).safeBlockHorizontal * 3,
                           vertical: 0,
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -134,8 +138,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                       decoration: InputDecoration(
                         labelText: '비밀번호를 다시 한번 입력해 주세요.',
                         labelStyle: GoogleFonts.roboto(
-                          fontSize:
-                              AppSize.of(context).safeBlockHorizontal * 3.5,
+                          fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                           color: Color(0xFFD1D3D9),
                         ),
                         errorStyle: TextStyle(
@@ -143,8 +146,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                           color: Colors.transparent,
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal:
-                              AppSize.of(context).safeBlockHorizontal * 3,
+                          horizontal: AppSize.of(context).safeBlockHorizontal * 3,
                           vertical: 0,
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -184,8 +186,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
                       text: Text(
                         '비밀번호 변경하기',
                         style: GoogleFonts.inter(
-                          fontSize:
-                              AppSize.of(context).safeBlockHorizontal * 4.0,
+                          fontSize: AppSize.of(context).safeBlockHorizontal * 4.0,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFFFFFFFF),
                         ),
@@ -215,8 +216,7 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
         height: AppSize.of(context).safeBlockVertical * 40,
         child: Image(
             image: AssetImage('assets/logos/roccia_full_logo.png'),
-            height: min(AppSize.of(context).safeBlockHorizontal * 22,
-                AppSize.of(context).safeBlockVertical * 16)));
+            height: min(AppSize.of(context).safeBlockHorizontal * 22, AppSize.of(context).safeBlockVertical * 16)));
   }
 
   void _updatePassword(WidgetRef ref) {
@@ -253,16 +253,16 @@ class _PasswordResetScreenState extends ConsumerState<PasswordResetScreen> {
         next.when(
           data: (data) {
             if (previous is AsyncLoading) {
-              Navigator.pop(context);
+              AppLoadingOverlay.hide();
               onSucess();
             }
           },
           loading: () {
-            DialogHelper.showLoaderDialog(context);
+            AppLoadingOverlay.show(context);
           },
           error: (error, stackTrace) {
             if (previous is AsyncLoading) {
-              Navigator.pop(context);
+              AppLoadingOverlay.hide();
             }
             if (error is Exception) {
               exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
@@ -290,8 +290,7 @@ class InputLabel extends StatelessWidget {
       padding: EdgeInsets.only(
         left: AppSize.of(context).safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(
-          bottom: AppSize.of(context).safeBlockHorizontal * 1.5),
+      margin: EdgeInsets.only(bottom: AppSize.of(context).safeBlockHorizontal * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
