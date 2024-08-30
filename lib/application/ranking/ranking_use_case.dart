@@ -7,7 +7,7 @@ import '../../utils/app_logger.dart';
 part 'ranking_use_case.g.dart';
 
 @riverpod
-Future<WeeklyRankings> getWeeklyRankingsUseCase(
+Future<WeeklyRankingInfo> getWeeklyRankingsUseCase(
   GetWeeklyRankingsUseCaseRef ref,
 ) async {
   logger.d('Execute getWeeklyRankingsUseCase');
