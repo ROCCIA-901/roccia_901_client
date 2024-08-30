@@ -4,6 +4,7 @@ import '../../utils/app_logger.dart';
 
 typedef Rankings = List<RankingProfile>;
 
+typedef WeeklyRankingInfo = ({int? currentGenerationWeek, WeeklyRankings weeklyRankings});
 typedef WeeklyRankings = List<({int week, Rankings rankings})>;
 
 typedef GenerationRankings = List<({String generation, Rankings rankings})>;
@@ -16,8 +17,7 @@ WeeklyRankings fromJsonWeeklyRankings(Map<String, dynamic> json) {
         (weeklyRanking) {
           return (
             week: weeklyRanking["week"],
-            rankings: Rankings.from(weeklyRanking["ranking"]
-                .map((profile) => RankingProfile.fromJson(profile)))
+            rankings: Rankings.from(weeklyRanking["ranking"].map((profile) => RankingProfile.fromJson(profile)))
           );
         },
       ),
@@ -36,8 +36,7 @@ GenerationRankings fromJsonGenerationRankings(Map<String, dynamic> json) {
         (generationRanking) {
           return (
             generation: generationRanking["generation"],
-            rankings: Rankings.from(generationRanking["ranking"]
-                .map((profile) => RankingProfile.fromJson(profile)))
+            rankings: Rankings.from(generationRanking["ranking"].map((profile) => RankingProfile.fromJson(profile)))
           );
         },
       ),

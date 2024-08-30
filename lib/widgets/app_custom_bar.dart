@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../constants/size_config.dart';
 
-PreferredSize buildAppCommonBar(BuildContext context, {String? title}) {
+PreferredSize buildAppCommonBar(BuildContext context, {String? title, Widget? leading}) {
   final double appBarHeight = AppSize.of(context).safeBlockHorizontal * 12;
   return PreferredSize(
     preferredSize: Size.fromHeight(appBarHeight),
     child: AppBar(
       toolbarHeight: appBarHeight,
       automaticallyImplyLeading: false,
+      leading: leading,
+      leadingWidth: AppSize.of(context).safeBlockHorizontal * 10,
       title: title != null
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -25,6 +27,9 @@ PreferredSize buildAppCommonBar(BuildContext context, {String? title}) {
               ],
             )
           : null,
+      titleSpacing: leading != null
+          ? -(AppSize.of(context).safeBlockHorizontal * 1)
+          : (AppSize.of(context).safeBlockHorizontal * 5),
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
     ),
@@ -53,6 +58,7 @@ class AppSliverBar extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
+      titleSpacing: AppSize.of(context).safeBlockHorizontal * 5,
       backgroundColor: Colors.white,
       toolbarHeight: _appBarHeight,
       floating: false,

@@ -2,29 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:untitled/constants/app_colors.dart';
-import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/constants/size_config.dart';
 import 'package:untitled/presentation/screens/record/ranking_tab_member_profile_dialog.dart';
-import 'package:untitled/presentation/screens/shared/exception_handler_on_view.dart';
 import 'package:untitled/presentation/viewmodels/ranking/ranking_viewmodel.dart';
 
 import '../../../constants/app_enum.dart';
-import '../../../utils/app_utils.dart';
 
 enum RankingType {
   weekly,
   all,
 }
 
-class RankingTab extends ConsumerStatefulWidget {
+class RankingTab extends ConsumerWidget {
   const RankingTab({super.key});
 
   @override
-  ConsumerState<RankingTab> createState() => _RankingTabState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    var weeklyRankingInfoState = ref.watch(weeklyRankingsViewmodelProvider);
+    var generationRankingsState = ref.watch(generationRankingsViewmodelProvider);
+
+    if (weeklyRankingInfoState is AsyncData &&
+        weeklyRankingInfoState.value != null &&
+        generationRankingsState is AsyncData &&
+        generationRankingsState.value != null) {
+      return _RankingTab(
+        currentWeek: weeklyRankingInfoState.value!.currentGenerationWeek ?? 0,
+        weeklyRankings: weeklyRankingInfoState.value!.weeklyRankings,
+        generationRankings: generationRankingsState.value!,
+      );
+    }
+
+    return Center(
+      child: LoadingAnimationWidget.threeRotatingDots(
+        color: AppColors.primary,
+        size: AppSize.of(context).safeBlockHorizontal * 10,
+      ),
+    );
+  }
 }
 
-class _RankingTabState extends ConsumerState<RankingTab> {
+class _RankingTab extends ConsumerStatefulWidget {
+  final int currentWeek;
+  final WeeklyRankingsState weeklyRankings;
+  final GenerationRankingsState generationRankings;
+
+  const _RankingTab({
+    super.key,
+    required this.currentWeek,
+    required this.weeklyRankings,
+    required this.generationRankings,
+  });
+
+  @override
+  ConsumerState<_RankingTab> createState() => _RankingTabState();
+}
+
+class _RankingTabState extends ConsumerState<_RankingTab> {
   /// 주간, 전체 중 어느 타입의 랭킹을 보여줄지
   RankingType rankingType = RankingType.weekly;
 
@@ -33,8 +68,8 @@ class _RankingTabState extends ConsumerState<RankingTab> {
   final int weekPageOffset = 1;
   final int generationPageOffset = 1;
 
-  late final int _currentWeek = AppUtils.currentWeekNumber();
-  late final int _currentGeneration = AppConstants.maxGeneration;
+  late final int _currentWeek = widget.currentWeek;
+  late final int _currentGeneration;
   // 주간 랭킹에서 어느 주간 페이지를 처음 보여줄지
   late int _selectedWeek;
   // 전체 랭킹에서 어느 주간 페이지를 처음 보여줄지
@@ -47,6 +82,16 @@ class _RankingTabState extends ConsumerState<RankingTab> {
   @override
   void initState() {
     super.initState();
+    if (widget.generationRankings.isEmpty) {
+      _currentGeneration = 0;
+    } else {
+      _currentGeneration = int.parse(
+        widget.generationRankings.last.generation.substring(
+          0,
+          widget.generationRankings.last.generation.length - 1,
+        ),
+      );
+    }
     _selectedWeek = _currentWeek;
     _selectedGeneration = _currentGeneration;
     weeklyRankingPageController = PageController(
@@ -59,24 +104,8 @@ class _RankingTabState extends ConsumerState<RankingTab> {
 
   @override
   Widget build(BuildContext context) {
-    var weeklyRankingsState = ref.watch(weeklyRankingsViewmodelProvider);
-    var generationRankingsState =
-        ref.watch(generationRankingsViewmodelProvider);
-
-    if (weeklyRankingsState is AsyncError) {
-      exceptionHandlerOnView(
-        context,
-        e: weeklyRankingsState.error as Exception,
-        stackTrace: weeklyRankingsState.stackTrace ?? StackTrace.current,
-      );
-    }
-    if (generationRankingsState is AsyncError) {
-      exceptionHandlerOnView(
-        context,
-        e: generationRankingsState.error as Exception,
-        stackTrace: generationRankingsState.stackTrace ?? StackTrace.current,
-      );
-    }
+    var weeklyRankingsState = widget.weeklyRankings;
+    var generationRankingsState = widget.generationRankings;
 
     return Column(
       children: [
@@ -458,7 +487,7 @@ class WeeklyRankingPageView extends StatelessWidget {
   final int selectedWeek;
   final void Function(int) changeWeek;
   final PageController pageController;
-  final AsyncValue<WeeklyRankingsState> weeklyRankingsState;
+  final WeeklyRankingsState weeklyRankingsState;
 
   WeeklyRankingPageView({
     super.key,
@@ -476,7 +505,10 @@ class WeeklyRankingPageView extends StatelessWidget {
       case (AsyncLoading()):
         return Expanded(
           child: Center(
-            child: const CircularProgressIndicator(),
+            child: LoadingAnimationWidget.threeRotatingDots(
+              color: AppColors.primary,
+              size: AppSize.of(context).safeBlockHorizontal * 10,
+            ),
           ),
         );
       case (AsyncError()):
@@ -486,16 +518,9 @@ class WeeklyRankingPageView extends StatelessWidget {
           ),
         );
       default:
-        if (weeklyRankingsState.value == null) {
-          return Expanded(
-            child: Center(
-              child: const CircularProgressIndicator(),
-            ),
-          );
-        }
     }
 
-    var weeklyRankings = weeklyRankingsState.value!;
+    var weeklyRankings = weeklyRankingsState;
 
     return Expanded(
       child: PageView.builder(
@@ -504,15 +529,13 @@ class WeeklyRankingPageView extends StatelessWidget {
           changeWeek(page);
         },
         itemCount: currentWeek,
-        itemBuilder: (context, index) => _pageItem(
-            context, _findRankingsByWeek(weeklyRankings, index + weekOffset)),
+        itemBuilder: (context, index) => _pageItem(context, _findRankingsByWeek(weeklyRankings, index + weekOffset)),
       ),
     );
   }
 
-  Widget _pageItem(
-      BuildContext context, List<RankingProfileState>? rankingData) {
-    if (rankingData == null) {
+  Widget _pageItem(BuildContext context, List<RankingProfileState>? rankingData) {
+    if (rankingData == null || rankingData.isEmpty) {
       return Container(
         alignment: Alignment.center,
         child: Text(
@@ -527,8 +550,7 @@ class WeeklyRankingPageView extends StatelessWidget {
     return RankingList(rankings: rankingData);
   }
 
-  List<RankingProfileState>? _findRankingsByWeek(
-      WeeklyRankingsState weeklyRankings, int week) {
+  List<RankingProfileState>? _findRankingsByWeek(WeeklyRankingsState weeklyRankings, int week) {
     for (var weekly in weeklyRankings) {
       if (weekly.week == week) {
         return weekly.rankings;
@@ -545,7 +567,7 @@ class AllRankingPageView extends StatelessWidget {
   final int selectedGeneration;
   final void Function(int) changeGeneration;
   final PageController pageController;
-  final AsyncValue<GenerationRankingsState> generationRankingsState;
+  final GenerationRankingsState generationRankingsState;
 
   AllRankingPageView({
     super.key,
@@ -563,7 +585,10 @@ class AllRankingPageView extends StatelessWidget {
       case (AsyncLoading):
         return Expanded(
           child: Center(
-            child: const CircularProgressIndicator(),
+            child: LoadingAnimationWidget.threeRotatingDots(
+              color: AppColors.primary,
+              size: AppSize.of(context).safeBlockHorizontal * 10,
+            ),
           ),
         );
       case (AsyncError):
@@ -573,16 +598,9 @@ class AllRankingPageView extends StatelessWidget {
           ),
         );
       default:
-        if (generationRankingsState.value == null) {
-          return Expanded(
-            child: Center(
-              child: const CircularProgressIndicator(),
-            ),
-          );
-        }
     }
 
-    var generationRankings = generationRankingsState.value!;
+    var generationRankings = generationRankingsState;
 
     return Expanded(
       child: PageView.builder(
@@ -593,17 +611,14 @@ class AllRankingPageView extends StatelessWidget {
         itemCount: currentGeneration,
         // itemCount: int.parse(generationRankings.last.generation
         //     .substring(0, generationRankings.last.generation.length - 1)),
-        itemBuilder: (context, index) => _pageItem(
-            context,
-            _findRankingsByGeneration(
-                generationRankings, "${index + generationOffset}기")),
+        itemBuilder: (context, index) =>
+            _pageItem(context, _findRankingsByGeneration(generationRankings, "${index + generationOffset}기")),
       ),
     );
   }
 
-  Widget _pageItem(
-      BuildContext context, List<RankingProfileState>? rankingData) {
-    if (rankingData == null) {
+  Widget _pageItem(BuildContext context, List<RankingProfileState>? rankingData) {
+    if (rankingData == null || rankingData.isEmpty) {
       return Container(
         alignment: Alignment.center,
         child: Text(
@@ -618,8 +633,7 @@ class AllRankingPageView extends StatelessWidget {
     return RankingList(rankings: rankingData);
   }
 
-  List<RankingProfileState>? _findRankingsByGeneration(
-      GenerationRankingsState generationRankings, String generation) {
+  List<RankingProfileState>? _findRankingsByGeneration(GenerationRankingsState generationRankings, String generation) {
     for (var generationRanking in generationRankings) {
       if (generationRanking.generation == generation) {
         return generationRanking.rankings;
@@ -651,8 +665,7 @@ class RankingList extends StatelessWidget {
   }
 
   Widget listItem(BuildContext context, int index) {
-    return MemberRankingCard(
-        memberRankingData: rankings[index], rank: rankings[index].rank);
+    return MemberRankingCard(memberRankingData: rankings[index], rank: rankings[index].rank);
   }
 }
 
@@ -674,8 +687,7 @@ class MemberRankingCard extends StatelessWidget {
     required this.memberRankingData,
     required int rank,
   })  : _userId = memberRankingData.userId,
-        _profileImageUrl =
-            'assets/profiles/${memberRankingData.profileImg}.svg',
+        _profileImageUrl = 'assets/profiles/${memberRankingData.profileImg}.svg',
         _name = memberRankingData.username,
         _location = memberRankingData.location,
         _generation = memberRankingData.generation,
@@ -693,8 +705,7 @@ class MemberRankingCard extends StatelessWidget {
         );
       },
       child: Container(
-        margin: EdgeInsets.only(
-            bottom: AppSize.of(context).safeBlockHorizontal * 1.389),
+        margin: EdgeInsets.only(bottom: AppSize.of(context).safeBlockHorizontal * 1.389),
         padding: EdgeInsets.all(0),
         child: AspectRatio(
           aspectRatio: 17 / 3,
@@ -709,12 +720,9 @@ class MemberRankingCard extends StatelessWidget {
                 width: AppSize.of(context).safeBlockHorizontal * 0.3278,
               ),
             ),
-            child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-              final double cardBlockSizeHorizontal =
-                  constraints.maxWidth / 100.0;
-              final double cardBlockSizeVertical =
-                  constraints.maxHeight / 100.0;
+            child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+              final double cardBlockSizeHorizontal = constraints.maxWidth / 100.0;
+              final double cardBlockSizeVertical = constraints.maxHeight / 100.0;
               return Stack(
                 alignment: Alignment.centerLeft,
                 children: [
@@ -752,30 +760,23 @@ class MemberRankingCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                margin: EdgeInsets.only(
-                                    right: cardBlockSizeHorizontal * 1.5),
+                                margin: EdgeInsets.only(right: cardBlockSizeHorizontal * 1.5),
                                 child: Text(
                                   _name,
                                   style: TextStyle(
-                                    fontSize: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        3.5,
+                                    fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xFF000000),
                                   ),
                                 ),
                               ),
                               Container(
-                                margin: EdgeInsets.only(
-                                    right: cardBlockSizeHorizontal * 2.647),
-                                padding: EdgeInsets.only(
-                                    bottom: cardBlockSizeVertical * 0.3),
+                                margin: EdgeInsets.only(right: cardBlockSizeHorizontal * 2.647),
+                                padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 0.3),
                                 child: Text(
                                   Location.toName[_location]!,
                                   style: TextStyle(
-                                    fontSize: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        3.0,
+                                    fontSize: AppSize.of(context).safeBlockHorizontal * 3.0,
                                     color: Color(0xFF878787),
                                   ),
                                 ),
@@ -792,14 +793,11 @@ class MemberRankingCard extends StatelessWidget {
                                 height: cardBlockSizeVertical * 32,
                                 width: cardBlockSizeHorizontal * 12,
                                 alignment: Alignment.center,
-                                padding: EdgeInsets.only(
-                                    top: cardBlockSizeVertical * 2),
+                                padding: EdgeInsets.only(top: cardBlockSizeVertical * 2),
                                 decoration: ShapeDecoration(
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
-                                      width: AppSize.of(context)
-                                              .safeBlockHorizontal *
-                                          0.2,
+                                      width: AppSize.of(context).safeBlockHorizontal * 0.2,
                                       color: Color(0xFFE0E0E0),
                                     ),
                                     borderRadius: BorderRadius.circular(20),
@@ -808,9 +806,7 @@ class MemberRankingCard extends StatelessWidget {
                                 child: Text(
                                   _generation,
                                   style: GoogleFonts.roboto(
-                                    fontSize: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        2.5,
+                                    fontSize: AppSize.of(context).safeBlockHorizontal * 2.5,
                                     color: Color(0xFF7B7B7B),
                                   ),
                                 ),
@@ -820,14 +816,11 @@ class MemberRankingCard extends StatelessWidget {
                                 height: cardBlockSizeVertical * 32,
                                 width: cardBlockSizeHorizontal * 12,
                                 alignment: Alignment.center,
-                                padding: EdgeInsets.only(
-                                    top: cardBlockSizeVertical * 2),
+                                padding: EdgeInsets.only(top: cardBlockSizeVertical * 2),
                                 decoration: ShapeDecoration(
                                   shape: RoundedRectangleBorder(
                                     side: BorderSide(
-                                      width: AppSize.of(context)
-                                              .safeBlockHorizontal *
-                                          0.2,
+                                      width: AppSize.of(context).safeBlockHorizontal * 0.2,
                                       color: Color(0xFFE0E0E0),
                                     ),
                                     borderRadius: BorderRadius.circular(20),
@@ -836,9 +829,7 @@ class MemberRankingCard extends StatelessWidget {
                                 child: Text(
                                   BoulderLevel.toName[_level] ?? 'No data',
                                   style: GoogleFonts.roboto(
-                                    fontSize: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        2.5,
+                                    fontSize: AppSize.of(context).safeBlockHorizontal * 2.5,
                                     color: Color(0xFF7B7B7B),
                                   ),
                                 ),
@@ -886,8 +877,7 @@ class MemberRankingCard extends StatelessWidget {
                   Positioned(
                     left: cardBlockSizeHorizontal * 87.0,
                     child: Container(
-                      padding:
-                          EdgeInsets.only(bottom: cardBlockSizeVertical * 4),
+                      padding: EdgeInsets.only(bottom: cardBlockSizeVertical * 4),
                       alignment: Alignment.centerLeft,
                       child: switch (_rank) {
                         1 => SvgPicture.asset(

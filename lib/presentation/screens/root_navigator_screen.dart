@@ -15,7 +15,7 @@ class RootNavigatorScreen extends StatelessWidget {
       // routes used here must be declared as children
       // routes of /dashboard
       routes: [
-        MemberHomeRoute(),
+        HomeRoute(),
         RecordRoute(initialIndex: 0),
         RecordRoute(initialIndex: 1),
         MyPageRoute(),

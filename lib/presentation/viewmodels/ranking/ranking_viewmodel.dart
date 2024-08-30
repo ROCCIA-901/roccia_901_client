@@ -7,11 +7,10 @@ import '../shared/exception_handler_on_viewmodel.dart';
 
 part 'ranking_viewmodel.g.dart';
 
-typedef WeeklyRankingsState
-    = List<({int week, List<RankingProfileState> rankings})>;
+typedef WeeklyRankingInfoState = ({int? currentGenerationWeek, WeeklyRankingsState weeklyRankings});
+typedef WeeklyRankingsState = List<({int week, List<RankingProfileState> rankings})>;
 
-typedef GenerationRankingsState
-    = List<({String generation, List<RankingProfileState> rankings})>;
+typedef GenerationRankingsState = List<({String generation, List<RankingProfileState> rankings})>;
 
 class RankingProfileState {
   final int userId;
@@ -38,17 +37,17 @@ class RankingProfileState {
 @riverpod
 class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
   @override
-  Future<WeeklyRankingsState> build() async {
+  Future<WeeklyRankingInfoState> build() async {
     try {
-      return _fromModel(
-          await ref.refresh(getWeeklyRankingsUseCaseProvider.future));
+      return _fromModel(await ref.refresh(getWeeklyRankingsUseCaseProvider.future));
     } catch (e, stackTrace) {
       exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
       rethrow; // Never execute
     }
   }
 
-  WeeklyRankingsState _fromModel(WeeklyRankings weeklyRankings) {
+  WeeklyRankingInfoState _fromModel(WeeklyRankingInfo weeklyRankingInfo) {
+    final weeklyRankings = weeklyRankingInfo.weeklyRankings;
     WeeklyRankingsState ret = WeeklyRankingsState.from(
       weeklyRankings.map(
         (weekly) {
@@ -85,7 +84,10 @@ class WeeklyRankingsViewmodel extends _$WeeklyRankingsViewmodel {
       weekly.rankings.sort((b, a) => a.score.compareTo(b.score));
     }
     ret.sort((a, b) => a.week.compareTo(b.week));
-    return ret;
+    return (
+      currentGenerationWeek: weeklyRankingInfo.currentGenerationWeek,
+      weeklyRankings: ret,
+    );
   }
 }
 
@@ -94,8 +96,7 @@ class GenerationRankingsViewmodel extends _$GenerationRankingsViewmodel {
   @override
   Future<GenerationRankingsState> build() async {
     try {
-      return _fromModel(
-          await ref.refresh(getGenerationRankingsUseCaseProvider.future));
+      return _fromModel(await ref.refresh(getGenerationRankingsUseCaseProvider.future));
     } catch (e, stackTrace) {
       exceptionHandlerOnViewmodel(e: e as Exception, stackTrace: stackTrace);
       rethrow; // Never execute

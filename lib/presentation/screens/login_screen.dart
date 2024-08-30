@@ -9,8 +9,8 @@ import 'package:untitled/presentation/screens/shared/exception_handler_on_view.d
 
 import '../../constants/app_colors.dart';
 import '../../constants/size_config.dart';
+import '../../utils/app_loading_overlay.dart';
 import '../../utils/app_router.dart';
-import '../../utils/dialog_helper.dart';
 import '../../utils/snack_bar_helper.dart';
 import '../../widgets/app_common_text_button.dart';
 import '../viewmodels/authentication/login_viewmodel.dart';
@@ -46,6 +46,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    AppLoadingOverlay.hide();
     super.dispose();
   }
 
@@ -105,8 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         height: AppSize.of(context).safeBlockVertical * 40,
         child: Image(
             image: AssetImage('assets/logos/roccia_full_logo.png'),
-            height: min(AppSize.of(context).safeBlockHorizontal * 22,
-                AppSize.of(context).safeBlockVertical * 16)));
+            height: min(AppSize.of(context).safeBlockHorizontal * 22, AppSize.of(context).safeBlockVertical * 16)));
   }
 
   Widget _buildSignInAndPasswordResetButton() {
@@ -168,8 +168,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   // ------------------------------------------------------------------------ //
   // Event Handlers                                                           //
   // ------------------------------------------------------------------------ //
-  Future<void> _onPressedLogInButton(
-      BuildContext context, WidgetRef ref) async {
+  Future<void> _onPressedLogInButton(BuildContext context, WidgetRef ref) async {
     final email = _emailController.text;
     final password = _passwordController.text;
     // 유효성 검사
@@ -200,7 +199,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (widget.onResult != null) {
         widget.onResult!(context, true);
       } else {
-        AutoRouter.of(context).replace(MemberHomeRoute());
+        AutoRouter.of(context).replace(HomeRoute());
       }
     }
 
@@ -208,16 +207,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       next.when(
         data: (value) {
           if (previous is AsyncLoading) {
-            Navigator.pop(context);
+            AppLoadingOverlay.hide();
             onSuccess();
           }
         },
         loading: () {
-          DialogHelper.showLoaderDialog(context);
+          AppLoadingOverlay.show(context);
         },
         error: (error, stackTrace) {
           if (previous is AsyncLoading) {
-            Navigator.pop(context);
+            AppLoadingOverlay.hide();
           }
           if (error is Exception) {
             exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);

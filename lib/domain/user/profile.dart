@@ -11,18 +11,19 @@ typedef RecordStatistics = List<({BoulderLevel level, int count})>;
   checked: true,
   includeIfNull: false,
   fieldRename: FieldRename.snake,
-  explicitToJson: true,
 )
 class MyPageModel {
   final ProfileModel profile;
   final int totalWorkoutTime;
   @JsonKey(fromJson: _recordStatisticsFromJson, includeToJson: false)
   final RecordStatistics records;
+  final MyPageCount attendanceStats;
 
   const MyPageModel({
     required this.profile,
     required this.totalWorkoutTime,
     required this.records,
+    required this.attendanceStats,
   });
 
 // ------------------------------------------------------------------------ //
@@ -37,15 +38,10 @@ class MyPageModel {
     }
   }
 
-  Map<String, dynamic> toJson() => _$MyPageModelToJson(this);
-
   static RecordStatistics _recordStatisticsFromJson(List<dynamic> json) {
     return RecordStatistics.from(
       json.map(
-        (e) => (
-          level: BoulderLevel.fromName[e["workout_level"] as String],
-          count: e["total_count"] as int
-        ),
+        (e) => (level: BoulderLevel.fromName[e["workout_level"] as String], count: e["total_count"] as int),
       ),
     );
   }
@@ -55,7 +51,6 @@ class MyPageModel {
   checked: true,
   includeIfNull: false,
   fieldRename: FieldRename.snake,
-  explicitToJson: true,
 )
 class ProfileModel {
   @JsonKey(name: "username")
@@ -91,8 +86,6 @@ class ProfileModel {
       rethrow;
     }
   }
-
-  Map<String, dynamic> toJson() => _$ProfileModelToJson(this);
 }
 
 @JsonSerializable(
@@ -121,4 +114,35 @@ class ProfileUpdateModel {
   //                      JSON SERIALIZATION                                  //
   // ------------------------------------------------------------------------ //
   Map<String, dynamic> toJson() => _$ProfileUpdateModelToJson(this);
+}
+
+@JsonSerializable(
+  checked: true,
+  fieldRename: FieldRename.snake,
+)
+class MyPageCount {
+  @JsonKey(fromJson: _countFromJson)
+  final int attendance;
+  @JsonKey(fromJson: _countFromJson)
+  final int late;
+  @JsonKey(fromJson: _countFromJson)
+  final int absence;
+
+  MyPageCount({
+    required this.attendance,
+    required this.late,
+    required this.absence,
+  });
+
+  // ------------------------------------------------------------------------ //
+  //                      JSON SERIALIZATION                                  //
+  // ------------------------------------------------------------------------ //
+  factory MyPageCount.fromJson(Map<String, dynamic> json) => _$MyPageCountFromJson(json);
+
+  static int _countFromJson(dynamic json) {
+    if (json == null) {
+      return 0;
+    }
+    return json as int;
+  }
 }
