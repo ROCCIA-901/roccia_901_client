@@ -33,11 +33,16 @@ class RankingRepository {
   })  : _api = api,
         _apiClient = apiClient;
 
-  Future<WeeklyRankings> fetchWeeklyRankings() async {
+  Future<WeeklyRankingInfo> fetchWeeklyRankings() async {
     try {
       final uri = _api.ranking.weekly();
       final body = await _apiClient.get(uri);
-      return fromJsonWeeklyRankings(body);
+      final WeeklyRankings weeklyRankings = fromJsonWeeklyRankings(body);
+      final int? currentGenerationWeek = body["current_generation_week"];
+      return (
+        currentGenerationWeek: currentGenerationWeek,
+        weeklyRankings: weeklyRankings,
+      );
     } catch (e, stackTrace) {
       _errorHandler(e, stackTrace);
       rethrow;
@@ -61,8 +66,7 @@ class RankingRepository {
     } on ApiException catch (_) {
       rethrow;
     } catch (e) {
-      logger.w('On Ranking Repo: ${e.toString()}',
-          stackTrace: stackTrace, error: e);
+      logger.w('On Ranking Repo: ${e.toString()}', stackTrace: stackTrace, error: e);
       rethrow;
     }
   }
