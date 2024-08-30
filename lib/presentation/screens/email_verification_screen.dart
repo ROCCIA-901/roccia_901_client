@@ -11,8 +11,8 @@ import 'package:untitled/presentation/viewmodels/authentication/password_update_
 
 import '../../constants/app_constants.dart';
 import '../../constants/size_config.dart';
+import '../../utils/app_loading_overlay.dart';
 import '../../utils/countdown_timer.dart';
-import '../../utils/dialog_helper.dart';
 import '../../utils/snack_bar_helper.dart';
 import '../../widgets/app_common_text_button.dart';
 
@@ -21,12 +21,10 @@ class EmailVerificationScreen extends ConsumerStatefulWidget {
   const EmailVerificationScreen({super.key});
 
   @override
-  ConsumerState<EmailVerificationScreen> createState() =>
-      _EmailVerificationScreenState();
+  ConsumerState<EmailVerificationScreen> createState() => _EmailVerificationScreenState();
 }
 
-class _EmailVerificationScreenState
-    extends ConsumerState<EmailVerificationScreen> {
+class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScreen> {
   final _emailFormKey = GlobalKey<FormState>();
   final _authCodeFormKey = GlobalKey<FormState>();
 
@@ -53,6 +51,7 @@ class _EmailVerificationScreenState
   void dispose() {
     // 화면을 나갈 때 타이머 종료.
     _countdownTimer.cancel();
+    AppLoadingOverlay.hide();
     super.dispose();
   }
 
@@ -90,22 +89,18 @@ class _EmailVerificationScreenState
                       Form(
                         key: _emailFormKey,
                         child: SizedBox(
-                          width:
-                              AppSize.of(context).safeBlockHorizontal * 55.56,
+                          width: AppSize.of(context).safeBlockHorizontal * 55.56,
                           child: TextFormField(
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
                             style: GoogleFonts.roboto(
-                              fontSize:
-                                  AppSize.of(context).safeBlockHorizontal * 3.5,
+                              fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                               color: Colors.black,
                             ),
                             decoration: InputDecoration(
                               labelText: '이메일을 입력해주세요.',
                               labelStyle: GoogleFonts.roboto(
-                                fontSize:
-                                    AppSize.of(context).safeBlockHorizontal *
-                                        3.5,
+                                fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                                 color: Color(0xFFD1D3D9),
                               ),
                               errorStyle: TextStyle(
@@ -113,8 +108,7 @@ class _EmailVerificationScreenState
                                 color: Colors.transparent,
                               ),
                               contentPadding: EdgeInsets.symmetric(
-                                horizontal:
-                                    AppSize.of(context).safeBlockHorizontal * 3,
+                                horizontal: AppSize.of(context).safeBlockHorizontal * 3,
                                 vertical: 0,
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -132,8 +126,7 @@ class _EmailVerificationScreenState
                             ),
                             validator: (value) {
                               if (!EmailValidator.validate(value ?? "")) {
-                                SnackBarHelper.showTextSnackBar(
-                                    context, "이메일 형식이 올바르지 않습니다.");
+                                SnackBarHelper.showTextSnackBar(context, "이메일 형식이 올바르지 않습니다.");
                                 return '';
                               }
                             },
@@ -187,17 +180,13 @@ class _EmailVerificationScreenState
                                 keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.done,
                                 style: GoogleFonts.roboto(
-                                  fontSize:
-                                      AppSize.of(context).safeBlockHorizontal *
-                                          3.5,
+                                  fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                                   color: Colors.black,
                                 ),
                                 decoration: InputDecoration(
                                   labelText: '인증번호 입력',
                                   labelStyle: GoogleFonts.roboto(
-                                    fontSize: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        3.5,
+                                    fontSize: AppSize.of(context).safeBlockHorizontal * 3.5,
                                     color: Color(0xFFD1D3D9),
                                   ),
                                   errorStyle: TextStyle(
@@ -205,9 +194,7 @@ class _EmailVerificationScreenState
                                     color: Colors.transparent,
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
-                                    horizontal: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        3,
+                                    horizontal: AppSize.of(context).safeBlockHorizontal * 3,
                                     vertical: 0,
                                   ),
                                   enabledBorder: OutlineInputBorder(
@@ -225,8 +212,7 @@ class _EmailVerificationScreenState
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    SnackBarHelper.showTextSnackBar(
-                                        context, "인증번호를 입력해주세요.");
+                                    SnackBarHelper.showTextSnackBar(context, "인증번호를 입력해주세요.");
                                     return '';
                                   }
                                 },
@@ -236,16 +222,12 @@ class _EmailVerificationScreenState
                               ),
                               // 카운트 다운 타이머
                               Positioned(
-                                top: AppSize.of(context).safeBlockHorizontal *
-                                    3.2,
-                                right: AppSize.of(context).safeBlockHorizontal *
-                                    3.2,
+                                top: AppSize.of(context).safeBlockHorizontal * 3.2,
+                                right: AppSize.of(context).safeBlockHorizontal * 3.2,
                                 child: Text(
                                   "${(_currentCount / 60).floor()}:${(_currentCount % 60).toString().padLeft(2, '0')}",
                                   style: GoogleFonts.roboto(
-                                    fontSize: AppSize.of(context)
-                                            .safeBlockHorizontal *
-                                        3.7,
+                                    fontSize: AppSize.of(context).safeBlockHorizontal * 3.7,
                                     color: Color(0xFFD1D3D9),
                                   ),
                                 ),
@@ -295,8 +277,7 @@ class _EmailVerificationScreenState
         height: AppSize.of(context).safeBlockVertical * 40,
         child: Image(
             image: AssetImage('assets/logos/roccia_full_logo.png'),
-            height: min(AppSize.of(context).safeBlockHorizontal * 22,
-                AppSize.of(context).safeBlockVertical * 16)));
+            height: min(AppSize.of(context).safeBlockHorizontal * 22, AppSize.of(context).safeBlockVertical * 16)));
   }
 
   /// 카운트다운 초당 callback 함수
@@ -324,8 +305,7 @@ class _EmailVerificationScreenState
 
   /// 비밀번호 변경하기 버튼 눌렀을 때 호출되는 함수
   void _verifyAuthCode() {
-    if (!(_emailFormKey.currentState!.validate()) ||
-        !(_authCodeFormKey.currentState!.validate())) {
+    if (!(_emailFormKey.currentState!.validate()) || !(_authCodeFormKey.currentState!.validate())) {
       return;
     }
     _emailFormKey.currentState!.save();
@@ -351,16 +331,16 @@ class _EmailVerificationScreenState
         next.when(
           data: (data) {
             if (previous is AsyncLoading) {
-              Navigator.pop(context);
+              AppLoadingOverlay.hide();
               SnackBarHelper.showTextSnackBar(context, "인증번호가 발송되었습니다.");
             }
           },
           loading: () {
-            DialogHelper.showLoaderDialog(context);
+            AppLoadingOverlay.show(context);
           },
           error: (error, stackTrace) {
             if (previous is AsyncLoading) {
-              Navigator.pop(context);
+              AppLoadingOverlay.hide();
             }
             if (error is Exception) {
               exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
@@ -383,16 +363,16 @@ class _EmailVerificationScreenState
         next.when(
           data: (data) {
             if (previous is AsyncLoading) {
-              Navigator.pop(context);
+              AppLoadingOverlay.hide();
               onSuccess();
             }
           },
           loading: () {
-            DialogHelper.showLoaderDialog(context);
+            AppLoadingOverlay.show(context);
           },
           error: (error, stackTrace) {
             if (previous is AsyncLoading) {
-              Navigator.pop(context);
+              AppLoadingOverlay.hide();
             }
             if (error is Exception) {
               exceptionHandlerOnView(context, e: error, stackTrace: stackTrace);
@@ -420,8 +400,7 @@ class InputLabel extends StatelessWidget {
       padding: EdgeInsets.only(
         left: AppSize.of(context).safeBlockHorizontal * 0.5,
       ),
-      margin: EdgeInsets.only(
-          bottom: AppSize.of(context).safeBlockHorizontal * 1.5),
+      margin: EdgeInsets.only(bottom: AppSize.of(context).safeBlockHorizontal * 1.5),
       child: Text(
         label,
         style: GoogleFonts.roboto(
@@ -447,8 +426,7 @@ class GetAuthenticationButton extends StatefulWidget {
   final void Function() secondOnPressed;
 
   @override
-  State<GetAuthenticationButton> createState() =>
-      _GetAuthenticationButtonState();
+  State<GetAuthenticationButton> createState() => _GetAuthenticationButtonState();
 }
 
 class _GetAuthenticationButtonState extends State<GetAuthenticationButton> {
