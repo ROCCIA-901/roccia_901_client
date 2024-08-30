@@ -31,8 +31,7 @@ class _MyPageHeaderState extends State<MyPageHeader> {
 
   void _setIntroductionBoxHeight() {
     void callback() {
-      final RenderBox introductionBoxRenderBox =
-          _introductionBoxKey.currentContext!.findRenderObject() as RenderBox;
+      final RenderBox introductionBoxRenderBox = _introductionBoxKey.currentContext!.findRenderObject() as RenderBox;
       setState(() {
         _introductionBoxHeight = introductionBoxRenderBox.size.height;
       });
@@ -146,8 +145,7 @@ class _IntroductionBox extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
+        borderRadius: BorderRadius.circular(AppSize.of(context).safeBlockHorizontal * 3),
         border: Border.all(
           width: AppSize.of(context).safeBlockHorizontal * 0.5,
           color: AppColors.greyMedium,
