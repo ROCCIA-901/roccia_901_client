@@ -34,8 +34,7 @@ Future<void> logoutUseCase(LogoutUseCaseRef ref) async {
 }
 
 @riverpod
-Future<void> registerUseCase(RegisterUseCaseRef ref,
-    {required RegisterForm form}) async {
+Future<void> registerUseCase(RegisterUseCaseRef ref, {required RegisterForm form}) async {
   logger.d('Execute registerUseCase');
   final authRepo = ref.watch(authRepositoryProvider);
   await authRepo.register(form: form);
@@ -110,4 +109,34 @@ Future<bool> hasAuthUseCase(
     return false;
   }
   return true;
+}
+
+@riverpod
+Future<int> getUserIdUseCase(
+  GetUserIdUseCaseRef ref,
+) async {
+  logger.d('Execute getUserIdUseCase');
+  final tokenRepo = ref.read(tokenRepositoryProvider);
+  final String? accessToken = await tokenRepo.accessToken;
+  if (accessToken == null) {
+    // TODO: throw custom exception
+    throw Exception('AccessToken is null');
+  }
+  final Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+  return decodedToken['user_id'];
+}
+
+@riverpod
+Future<bool> isStaffUseCase(
+  IsStaffUseCaseRef ref,
+) async {
+  logger.d('Execute isStaffUseCase');
+  final tokenRepo = ref.read(tokenRepositoryProvider);
+  final String? accessToken = await tokenRepo.accessToken;
+  if (accessToken == null) {
+    // TODO: throw custom exception
+    throw Exception('AccessToken is null');
+  }
+  final Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+  return decodedToken['role'] == '운영진';
 }
