@@ -149,8 +149,8 @@ class RocciaApiAttendance {
 
   RocciaApiAttendance(this._buildUri);
 
-  Uri dates(int id) {
-    return _buildUri(path: 'api/attendances/users/$id/');
+  Uri dates() {
+    return _buildUri(path: 'api/attendances/');
   }
 
   Uri rate() {
@@ -179,6 +179,10 @@ class RocciaApiAttendance {
 
   Uri users() {
     return _buildUri(path: 'api/attendances/users/');
+  }
+
+  Uri location() {
+    return _buildUri(path: 'api/attendances/location/');
   }
 }
 
