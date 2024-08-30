@@ -7,24 +7,25 @@ import '../../../application/attendance/attendance_use_cases.dart';
 import '../../../constants/app_colors.dart';
 import '../../../domain/attendance/attendance_dates.dart';
 import '../../../widgets/app_calendar.dart';
+import '../shared/exception_handler_on_viewmodel.dart';
 
-enum MemberHomeEvent {
+enum StaffHomeEvent {
   showSnackbar,
   showLoading,
   hideLoading,
   navigateToHomeScreen,
 }
 
-class MemberHomeViewModel extends ViewModel<MemberHomeEvent> {
+class StaffHomeViewModel extends ViewModel<StaffHomeEvent> {
   final Ref _ref;
 
-  MemberHomeViewModel(
+  StaffHomeViewModel(
     this._ref,
   ) {
     _init().then((_) {
       updateUi(() {});
     }).catchError((e, stackTrace) {
-      showSnackbar("데이터를 가져오지 못했습니다.", MemberHomeEvent.showSnackbar);
+      _errorHandler(e, stackTrace);
     }).whenComplete(() {});
   }
 
@@ -53,8 +54,20 @@ class MemberHomeViewModel extends ViewModel<MemberHomeEvent> {
     }
     return eventsSource;
   }
+
+  void _errorHandler(Exception e, StackTrace stackTrace) {
+    appExceptionHandlerOnViewmodel(
+      e: e,
+      stackTrace: stackTrace,
+      emitGoToLoginScreenEvent: () => emitEvent(StaffHomeEvent.navigateToHomeScreen),
+      emitShowSnackbarEvent: (String message) => showSnackbar(
+        message,
+        StaffHomeEvent.showSnackbar,
+      ),
+    );
+  }
 }
 
-final memberHomeViewModelProvider = ViewModelProviderFactory.create((ref) {
-  return MemberHomeViewModel(ref);
+final staffHomeViewModelProvider = ViewModelProviderFactory.create((ref) {
+  return StaffHomeViewModel(ref);
 });
