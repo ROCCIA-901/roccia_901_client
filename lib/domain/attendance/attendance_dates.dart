@@ -28,7 +28,7 @@ class AttendanceDates {
     }
   }
 
-  static List<DateTime> _datesFromJson(List<String> dates) {
-    return dates.map((e) => DateTime.parse(e)).toList();
+  static List<DateTime> _datesFromJson(List<dynamic> dates) {
+    return List.from(dates.map((e) => DateTime.parse(e)));
   }
 }
