@@ -35,5 +35,5 @@ class AppConstants {
 
   // 1.0.2 : 2024-05
   // 2.0.0 : 2024-09, 출석 기능 추가
-  static const String version = "2.0.0";
+  static const String version = "2.0.1";
 }
