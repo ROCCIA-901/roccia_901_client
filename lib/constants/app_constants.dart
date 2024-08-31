@@ -34,6 +34,6 @@ class AppConstants {
   static const String reportUrl = "https://docs.google.com/forms/d/1Fg3Nk0H3nAoAYAq5elkzUyn69latA9Nv6tJGgD-aENU/edit";
 
   // 1.0.2 : 2024-05
-  // 1.1.0 : 2024-09, 출석 기능 추가
-  static const String version = "1.1.0";
+  // 2.0.0 : 2024-09, 출석 기능 추가
+  static const String version = "2.0.0";
 }
