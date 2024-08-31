@@ -134,14 +134,27 @@ class MyPageScreen extends StatelessWidget {
                                     text: "나의 총 운동 시간   ",
                                   ),
                                   TextSpan(
-                                    text: "${model.myPageState!.totalWorkoutTime}",
+                                    text: "${model.myPageState!.totalWorkoutTime ~/ 60}",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: " 시간",
+                                    text: " 시간  ",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: "${model.myPageState!.totalWorkoutTime % 60}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: " 분",
                                     style: TextStyle(
                                       color: Colors.black,
                                     ),
