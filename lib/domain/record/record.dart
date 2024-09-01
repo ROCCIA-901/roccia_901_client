@@ -46,12 +46,11 @@ class RecordModel {
 
   static List<RecordModel> fromJsonList(Map<String, dynamic> json) {
     final jsonList = json["records"]!;
-    return List<RecordModel>.from(
-        jsonList.map((e) => RecordModel.fromJson(e)).toList());
+    return List<RecordModel>.from(jsonList.map((e) => RecordModel.fromJson(e)).toList());
   }
 
   static String _dateTimeToJson(DateTime dateTime) {
-    return "${dateTime.toIso8601String().substring(0, 19)}+09:00";
+    return dateTime.toIso8601String().substring(0, 19);
   }
 
   static DateTime _dateTimeFromJson(String dateTime) {
