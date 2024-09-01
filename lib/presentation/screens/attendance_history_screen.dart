@@ -33,7 +33,7 @@ class AttendanceHistoryScreen extends ViewModelWidget<AttendanceHistoryViewModel
   ViewModelProvider<AttendanceHistoryViewModel> get provider => attendanceHistoryViewModelProvider;
 
   @override
-  void onEvent(BuildContext context, AttendanceHistoryViewModel model, AttendanceHistoryEvent event) {
+  void onEventEmitted(BuildContext context, AttendanceHistoryViewModel model, AttendanceHistoryEvent event) {
     switch (event) {
       case AttendanceHistoryEvent.showSnackbar:
         ToastHelper.show(context, model.snackbarMessage ?? "");
