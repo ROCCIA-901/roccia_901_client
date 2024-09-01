@@ -20,16 +20,18 @@ enum UserRole {
 /// 순서 바꿀 시에 정기 지점이 먼저 와야 함.
 /// 정기 지점 갯수 Constant 수정 필수.
 enum Location {
-  @JsonValue("더클라임 문래")
-  theclimbMullae,
-  @JsonValue("더클라임 일산")
-  theclimbIlsan,
-  @JsonValue("더클라임 양재")
-  theclimbYangjae,
+  @JsonValue("더클라임 사당")
+  theclimbSadang,
   @JsonValue("더클라임 신림")
   theclimbSillim,
+  @JsonValue("더클라임 양재")
+  theclimbYangjae,
   @JsonValue("더클라임 연남")
   theclimbYeonnam,
+  @JsonValue("더클라임 일산")
+  theclimbIlsan,
+  @JsonValue("더클라임 문래")
+  theclimbMullae,
   @JsonValue("더클라임 마곡")
   theclimbMagok,
   @JsonValue("더클라임 홍대")
@@ -38,8 +40,6 @@ enum Location {
   theclimbSeoulUniv,
   @JsonValue("더클라임 강남")
   theclimbGangnam,
-  @JsonValue("더클라임 사당")
-  theclimbSadang,
   @JsonValue("더클라임 신사")
   theclimbSinsa,
   @JsonValue("더클라임 논현")

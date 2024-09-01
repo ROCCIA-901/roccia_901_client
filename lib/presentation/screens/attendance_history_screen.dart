@@ -1,4 +1,5 @@
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -11,6 +12,9 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_enum.dart';
 import '../../presentation/viewmodels/attendance/attendance_history_view_model.dart';
 import '../../constants/size_config.dart';
+import '../../utils/app_loading_overlay.dart';
+import '../../utils/app_router.dart';
+import '../../utils/toast_helper.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/app_custom_bar.dart';
 
@@ -27,6 +31,25 @@ class AttendanceHistoryScreen extends ViewModelWidget<AttendanceHistoryViewModel
 
   @override
   ViewModelProvider<AttendanceHistoryViewModel> get provider => attendanceHistoryViewModelProvider;
+
+  @override
+  void onEventEmitted(BuildContext context, AttendanceHistoryViewModel model, AttendanceHistoryEvent event) {
+    switch (event) {
+      case AttendanceHistoryEvent.showSnackbar:
+        ToastHelper.show(context, model.snackbarMessage ?? "");
+        break;
+      case AttendanceHistoryEvent.showLoading:
+        AppLoadingOverlay.show(context);
+        break;
+      case AttendanceHistoryEvent.hideLoading:
+        AppLoadingOverlay.hide();
+        break;
+      case AttendanceHistoryEvent.navigateToHomeScreen:
+        AutoRouter.of(context).push(LoginRoute(onResult: (BuildContext context, bool _) {
+          AutoRouter.of(context).replace(AttendanceHistoryRoute());
+        }));
+    }
+  }
 
   @override
   Widget buildWidget(BuildContext context, AttendanceHistoryViewModel model) {
