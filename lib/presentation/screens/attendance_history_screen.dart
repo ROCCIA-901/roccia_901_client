@@ -264,11 +264,10 @@ class _AttendanceDetailList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: attendanceDetails.length,
-      itemBuilder: (context, index) {
-        return _AttendanceDetailCard(
+    return Column(
+      children: List.generate(
+        attendanceDetails.length,
+        (index) => _AttendanceDetailCard(
           week: attendanceDetails[index].week,
           loc: Location.toName[attendanceDetails[index].workoutLocation]!.substring(5),
           attendance: attendanceDetails[index].attendanceStatus,
@@ -278,8 +277,8 @@ class _AttendanceDetailList extends StatelessWidget {
               .replaceAll(RegExp(r' '), '')
               .substring(0, 10),
           time: attendanceDetails[index].requestTime,
-        );
-      },
+        ),
+      ),
     );
   }
 }
