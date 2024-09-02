@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mvvm_riverpod/viewmodel.dart';
 import 'package:mvvm_riverpod/viewmodel_provider.dart';
 import 'package:untitled/application/attendance/attendance_use_cases.dart';
+import 'package:untitled/constants/app_constants.dart';
 import 'package:untitled/domain/attendance/user_attendance.dart';
 
 import '../shared/exception_handler_on_viewmodel.dart';
@@ -44,12 +45,18 @@ class AttendanceManagementViewModel extends ViewModel<AttendanceManagementEvent>
 
   Map<String, List<UserAttendance>> _userListToMap(List<UserAttendance> usersRawData) {
     final Map<String, List<UserAttendance>> result = {};
+    List<UserAttendance> oldUsers = [];
     for (var user in usersRawData) {
-      if (result.containsKey(user.workoutLocation)) {
+      if (int.parse(user.generation.replaceAll(RegExp(r'[^0-9]'), '')) < AppConstants.maxGeneration - 1) {
+        oldUsers.add(user);
+      } else if (result.containsKey(user.workoutLocation)) {
         result[user.workoutLocation]!.add(user);
       } else {
         result[user.workoutLocation] = [user];
       }
+    }
+    if (oldUsers.isNotEmpty) {
+      result['OB'] = oldUsers;
     }
     return result;
   }
