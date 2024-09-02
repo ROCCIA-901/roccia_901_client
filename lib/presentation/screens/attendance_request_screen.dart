@@ -193,8 +193,126 @@ class _RequestButton extends StatelessWidget {
         width: double.maxFinite,
         height: double.maxFinite,
         onPressed: () {
-          model.requestAttendance();
+          showDialog(
+            context: context,
+            builder: (context) {
+              return _ConfirmPopup(
+                message: "출석하시겠습니까?",
+                yesColor: AppColors.primary,
+                onYes: () {
+                  model.requestAttendance();
+                },
+              );
+            },
+          );
         },
+      ),
+    );
+  }
+}
+
+class _ConfirmPopup extends StatelessWidget {
+  final String message;
+  final Color yesColor;
+  final void Function() onYes;
+
+  const _ConfirmPopup({
+    super.key,
+    required this.message,
+    required this.yesColor,
+    required this.onYes,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.inter(
+          fontSize: AppSize.of(context).font.headline3,
+          color: Color(0xFF000000),
+        ),
+      ),
+      contentTextStyle: GoogleFonts.inter(
+        fontSize: AppSize.of(context).safeBlockHorizontal * 3.4,
+        color: Color(0xFF000000),
+      ),
+      contentPadding: EdgeInsets.only(
+        top: AppSize.of(context).safeBlockVertical * 5,
+        bottom: AppSize.of(context).safeBlockVertical * 2.5,
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actionsPadding: EdgeInsets.only(bottom: AppSize.of(context).safeBlockVertical * 3),
+      backgroundColor: Color(0xFFFFFFFF),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      buttonPadding: EdgeInsets.symmetric(
+        horizontal: AppSize.of(context).safeBlockHorizontal * 3,
+      ),
+      actions: <Widget>[
+        _ConfirmPopupButton(
+          text: Text(
+            '아니오',
+            style: TextStyle(
+              color: Color(0xFFD1D3D9),
+              fontSize: AppSize.of(context).font.content,
+            ),
+          ),
+          backgroundColor: Color(0xFFF2F2F2),
+          onPressed: (context) => Navigator.of(context).pop(),
+        ),
+        _ConfirmPopupButton(
+          text: Text(
+            '예',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: AppSize.of(context).font.content,
+            ),
+          ),
+          backgroundColor: yesColor,
+          onPressed: (context) {
+            Navigator.of(context).pop();
+            onYes();
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ConfirmPopupButton extends StatelessWidget {
+  final Text text;
+  final Color backgroundColor;
+  final void Function(BuildContext context) onPressed;
+
+  const _ConfirmPopupButton({
+    super.key,
+    required this.text,
+    required this.backgroundColor,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = AppSize.of(context).safeBlockHorizontal * 19.44;
+    final double height = width * 3 / 7;
+    return SizedBox(
+      width: width,
+      height: height,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          backgroundColor: backgroundColor,
+          textStyle: GoogleFonts.inter(
+            fontSize: AppSize.of(context).safeBlockHorizontal * 2.5,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onPressed: () {
+          onPressed(context);
+        },
+        child: text,
       ),
     );
   }
