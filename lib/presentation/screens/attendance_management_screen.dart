@@ -134,6 +134,9 @@ class _AllUserAttendances extends StatelessWidget {
       children.add(_locationText(context, key));
       children.add(_CategoryIndicator());
       children.add(_SubsetUserAttendances(users: value));
+      children.add(
+        SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
+      );
     });
 
     return Column(
@@ -165,12 +168,11 @@ class _SubsetUserAttendances extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: users!.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _UserAttendanceCard(data: users[index]);
-      },
+    return Column(
+      children: List.generate(
+        users.length,
+        (index) => _UserAttendanceCard(data: users[index]),
+      ),
     );
   }
 }
