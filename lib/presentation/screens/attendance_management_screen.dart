@@ -394,8 +394,8 @@ class _UserAttendanceCard extends StatelessWidget {
                         child: Center(
                           child: IconButton(
                             padding: EdgeInsets.all(0),
-                            icon: SvgPicture.asset(
-                              'assets/icons/magnifying_glass.svg',
+                            icon: Image.asset(
+                              'assets/icons/magnifying_glass.png',
                               color: Color(0xFFCAE4C1),
                             ),
                             onPressed: () => AutoRouter.of(context).push(
