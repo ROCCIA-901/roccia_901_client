@@ -143,7 +143,7 @@ class _AllUserAttendances extends StatelessWidget {
 
     return ListView.builder(
       physics: AlwaysScrollableScrollPhysics(),
-      cacheExtent: 1000,
+      cacheExtent: AppSize.of(context).safeBlockVertical * 1000,
       itemCount: children.length,
       itemBuilder: (context, index) {
         return children[index];
