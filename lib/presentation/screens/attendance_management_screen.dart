@@ -105,10 +105,7 @@ class AttendanceManagementScreen extends StatelessWidget {
                     ),
                   ),
                 _ => Expanded(
-                    child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: _AllUserAttendances(users: model.users!),
-                    ),
+                    child: _AllUserAttendances(users: model.users!),
                   ),
               },
             ],
@@ -133,16 +130,24 @@ class _AllUserAttendances extends StatelessWidget {
     users.forEach((key, value) {
       children.add(_locationText(context, key));
       children.add(_CategoryIndicator());
-      children.add(_SubsetUserAttendances(users: value));
+      children.addAll(
+        List.generate(
+          value.length,
+          (index) => _UserAttendanceCard(data: value[index]),
+        ),
+      );
       children.add(
         SizedBox(height: AppSize.of(context).safeBlockHorizontal * 5),
       );
     });
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: children,
+    return ListView.builder(
+      physics: AlwaysScrollableScrollPhysics(),
+      cacheExtent: AppSize.of(context).safeBlockVertical * 1000,
+      itemCount: children.length,
+      itemBuilder: (context, index) {
+        return children[index];
+      },
     );
   }
 
@@ -153,25 +158,6 @@ class _AllUserAttendances extends StatelessWidget {
       style: GoogleFonts.inter(
         color: Colors.black,
         fontSize: AppSize.of(context).font.headline3,
-      ),
-    );
-  }
-}
-
-class _SubsetUserAttendances extends StatelessWidget {
-  final List<UserAttendance> users;
-
-  _SubsetUserAttendances({
-    super.key,
-    required this.users,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(
-        users.length,
-        (index) => _UserAttendanceCard(data: users[index]),
       ),
     );
   }
