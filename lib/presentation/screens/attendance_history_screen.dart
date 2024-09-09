@@ -269,7 +269,7 @@ class _AttendanceDetailList extends StatelessWidget {
         attendanceDetails.length,
         (index) => _AttendanceDetailCard(
           week: attendanceDetails[index].week,
-          loc: Location.toName[attendanceDetails[index].workoutLocation]!.substring(5),
+          loc: Location.toName[attendanceDetails[index].workoutLocation]?.substring(5) ?? "-",
           attendance: attendanceDetails[index].attendanceStatus,
           date: attendanceDetails[index]
               .requestDate

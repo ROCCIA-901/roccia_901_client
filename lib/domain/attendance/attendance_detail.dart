@@ -57,10 +57,10 @@ class AttendanceDetailCount {
 )
 class AttendanceDetailVerbose {
   final int week;
-  Location workoutLocation;
-  String attendanceStatus;
-  String requestDate;
-  String requestTime;
+  final Location? workoutLocation;
+  final String attendanceStatus;
+  final String requestDate;
+  final String requestTime;
 
   AttendanceDetailVerbose({
     required this.week,
