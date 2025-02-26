@@ -64,6 +64,7 @@ See: https://github.com/othneildrew/Best-README-Template/pull/73
   </ul>
 </li>
 <li><a href="#화면-구성">화면 구성</a></li>
+<li><a href="#빠른-시작">빠른 시작</a></li>
 <li><a href="#라이센스">라이센스</a></li>
 <li><a href="#contact">Contact</a></li>
 </ol>
@@ -112,7 +113,16 @@ ROCCIA 901 동아리는 2019년에 처음 결성되어 지속되고 있는 클�
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+# 빠른 시작
 
+### 요구 사항
+
+- Docker & Docker Compose
+
+### Nginx로 실행
+```shell
+docker compose up
+```
 
 <!-- LICENSE -->
 ## 라이센스
