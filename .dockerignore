@@ -4,4 +4,3 @@
 .gitattributes
 **/.git
 *.log
-.env
