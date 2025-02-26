@@ -1,0 +1,7 @@
+.git
+.gitignore
+.gitmodules
+.gitattributes
+**/.git
+*.log
+.env
