@@ -1,0 +1,11 @@
+services:
+  # Nginx로 웹 앱 서빙
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: roccia-frontend:latest
+    container_name: roccia-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
